@@ -70,7 +70,7 @@ export function ProjectDetail() {
       {project.status === 'Contract Pending' && contract && (
         <div className="mb-5">
           <Callout tone="warning">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <span>Contract <b>{contract.id}</b> is awaiting signature. Upload the signed contract to activate this project, then set phase budgets and start work.</span>
               <Button variant="primary" size="sm" icon={<Upload size={13} />} onClick={() => setModal('contract')}>Upload signed contract</Button>
             </div>
@@ -229,9 +229,9 @@ function WorkflowStrip({ f, contractStatus }: { f: ProjectFinancials; contractSt
   ]
   const current = steps.findIndex((s) => !s.done)
   return (
-    <div className="mb-5 flex items-center overflow-x-auto rounded-xl border border-slate-200 bg-white px-4 py-3">
+    <div className="mb-5 flex items-center overflow-x-auto rounded-xl border border-slate-200 bg-white px-3 py-3 sm:px-4">
       {steps.map((s, i) => (
-        <div key={s.label} className="flex flex-1 items-center">
+        <div key={s.label} className="flex flex-1 shrink-0 items-center">
           <div className="flex items-center gap-2 whitespace-nowrap">
             <span className={clsx('flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold',
               s.done ? 'bg-emerald-600 text-white' : i === current ? 'bg-blue-600 text-white ring-4 ring-blue-100' : s.partial ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400')}>
@@ -267,7 +267,7 @@ export function ProfitabilityCard({ f }: { f: ProjectFinancials }) {
           <Stat label="Budget variance"><Variance value={f.budgetVariance} /></Stat>
         </div>
       </div>
-      <div className="mt-3 flex items-center justify-between rounded-lg bg-emerald-50 px-4 py-3 ring-1 ring-emerald-100">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-emerald-50 px-4 py-3 ring-1 ring-emerald-100">
         <div>
           <div className="text-xs font-medium text-emerald-800">Actual profit (earned revenue − actual cost)</div>
           <div className="num text-[11px] text-emerald-700/80">{formatINR(f.earnedRevenue)} − {formatINR(f.actual.total)}</div>

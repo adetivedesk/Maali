@@ -107,7 +107,7 @@ export function ClientInvoiceTable({ invoices, onPay, showProject = true }: { in
               </tr>
               {isOpen && (
                 <tr className="bg-slate-50/70">
-                  <td colSpan={cols + (onPay ? 1 : 0)} className="px-14 py-3">
+                  <td colSpan={cols + (onPay ? 1 : 0)} className="px-5 py-3 sm:px-14">
                     <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Payment history</div>
                     {payments.length === 0 ? <div className="text-sm text-slate-400">No payments yet</div> : (
                       <table className="text-sm">
@@ -174,7 +174,7 @@ export function SupplierInvoiceTable({ views, onPay, showSupplier = true, showPr
               </tr>
               {isOpen && (
                 <tr className="bg-slate-50/70">
-                  <td colSpan={cols} className="px-14 py-3">
+                  <td colSpan={cols} className="px-5 py-3 sm:px-14">
                     <div className="grid gap-6 md:grid-cols-2">
                       <div>
                         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Invoice lines (expenses)</div>

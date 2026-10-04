@@ -97,7 +97,7 @@ export function Dashboard() {
               const n = s.statusCounts[st] ?? 0
               return (
                 <div key={st} className="flex items-center gap-3">
-                  <div className="w-36"><StatusBadge status={st} /></div>
+                  <div className="w-32 shrink-0 sm:w-36"><StatusBadge status={st} /></div>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-navy-700" style={{ width: `${(n / Math.max(db.projects.length, 1)) * 100}%` }} /></div>
                   <span className="num w-6 text-right text-sm font-semibold text-navy-900">{n}</span>
                 </div>
@@ -144,7 +144,7 @@ export function Dashboard() {
 function Attention({ to, text, tone }: { to: string; text: string; tone: 'info' | 'warning' | 'danger' }) {
   const color = { info: 'text-blue-600', warning: 'text-amber-600', danger: 'text-red-600' }[tone]
   return (
-    <Link to={to} className="group flex items-start gap-2.5 px-5 py-2.5 text-[13px] text-slate-700 hover:bg-slate-50">
+    <Link to={to} className="group flex items-start gap-2.5 px-4 py-2.5 sm:px-5 text-[13px] text-slate-700 hover:bg-slate-50">
       <AlertTriangle size={14} className={`mt-0.5 shrink-0 ${color}`} />
       <span className="flex-1">{text}</span>
       <ArrowRight size={14} className="mt-0.5 shrink-0 text-slate-300 group-hover:text-blue-600" />

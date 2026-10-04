@@ -26,13 +26,13 @@ export function Profitability() {
   return (
     <>
       <PageHeader title="Profitability" subtitle="Phase and project profit: Revenue − Material − Own Labour − Outsource − Other Direct = Actual Profit." />
-      <Card bodyClassName="flex flex-wrap items-end gap-3 px-5 py-4">
-        <Field label="Project" className="w-72">
+      <Card bodyClassName="flex flex-wrap items-end gap-3 px-4 py-4 sm:px-5">
+        <Field label="Project" className="w-full sm:w-72">
           <Select value={projectId} onChange={(e) => { setProjectId(e.target.value); setPhaseId(projectPhases(db, e.target.value)[0]?.id ?? '') }}>
             {db.projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </Select>
         </Field>
-        <Field label="Phase" className="w-72">
+        <Field label="Phase" className="w-full sm:w-72">
           <Select value={phaseId} onChange={(e) => setPhaseId(e.target.value)}>
             <option value="">All phases (project total)</option>
             {phases.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}

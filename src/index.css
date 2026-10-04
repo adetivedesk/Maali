@@ -17,3 +17,7 @@ body { background: #f4f6f9; color: #0f172a; -webkit-font-smoothing: antialiased;
   main { padding: 0 !important; overflow: visible !important; }
   body { background: white; }
 }
+
+/* Grid/flex children must be allowed to shrink so wide tables scroll
+   inside their own container instead of widening the page on phones. */
+.grid > * { min-width: 0; }

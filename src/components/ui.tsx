@@ -11,7 +11,7 @@ export function PageHeader({ title, subtitle, actions, crumbs }: { title: ReactN
   return (
     <div className="mb-6">
       {crumbs && (
-        <nav className="mb-1.5 flex items-center gap-1.5 text-xs text-slate-500">
+        <nav className="mb-1.5 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
           {crumbs.map((c, i) => (
             <span key={i} className="flex items-center gap-1.5">
               {i > 0 && <span className="text-slate-300">/</span>}
@@ -21,8 +21,8 @@ export function PageHeader({ title, subtitle, actions, crumbs }: { title: ReactN
         </nav>
       )}
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[22px] font-semibold tracking-tight text-navy-900">{title}</h1>
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold tracking-tight text-navy-900 sm:text-[22px] [&>span]:flex-wrap">{title}</h1>
           {subtitle && <div className="mt-1 text-sm text-slate-500">{subtitle}</div>}
         </div>
         {actions && <div className="no-print flex flex-wrap items-center gap-2">{actions}</div>}
@@ -35,7 +35,7 @@ export function Card({ title, subtitle, actions, children, className, bodyClassN
   return (
     <section className={clsx('rounded-xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]', className)}>
       {(title || actions) && (
-        <header className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-3.5">
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-3.5 sm:px-5">
           <div>
             <h2 className="text-sm font-semibold text-navy-900">{title}</h2>
             {subtitle && <p className="mt-0.5 text-xs text-slate-500">{subtitle}</p>}
@@ -43,7 +43,7 @@ export function Card({ title, subtitle, actions, children, className, bodyClassN
           {actions && <div className="no-print flex items-center gap-2">{actions}</div>}
         </header>
       )}
-      <div className={clsx(bodyClassName ?? 'p-5')}>{children}</div>
+      <div className={clsx(bodyClassName ?? 'p-4 sm:p-5')}>{children}</div>
     </section>
   )
 }
@@ -56,12 +56,12 @@ const toneText: Record<Tone, string> = {
 
 export function Kpi({ label, value, sub, tone = 'neutral', icon, to }: { label: string; value: ReactNode; sub?: ReactNode; tone?: Tone; icon?: ReactNode; to?: string }) {
   const body = (
-    <div className={clsx('h-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]', to && 'transition hover:border-blue-300 hover:shadow-sm')}>
+    <div className={clsx('h-full rounded-xl border border-slate-200 bg-white px-3 py-3 sm:px-4 sm:py-3.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]', to && 'transition hover:border-blue-300 hover:shadow-sm')}>
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{label}</span>
+        <span className="text-[10.5px] font-medium uppercase tracking-wide text-slate-500 sm:text-[11px]">{label}</span>
         {icon && <span className="text-slate-400">{icon}</span>}
       </div>
-      <div className={clsx('mt-1.5 text-xl font-semibold tracking-tight', toneText[tone])}>{value}</div>
+      <div className={clsx('mt-1.5 break-words text-lg font-semibold tracking-tight sm:text-xl', toneText[tone])}>{value}</div>
       {sub && <div className="mt-0.5 text-xs text-slate-500">{sub}</div>}
     </div>
   )
@@ -69,8 +69,8 @@ export function Kpi({ label, value, sub, tone = 'neutral', icon, to }: { label: 
 }
 
 export function KpiGrid({ children, cols = 4 }: { children: ReactNode; cols?: 3 | 4 | 5 | 6 }) {
-  const c = { 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5', 6: 'lg:grid-cols-6' }[cols]
-  return <div className={clsx('grid grid-cols-2 gap-3', c)}>{children}</div>
+  const c = { 3: 'md:grid-cols-3', 4: 'md:grid-cols-4', 5: 'md:grid-cols-3 xl:grid-cols-5', 6: 'md:grid-cols-3 xl:grid-cols-6' }[cols]
+  return <div className={clsx('grid grid-cols-2 gap-2.5 sm:gap-3', c)}>{children}</div>
 }
 
 // ---- Status badges -----------------------------------------------------------
@@ -154,7 +154,7 @@ export function Progress({ value, className, tone }: { value: number; className?
 export function Table({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div className={clsx('overflow-x-auto', className)}>
-      <table className="w-full border-collapse text-sm">{children}</table>
+      <table className="w-full border-collapse text-sm max-md:min-w-max">{children}</table>
     </div>
   )
 }
@@ -248,7 +248,7 @@ export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: { id: 
           key={t.id}
           type="button"
           onClick={() => onChange(t.id)}
-          className={clsx('-mb-px whitespace-nowrap border-b-2 px-3.5 py-2.5 text-sm font-medium transition', value === t.id ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-800')}
+          className={clsx('-mb-px whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition sm:px-3.5', value === t.id ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-800')}
         >
           {t.label}
           {t.count !== undefined && <span className="ml-1.5 rounded-full bg-slate-100 px-1.5 py-px text-[11px] text-slate-500">{t.count}</span>}
@@ -259,7 +259,7 @@ export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: { id: 
 }
 
 export function FilterBar({ children }: { children: ReactNode }) {
-  return <div className="no-print flex flex-wrap items-center gap-2 border-b border-slate-100 px-5 py-3">{children}</div>
+  return <div className="no-print flex flex-wrap items-center gap-2 border-b border-slate-100 px-4 py-3 max-sm:*:w-full sm:px-5">{children}</div>
 }
 
 // ---- Overlays ----------------------------------------------------------------
@@ -273,17 +273,17 @@ export function Modal({ open, onClose, title, subtitle, children, footer, width 
   }, [open, onClose])
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/40 p-4 pt-[6vh] backdrop-blur-[2px]" onMouseDown={onClose}>
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/40 p-2 pt-4 backdrop-blur-[2px] sm:p-4 sm:pt-[6vh]" onMouseDown={onClose}>
       <div className={clsx('w-full rounded-2xl bg-white shadow-2xl', width)} onMouseDown={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-4 py-4 sm:px-6">
           <div>
             <h3 className="text-base font-semibold text-navy-900">{title}</h3>
             {subtitle && <p className="mt-0.5 text-xs text-slate-500">{subtitle}</p>}
           </div>
           <button type="button" onClick={onClose} className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600" aria-label="Close"><X size={18} /></button>
         </div>
-        <div className="px-6 py-5">{children}</div>
-        {footer && <div className="flex justify-end gap-2 rounded-b-2xl border-t border-slate-100 bg-slate-50/70 px-6 py-3.5">{footer}</div>}
+        <div className="px-4 py-4 sm:px-6 sm:py-5">{children}</div>
+        {footer && <div className="flex flex-wrap justify-end gap-2 rounded-b-2xl border-t border-slate-100 bg-slate-50/70 px-4 py-3.5 sm:px-6">{footer}</div>}
       </div>
     </div>
   )
@@ -308,7 +308,7 @@ export function Callout({ tone = 'info', children }: { tone?: 'info' | 'warning'
 export function ToastHost() {
   const { toasts } = useStore()
   return (
-    <div className="no-print pointer-events-none fixed bottom-5 right-5 z-[60] flex flex-col gap-2">
+    <div className="no-print pointer-events-none fixed bottom-4 left-4 right-4 z-[60] flex flex-col items-end gap-2 sm:bottom-5 sm:left-auto sm:right-5">
       {toasts.map((t) => (
         <div key={t.id} className={clsx('pointer-events-auto flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-lg', t.tone === 'error' ? 'bg-red-600' : t.tone === 'info' ? 'bg-navy-800' : 'bg-emerald-600')}>
           {t.tone === 'error' ? <XCircle size={16} /> : <CheckCircle2 size={16} />}
@@ -322,7 +322,7 @@ export function ToastHost() {
 /** Label/value row for summary panels. */
 export function Stat({ label, children, strong, border = true }: { label: ReactNode; children: ReactNode; strong?: boolean; border?: boolean }) {
   return (
-    <div className={clsx('flex items-center justify-between gap-4 py-2 text-sm', border && 'border-b border-slate-100 last:border-0', strong && 'font-semibold text-navy-900')}>
+    <div className={clsx('flex items-center justify-between gap-x-4 gap-y-0.5 py-2 text-sm', border && 'border-b border-slate-100 last:border-0', strong && 'font-semibold text-navy-900')}>
       <span className={strong ? '' : 'text-slate-600'}>{label}</span>
       <span className="num text-right">{children}</span>
     </div>

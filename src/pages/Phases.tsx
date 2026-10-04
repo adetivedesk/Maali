@@ -25,7 +25,7 @@ export function Phases() {
         <FilterBar>
           <Select className="w-64" value={project} onChange={(e) => setProject(e.target.value)}><option value="">All projects</option>{db.projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</Select>
           <Select className="w-48" value={status} onChange={(e) => setStatus(e.target.value)}><option value="">All statuses</option>{PHASE_STATUSES.map((s) => <option key={s}>{s}</option>)}</Select>
-          <span className="ml-auto text-xs text-slate-500">Status flow: Planned → In Progress → Completed → Billed → Payment Received → Closed</span>
+          <span className="text-xs text-slate-500 lg:ml-auto">Status flow: Planned → In Progress → Completed → Billed → Payment Received → Closed</span>
         </FilterBar>
         <Table>
           <thead><tr><Th>Phase</Th><Th>Project</Th><Th right>Revenue</Th><Th right>Planned</Th><Th right>Actual</Th><Th right>Variance</Th><Th right>Actual profit</Th><Th right>Margin</Th><Th right>Billed</Th><Th right>Pending</Th><Th>Completion</Th><Th>Status</Th></tr></thead>

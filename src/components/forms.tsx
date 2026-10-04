@@ -136,7 +136,7 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
       subtitle="Every cost is booked against Project → Phase so profitability updates instantly."
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" disabled={!valid} onClick={save}>Save expense</Button></>}
     >
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Field label="Project">
           <Select value={projectId} onChange={(e) => { setProjectId(e.target.value); setPhaseId(projectPhases(db, e.target.value)[0]?.id ?? '') }}>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.shortName} ({p.id})</option>)}
@@ -150,7 +150,7 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
         <Field label="Date"><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>
       </div>
 
-      <div className="mt-4 grid grid-cols-4 gap-2">
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {CATEGORY_TABS.map((t) => (
           <button
             key={t.id}
@@ -163,16 +163,16 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
         ))}
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-3">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Field label={category === 'labour' ? 'Worker type' : 'Cost type'}>
           <Select value={subType} onChange={(e) => changeSubType(e.target.value)}>
             {EXPENSE_SUBTYPES[category].map((s) => <option key={s}>{s}</option>)}
           </Select>
         </Field>
         {category === 'labour' ? (
-          <Field label="Worker name" className="col-span-2"><Input value={workerName} onChange={(e) => setWorkerName(e.target.value)} placeholder="e.g. Murugan" /></Field>
+          <Field label="Worker name" className="sm:col-span-2"><Input value={workerName} onChange={(e) => setWorkerName(e.target.value)} placeholder="e.g. Murugan" /></Field>
         ) : (
-          <Field label="Description" className="col-span-2"><Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder={category === 'material' ? 'e.g. OPC 53 grade cement' : 'e.g. Painting outsource – exterior'} /></Field>
+          <Field label="Description" className="sm:col-span-2"><Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder={category === 'material' ? 'e.g. OPC 53 grade cement' : 'e.g. Painting outsource – exterior'} /></Field>
         )}
       </div>
 
@@ -181,7 +181,7 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
         <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500"><Calculator size={14} /> Cost calculation</div>
 
         {category === 'material' && (
-          <div className="grid grid-cols-4 items-end gap-3">
+          <div className="grid grid-cols-2 items-end gap-3 sm:grid-cols-4">
             <Field label="Quantity"><NumberInput value={quantity} onChange={setQuantity} min={0} /></Field>
             <Field label="Unit"><Select value={unit} onChange={(e) => setUnit(e.target.value)}>{MATERIAL_UNITS.map((u) => <option key={u}>{u}</option>)}</Select></Field>
             <Field label="Unit rate (₹)"><NumberInput value={rate} onChange={setRate} min={0} /></Field>
@@ -190,7 +190,7 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
         )}
 
         {category === 'labour' && (
-          <div className="grid grid-cols-4 items-end gap-3">
+          <div className="grid grid-cols-2 items-end gap-3 sm:grid-cols-4">
             <Field label="Daily rate (₹)"><NumberInput value={dailyRate} onChange={setDailyRate} min={0} /></Field>
             <Field label="Working days"><NumberInput value={days} onChange={setDays} min={0} /></Field>
             <Field label="OT hours" hint="Optional · not costed yet"><NumberInput value={otHours} onChange={setOtHours} min={0} /></Field>
@@ -208,13 +208,13 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
               ))}
             </div>
             {basis === 'fixed' ? (
-              <div className="grid grid-cols-4 items-end gap-3">
+              <div className="grid grid-cols-2 items-end gap-3 sm:grid-cols-4">
                 <Field label="Contract amount (₹)" className="col-span-2"><NumberInput value={fixedAmount} onChange={setFixedAmount} min={0} /></Field>
-                <div />
+                <div className="hidden sm:block" />
                 <CalcResult formula="Fixed contract" amount={amount} />
               </div>
             ) : (
-              <div className="grid grid-cols-4 items-end gap-3">
+              <div className="grid grid-cols-2 items-end gap-3 sm:grid-cols-4">
                 <Field label="Quantity / Area"><NumberInput value={quantity} onChange={setQuantity} min={0} /></Field>
                 <Field label="Unit"><Select value={unit} onChange={(e) => setUnit(e.target.value)}>{OUTSOURCE_UNITS.map((u) => <option key={u}>{u}</option>)}</Select></Field>
                 <Field label={`Rate (₹ / ${unit})`}><NumberInput value={rate} onChange={setRate} min={0} /></Field>
@@ -225,9 +225,9 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
         )}
 
         {category === 'other' && (
-          <div className="grid grid-cols-4 items-end gap-3">
+          <div className="grid grid-cols-2 items-end gap-3 sm:grid-cols-4">
             <Field label="Amount (₹)" className="col-span-2"><NumberInput value={otherAmount} onChange={setOtherAmount} min={0} /></Field>
-            <div />
+            <div className="hidden sm:block" />
             <CalcResult formula="Direct cost" amount={amount} />
           </div>
         )}
@@ -236,7 +236,7 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
       {needsSupplier && (
         <div className="mt-4 rounded-xl border border-slate-200 p-4">
           <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Supplier invoice (payable)</div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <Field label="Supplier">
               <Select value={supplierId} onChange={(e) => { setSupplierId(e.target.value); setExistingInvoice('') }}>
                 <option value="">Select supplier…</option>
@@ -261,7 +261,7 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
             )}
           </div>
           {invoiceMode === 'new' && (
-            <div className="mt-3 grid grid-cols-3 gap-3">
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
               <Field label="Invoice date"><Input type="date" value={invoiceDate} onChange={(e) => { setInvoiceDate(e.target.value); setDueDate(addDays(e.target.value, 30)) }} /></Field>
               <Field label="Due date"><Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} /></Field>
               <Field label="Payment status"><Input disabled value="Unpaid — record payment in Suppliers" /></Field>
@@ -339,14 +339,14 @@ export function SupplierPaymentForm({ open, onClose, supplierInvoiceId, supplier
             </Select>
           </Field>
           {inv && (
-            <div className="mt-3 grid grid-cols-4 gap-3 rounded-lg bg-slate-50 p-3 text-sm">
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4 rounded-lg bg-slate-50 p-3 text-sm">
               <div><div className="text-xs text-slate-500">Invoice amount</div><div className="num font-semibold">{formatINR(inv.amount)}</div></div>
               <div><div className="text-xs text-slate-500">Paid so far</div><div className="num font-semibold text-emerald-700">{formatINR(inv.paid)}</div></div>
               <div><div className="text-xs text-slate-500">Pending</div><div className="num font-semibold text-red-600">{formatINR(inv.pending)}</div></div>
               <div><div className="text-xs text-slate-500">Due date</div><div className="font-semibold">{formatDate(inv.dueDate)}</div></div>
             </div>
           )}
-          <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Amount (₹)" hint={inv && num(amount) > inv.pending ? <span className="text-red-600">Cannot exceed pending amount</span> : inv && `Balance after payment: ${formatINR(inv.pending - num(amount))}`}>
               <NumberInput value={amount} onChange={setAmount} min={0} />
             </Field>
@@ -416,7 +416,7 @@ export function ClientInvoiceForm({ open, onClose, projectId: pDefault, phaseId:
   return (
     <Modal open={open} onClose={onClose} title="Generate Client Invoice" subtitle="Bill a phase in full or as a running bill (% of phase value)."
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" disabled={!valid} onClick={save}>Generate invoice</Button></>}>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Project">
           <Select value={projectId} onChange={(e) => { setProjectId(e.target.value); pickPhase(projectPhases(db, e.target.value).find((p) => p.contractValue - phaseBilling(db, p.id).billed > 0)?.id ?? '') }}>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.shortName} ({p.id})</option>)}
@@ -431,7 +431,7 @@ export function ClientInvoiceForm({ open, onClose, projectId: pDefault, phaseId:
       </div>
       {info && (
         <>
-          <div className="mt-3 grid grid-cols-3 gap-3 rounded-lg bg-slate-50 p-3 text-sm">
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 rounded-lg bg-slate-50 p-3 text-sm">
             <div><div className="text-xs text-slate-500">Phase contract value</div><div className="num font-semibold">{formatINR(info.ph.contractValue)}</div></div>
             <div><div className="text-xs text-slate-500">Already billed</div><div className="num font-semibold">{formatINR(info.billed)}</div></div>
             <div><div className="text-xs text-slate-500">Unbilled</div><div className="num font-semibold text-blue-700">{formatINR(info.unbilled)}</div></div>
@@ -444,7 +444,7 @@ export function ClientInvoiceForm({ open, onClose, projectId: pDefault, phaseId:
           </div>
         </>
       )}
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Invoice amount (₹)" hint={info && num(amount) > info.unbilled ? <span className="text-red-600">Exceeds unbilled phase value</span> : undefined}>
           <NumberInput value={amount} onChange={setAmount} min={0} />
         </Field>
@@ -514,7 +514,7 @@ export function ClientPaymentForm({ open, onClose, invoiceId, projectId }: { ope
               <Stat label="Balance" strong><span className="text-red-600">{formatINR(pending)}</span></Stat>
             </div>
           )}
-          <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Amount received (₹)" hint={num(amount) > pending ? <span className="text-red-600">Cannot exceed balance</span> : `Balance after receipt: ${formatINR(pending - num(amount))}`}>
               <NumberInput value={amount} onChange={setAmount} min={0} />
             </Field>

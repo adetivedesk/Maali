@@ -95,14 +95,14 @@ export function ClosureReport() {
         </div>
       )}
 
-      <div className="mx-auto max-w-5xl space-y-5 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm print:border-0 print:p-0 print:shadow-none">
-        <div className="flex items-start justify-between border-b border-slate-200 pb-5">
+      <div className="mx-auto max-w-5xl space-y-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-8 print:border-0 print:p-0 print:shadow-none">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-5">
           <div>
             <div className="text-xs font-semibold uppercase tracking-widest text-blue-600">Final project financial summary</div>
-            <h2 className="mt-1 text-2xl font-semibold text-navy-900">{project.name}</h2>
+            <h2 className="mt-1 text-xl font-semibold text-navy-900 sm:text-2xl">{project.name}</h2>
             <div className="mt-1 text-sm text-slate-500">{client?.name} · {project.location}</div>
           </div>
-          <div className="text-right">
+          <div className="sm:text-right">
             <StatusBadge status={project.status} className="text-xs" />
             {closure && <div className="mt-2 text-xs text-slate-500">Closed {formatDate(closure.closedDate)} by {closure.closedBy}</div>}
           </div>

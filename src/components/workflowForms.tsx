@@ -31,11 +31,11 @@ export function ClientForm({ open, onClose, onCreated }: { open: boolean; onClos
   return (
     <Modal open={open} onClose={onClose} title="New Client" width="max-w-xl"
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" disabled={!valid} onClick={save}>Create client</Button></>}>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Company name" className="col-span-2"><Input value={f.name} onChange={set('name')} /></Field>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <Field label="Company name" className="sm:col-span-2"><Input value={f.name} onChange={set('name')} /></Field>
         <Field label="Contact person"><Input value={f.contactPerson} onChange={set('contactPerson')} /></Field>
         <Field label="Phone"><Input value={f.phone} onChange={set('phone')} placeholder="+91" /></Field>
-        <Field label="Email" className="col-span-2"><Input type="email" value={f.email} onChange={set('email')} /></Field>
+        <Field label="Email" className="sm:col-span-2"><Input type="email" value={f.email} onChange={set('email')} /></Field>
         <Field label="City"><Input value={f.city} onChange={set('city')} /></Field>
         <Field label="State"><Input value={f.state} onChange={set('state')} /></Field>
       </div>
@@ -85,7 +85,7 @@ export function QuotationForm({ open, onClose, clientId: cDefault }: { open: boo
     <>
       <Modal open={open && !newClient} onClose={onClose} width="max-w-3xl" title="New Quotation" subtitle="Each line item becomes a project phase when the quote is converted."
         footer={<><Button onClick={onClose}>Cancel</Button><Button disabled={!valid} onClick={() => save('Draft')}>Save draft</Button><Button variant="primary" disabled={!valid} onClick={() => save('Sent')}>Save & mark sent</Button></>}>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="Client">
             <div className="flex gap-2">
               <Select value={clientId} onChange={(e) => setClientId(e.target.value)}>
@@ -96,14 +96,14 @@ export function QuotationForm({ open, onClose, clientId: cDefault }: { open: boo
           </Field>
           <Field label="Project name"><Input value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="e.g. Lakeview Apartments – Trichy" /></Field>
           <Field label="Site location"><Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, State" /></Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Quote date"><Input type="date" value={quoteDate} onChange={(e) => setQuoteDate(e.target.value)} /></Field>
             <Field label="Valid until"><Input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} /></Field>
           </div>
         </div>
 
-        <div className="mt-5 overflow-hidden rounded-xl border border-slate-200">
-          <table className="w-full text-sm">
+        <div className="mt-5 overflow-x-auto rounded-xl border border-slate-200">
+          <table className="w-full min-w-[560px] text-sm">
             <thead className="bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
               <tr><th className="px-3 py-2 text-left">Scope / phase</th><th className="w-40 px-3 py-2 text-right">Quote value (₹)</th><th className="w-40 px-3 py-2 text-right">Est. cost (₹)</th><th className="w-28 px-3 py-2 text-right">Margin</th><th className="w-10" /></tr>
             </thead>
@@ -157,7 +157,7 @@ export function ConvertQuoteForm({ open, onClose, quotationId }: { open: boolean
   return (
     <Modal open={open} onClose={onClose} title={`Convert ${q.id} → Project`} subtitle={q.projectName}
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="success" onClick={save}>Create project</Button></>}>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Field label="Project manager"><Select value={pm} onChange={(e) => setPm(e.target.value)}>{PROJECT_MANAGERS.map((m) => <option key={m}>{m}</option>)}</Select></Field>
         <Field label="Start date"><Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} /></Field>
         <Field label="Expected completion"><Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} /></Field>
@@ -201,7 +201,7 @@ export function ContractUploadForm({ open, onClose, contractId }: { open: boolea
         <span className="text-xs text-slate-400">PDF up to 20 MB · demo: file is not actually stored</span>
         <input type="file" className="hidden" accept=".pdf" onChange={(e) => e.target.files?.[0] && setFileName(e.target.files[0].name)} />
       </label>
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Signed date"><Input type="date" value={signedDate} onChange={(e) => setSignedDate(e.target.value)} /></Field>
         <Field label="Contract value"><Input disabled value={formatINR(c.value)} /></Field>
       </div>
@@ -240,12 +240,12 @@ export function PhaseForm({ open, onClose, projectId, phaseId }: { open: boolean
   return (
     <Modal open={open} onClose={onClose} title={existing ? `Set Phase Budget — ${existing.name}` : 'Add Phase'} width="max-w-xl"
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" disabled={!valid} onClick={save}>Save</Button></>}>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Phase name"><Input value={name} disabled={!!existing} onChange={(e) => setName(e.target.value)} /></Field>
         <Field label="Phase contract value (₹)" hint={coLinked ? 'Set by change order' : undefined}><NumberInput value={contractValue} disabled={coLinked} onChange={setContractValue} /></Field>
       </div>
       <div className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Planned cost (budget)</div>
-      <div className="mt-2 grid grid-cols-2 gap-3">
+      <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {COST_CATEGORIES.map((k) => (
           <Field key={k} label={`${COST_LABEL[k]} (₹)`}><NumberInput value={budget[k]} onChange={(v) => setBudget({ ...budget, [k]: v })} /></Field>
         ))}
@@ -288,9 +288,9 @@ export function ChangeOrderForm({ open, onClose, projectId: pDefault }: { open: 
   return (
     <Modal open={open} onClose={onClose} title="New Change Order" subtitle="Additional work after the original contract." width="max-w-xl"
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" disabled={!valid} onClick={save}>Save change order</Button></>}>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Project" className="col-span-2"><Select value={projectId} onChange={(e) => setProjectId(e.target.value)}>{projects.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</Select></Field>
-        <Field label="Description" className="col-span-2"><Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g. Additional compound wall construction" /></Field>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <Field label="Project" className="sm:col-span-2"><Select value={projectId} onChange={(e) => setProjectId(e.target.value)}>{projects.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</Select></Field>
+        <Field label="Description" className="sm:col-span-2"><Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g. Additional compound wall construction" /></Field>
         <Field label="Additional revenue (₹)"><NumberInput value={revenue} onChange={setRevenue} /></Field>
         <Field label="Estimated cost (₹)"><NumberInput value={estimatedCost} onChange={setEstimatedCost} /></Field>
       </div>
@@ -345,7 +345,7 @@ export function DocumentUploadForm({ open, onClose, projectId: pDefault }: { ope
         <span className="text-xs text-slate-400">Simulated upload — only metadata is stored</span>
         <input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && setFileName(e.target.files[0].name)} />
       </label>
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Document type"><Select value={type} onChange={(e) => setType(e.target.value as DocumentType)}>{DOC_TYPES.map((t) => <option key={t}>{t}</option>)}</Select></Field>
         <Field label="Project"><Select value={projectId} onChange={(e) => setProjectId(e.target.value)}>{db.projects.map((p) => <option key={p.id} value={p.id}>{p.shortName}</option>)}</Select></Field>
         <Field label="Linked to"><Select value={entityType} onChange={(e) => { setEntityType(e.target.value as DocumentEntity); setEntityId('') }}>{(['Project', 'Phase', 'Quotation', 'Contract', 'Invoice', 'Expense', 'Supplier'] as DocumentEntity[]).map((t) => <option key={t}>{t}</option>)}</Select></Field>
@@ -382,7 +382,7 @@ export function CloseProjectDialog({ open, onClose, projectId }: { open: boolean
           </li>
         ))}
       </ul>
-      <div className="mt-4 grid grid-cols-2 gap-4 rounded-xl bg-slate-50 px-4 py-2">
+      <div className="mt-4 grid grid-cols-1 gap-x-4 rounded-xl bg-slate-50 px-4 py-2 sm:grid-cols-2">
         <div>
           <Stat label="Final revenue">{formatINR(f.revenue)}</Stat>
           <Stat label="Final cost">{formatINR(f.actual.total)}</Stat>

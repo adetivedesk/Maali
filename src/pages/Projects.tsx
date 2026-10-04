@@ -38,7 +38,7 @@ export function Projects() {
           <Select className="w-40" value={status} onChange={(e) => setStatus(e.target.value)}><option value="">All statuses</option>{statuses.map((s) => <option key={s}>{s}</option>)}</Select>
           <Select className="w-52" value={client} onChange={(e) => setClient(e.target.value)}><option value="">All clients</option>{db.clients.filter((c) => db.projects.some((p) => p.clientId === c.id)).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</Select>
           <Select className="w-48" value={pm} onChange={(e) => setPm(e.target.value)}><option value="">All project managers</option>{pms.map((m) => <option key={m}>{m}</option>)}</Select>
-          <div className="flex items-center gap-1.5 text-xs text-slate-500">Active between <Input type="date" className="w-36" value={from} onChange={(e) => setFrom(e.target.value)} /> and <Input type="date" className="w-36" value={to} onChange={(e) => setTo(e.target.value)} /></div>
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500">Active between <Input type="date" className="w-36 max-sm:flex-1" value={from} onChange={(e) => setFrom(e.target.value)} /> and <Input type="date" className="w-36 max-sm:flex-1" value={to} onChange={(e) => setTo(e.target.value)} /></div>
           {(q || status || client || pm || from || to) && <Button variant="ghost" size="sm" onClick={() => { setQ(''); setStatus(''); setClient(''); setPm(''); setFrom(''); setTo('') }}>Clear</Button>}
         </FilterBar>
         <Table>

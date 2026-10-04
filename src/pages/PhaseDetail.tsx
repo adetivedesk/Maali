@@ -45,9 +45,9 @@ export function PhaseDetail() {
       />
 
       {!done && !closed && (
-        <Card className="mb-5" bodyClassName="flex items-center gap-4 px-5 py-3">
+        <Card className="mb-5" bodyClassName="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-5">
           <span className="text-sm font-medium text-slate-600">Physical progress</span>
-          <input type="range" min={0} max={100} step={5} value={phase.progress} onChange={(e) => commit(A.setPhaseProgress(db, phase.id, Number(e.target.value)))} className="h-1.5 flex-1 accent-blue-600" />
+          <input type="range" min={0} max={100} step={5} value={phase.progress} onChange={(e) => commit(A.setPhaseProgress(db, phase.id, Number(e.target.value)))} className="h-1.5 min-w-40 flex-1 accent-blue-600" />
           <span className="num w-12 text-right text-sm font-semibold">{phase.progress}%</span>
           <Button size="sm" variant="success" onClick={() => commit(A.setPhaseStatus(db, phase.id, 'Completed'), `${phase.name} marked completed`)}>Mark completed</Button>
         </Card>
@@ -66,7 +66,7 @@ export function PhaseDetail() {
         <Kpi label="Completion" value={formatPct(f.completion, 0)} sub={<Progress value={f.completion} className="mt-1" />} />
       </KpiGrid>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-4">
+      <div className="mt-5 grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-4">
         {COST_CATEGORIES.map((k) => {
           const used = f.planned[k] ? (f.actual[k] / f.planned[k]) * 100 : 0
           return (
