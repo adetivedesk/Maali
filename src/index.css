@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --color-navy-950: #0a1628;
+  --color-navy-900: #0f1f3a;
+  --color-navy-800: #172a4d;
+  --color-navy-700: #22396a;
+}
+
+html, body, #root { height: 100%; }
+body { background: #f4f6f9; color: #0f172a; -webkit-font-smoothing: antialiased; }
+.num { font-variant-numeric: tabular-nums; }
+
+@media print {
+  aside, header, .no-print { display: none !important; }
+  main { padding: 0 !important; overflow: visible !important; }
+  body { background: white; }
+}
