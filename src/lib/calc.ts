@@ -8,10 +8,11 @@ import { today } from './format'
 // these functions. A future backend can return the same shapes from its own
 // endpoints (e.g. GET /projects/:id/financials) and the UI stays unchanged.
 //
-// Revenue recognition: a phase "earns" its contract value in proportion to its
-// completion %. Actual profit = earned revenue − actual cost, so an unfinished
-// phase does not show its full contract value as profit. For a completed phase
-// this equals Revenue − Actual Cost exactly.
+// Profit recognition (MVP): profit is recognised only when a phase is
+// completed. Actual profit = contract value of completed phases − their actual
+// cost. Cost already spent on unfinished phases is reported as work in progress
+// (WIP), not as a loss. Billed profit (billed − actual cost) and forecast
+// profit (final revenue − expected final cost) are reported alongside.
 // ---------------------------------------------------------------------------
 
 export const COST_CATEGORIES: CostCategory[] = ['material', 'labour', 'outsource', 'other']
@@ -64,21 +65,27 @@ export function phaseFinancials(db: Database, p: Phase) {
   const actual = actualCost(db, p.id)
   const completion = phaseCompletion(p)
   const revenue = p.contractValue
-  const earnedRevenue = (revenue * completion) / 100
+  const done = isPhaseDone(p)
+  const completedRevenue = done ? revenue : 0
+  const completedCost = done ? actual.total : 0
   const expectedProfit = revenue - planned.total
-  const actualProfit = earnedRevenue - actual.total
-  const estimateAtCompletion = completion >= 100 ? actual.total : Math.max(actual.total, planned.total)
+  const actualProfit = completedRevenue - completedCost
+  const estimateAtCompletion = done ? actual.total : Math.max(actual.total, planned.total)
   const billing = phaseBilling(db, p.id)
   return {
     revenue,
-    earnedRevenue,
+    done,
+    completedRevenue,
+    completedCost,
+    wipCost: done ? 0 : actual.total,
     planned,
     actual,
     completion,
     expectedProfit,
     expectedMargin: profitMargin(expectedProfit, revenue),
     actualProfit,
-    actualMargin: profitMargin(actualProfit, earnedRevenue),
+    actualMargin: profitMargin(actualProfit, completedRevenue),
+    billedProfit: billing.billed - actual.total,
     budgetVariance: actual.total - planned.total, // negative = under budget
     budgetUsedPct: planned.total > 0 ? (actual.total / planned.total) * 100 : 0,
     estimateAtCompletion,
@@ -168,9 +175,13 @@ export function projectFinancials(db: Database, projectId: string) {
   const revenue = originalContract + changeOrderRevenue
   const planned = addBreakdowns(pf.map((f) => f.planned))
   const actual = addBreakdowns(pf.map((f) => f.actual))
-  const earnedRevenue = sum(pf.map((f) => f.earnedRevenue))
+  const completedRevenue = sum(pf.map((f) => f.completedRevenue))
+  const completedCost = sum(pf.map((f) => f.completedCost))
+  const wipCost = sum(pf.map((f) => f.wipCost))
   const expectedProfit = revenue - planned.total
-  const actualProfit = earnedRevenue - actual.total
+  // budgeted profit of the phases that are now complete, for variance
+  const completedExpected = sum(pf.filter((f) => f.done).map((f) => f.expectedProfit))
+  const actualProfit = completedRevenue - completedCost
   const estimateAtCompletion = sum(pf.map((f) => f.estimateAtCompletion))
 
   const invoices = db.clientInvoices.filter((i) => i.projectId === projectId)
@@ -188,14 +199,17 @@ export function projectFinancials(db: Database, projectId: string) {
     originalContract,
     changeOrderRevenue,
     revenue,
-    earnedRevenue,
+    completedRevenue,
+    completedCost,
+    completedActual: addBreakdowns(pf.filter((f) => f.done).map((f) => f.actual)),
+    wipCost,
     planned,
     actual,
     expectedProfit,
     expectedMargin: profitMargin(expectedProfit, revenue),
     actualProfit,
-    actualMargin: profitMargin(actualProfit, earnedRevenue),
-    profitVariance: actualProfit - (expectedProfit * earnedRevenue) / (revenue || 1),
+    actualMargin: profitMargin(actualProfit, completedRevenue),
+    profitVariance: actualProfit - completedExpected,
     budgetVariance: actual.total - planned.total,
     estimateAtCompletion,
     forecastProfit: revenue - estimateAtCompletion,
@@ -204,6 +218,7 @@ export function projectFinancials(db: Database, projectId: string) {
     billed,
     received,
     clientPending: billed - received,
+    billedProfit: billed - actual.total,
     clientOverdue,
     unbilled: revenue - billed,
     supplierInvoiced: sup.invoiced,
@@ -266,7 +281,7 @@ const PORTFOLIO_STATUSES: Project['status'][] = ['Active', 'On Hold', 'Completed
 export function portfolioSummary(db: Database) {
   const projects = db.projects.filter((p) => PORTFOLIO_STATUSES.includes(p.status))
   const fins = projects.map((p) => projectFinancials(db, p.id))
-  const earned = sum(fins.map((f) => f.earnedRevenue))
+  const completedRevenue = sum(fins.map((f) => f.completedRevenue))
   const actualProfit = sum(fins.map((f) => f.actualProfit))
   return {
     fins,
@@ -284,9 +299,13 @@ export function portfolioSummary(db: Database) {
     supplierPaid: sum(fins.map((f) => f.supplierPaid)),
     supplierPayable: sum(fins.map((f) => f.supplierPending)),
     supplierOverdue: sum(fins.map((f) => f.supplierOverdue)),
-    earnedRevenue: earned,
+    completedRevenue,
+    wipCost: sum(fins.map((f) => f.wipCost)),
     actualProfit,
-    averageMargin: profitMargin(actualProfit, earned),
+    averageMargin: profitMargin(actualProfit, completedRevenue),
+    billedProfit: sum(fins.map((f) => f.billedProfit)),
+    forecastProfit: sum(fins.map((f) => f.forecastProfit)),
+    forecastMargin: profitMargin(sum(fins.map((f) => f.forecastProfit)), sum(fins.map((f) => f.revenue))),
     statusCounts: db.projects.reduce<Record<string, number>>((acc, p) => ({ ...acc, [p.status]: (acc[p.status] ?? 0) + 1 }), {}),
   }
 }

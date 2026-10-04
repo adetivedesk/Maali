@@ -39,15 +39,17 @@ export function Dashboard() {
     <>
       <PageHeader title="Management Dashboard" subtitle="Portfolio-wide view of contracted value, cash, cost and profit." />
 
-      <KpiGrid cols={4}>
-        <Kpi label="Active Projects" value={s.activeProjects} sub={`${s.totalProjects} projects in portfolio`} icon={<Briefcase size={16} />} to="/projects" />
-        <Kpi label="Total Contract Value" value={formatCompact(s.contractValue)} sub="incl. approved change orders" icon={<Coins size={16} />} />
-        <Kpi label="Total Amount Received" value={formatCompact(s.received)} sub={`of ${formatCompact(s.billed)} billed`} tone="positive" icon={<Banknote size={16} />} to="/payments" />
+      <KpiGrid cols={5}>
+        <Kpi label="Contract Value" value={formatCompact(s.contractValue)} sub={`${s.activeProjects} active of ${s.totalProjects} projects · incl. COs`} icon={<Coins size={16} />} to="/projects" />
+        <Kpi label="Billed" value={formatCompact(s.billed)} sub={`billed profit ${formatCompact(s.billedProfit)}`} icon={<Briefcase size={16} />} to="/billing" />
+        <Kpi label="Received" value={formatCompact(s.received)} sub="cash collected" tone="positive" icon={<Banknote size={16} />} to="/payments" />
         <Kpi label="Client Receivable" value={formatCompact(s.clientReceivable)} sub={<span className={s.clientOverdue ? 'text-red-600' : ''}>{formatCompact(s.clientOverdue)} overdue</span>} tone="negative" icon={<HandCoins size={16} />} to="/billing" />
-        <Kpi label="Total Project Cost" value={formatCompact(s.actualCost)} sub={`planned ${formatCompact(s.plannedCost)}`} icon={<Receipt size={16} />} to="/expenses" />
         <Kpi label="Supplier Payable" value={formatCompact(s.supplierPayable)} sub={<span className={s.supplierOverdue ? 'text-red-600' : ''}>{formatCompact(s.supplierOverdue)} overdue</span>} tone="warning" icon={<Truck size={16} />} to="/suppliers" />
-        <Kpi label="Actual Profit" value={formatCompact(s.actualProfit)} sub="on work completed to date" tone="positive" icon={<PiggyBank size={16} />} to="/profitability" />
-        <Kpi label="Average Profit Margin" value={formatPct(s.averageMargin)} sub={`on ${formatCompact(s.earnedRevenue)} earned revenue`} tone="positive" icon={<TrendingUp size={16} />} to="/profitability" />
+        <Kpi label="Planned Cost" value={formatCompact(s.plannedCost)} sub="original estimated cost" icon={<Receipt size={16} />} to="/profitability" />
+        <Kpi label="Actual Cost" value={formatCompact(s.actualCost)} sub={`${formatCompact(s.wipCost)} in work in progress`} icon={<Receipt size={16} />} to="/expenses" />
+        <Kpi label="Completed Revenue" value={formatCompact(s.completedRevenue)} sub="value of completed phases" icon={<Coins size={16} />} to="/phases" />
+        <Kpi label="Actual Profit" value={formatCompact(s.actualProfit)} sub={`${formatPct(s.averageMargin)} on completed phases`} tone="positive" icon={<PiggyBank size={16} />} to="/profitability" />
+        <Kpi label="Forecast Profit" value={formatCompact(s.forecastProfit)} sub={`${formatPct(s.forecastMargin)} at completion`} tone="positive" icon={<TrendingUp size={16} />} to="/profitability" />
       </KpiGrid>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
@@ -57,7 +59,7 @@ export function Dashboard() {
         <Card title="Planned Cost vs Actual Cost" subtitle="Total budget against cost booked so far">
           <BarsChart data={chartData} xKey="name" series={[{ key: 'planned', label: 'Planned cost', color: SERIES.blue }, { key: 'cost', label: 'Actual cost', color: SERIES.orange }]} />
         </Card>
-        <Card title="Project Profitability" subtitle="Actual profit to date (earned revenue − actual cost)">
+        <Card title="Project Profitability" subtitle="Actual profit on completed phases (contract value − actual cost)">
           <SignedBars data={s.fins.map((f) => ({ name: f.project.shortName, value: Math.round(f.actualProfit) }))} label="Actual profit" />
         </Card>
         <Card title="Cost Distribution" subtitle="Actual cost by category">

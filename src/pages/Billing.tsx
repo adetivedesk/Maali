@@ -41,7 +41,7 @@ export function Billing() {
 
       <Card className="mt-5" title="Ready to bill" subtitle="Phases in progress or completed with unbilled contract value." bodyClassName="">
         <Table>
-          <thead><tr><Th>Phase</Th><Th>Project</Th><Th>Status</Th><Th>Completion</Th><Th right>Phase value</Th><Th right>Billed</Th><Th right>Earned − billed</Th><Th right>Unbilled</Th><Th /></tr></thead>
+          <thead><tr><Th>Phase</Th><Th>Project</Th><Th>Status</Th><Th>Completion</Th><Th right>Phase value</Th><Th right>Billed</Th><Th right>Billable now</Th><Th right>Unbilled</Th><Th /></tr></thead>
           <tbody>
             {unbilled.length === 0 && <EmptyRow cols={9}>Everything is billed</EmptyRow>}
             {unbilled.map(({ p, f }) => (
@@ -52,7 +52,7 @@ export function Billing() {
                 <Td className="w-32"><Progress value={f.completion} /></Td>
                 <Td right><Money value={f.revenue} /></Td>
                 <Td right><Money value={f.billed} /></Td>
-                <Td right><Money value={Math.max(f.earnedRevenue - f.billed, 0)} className={f.earnedRevenue - f.billed > 0 ? 'font-medium text-blue-700' : 'text-slate-400'} /></Td>
+                <Td right><Money value={f.done ? f.unbilled : 0} className={f.done && f.unbilled > 0 ? 'font-medium text-blue-700' : 'text-slate-400'} /></Td>
                 <Td right><Money value={f.unbilled} /></Td>
                 <Td><Button size="sm" variant={p.status === 'Completed' ? 'primary' : 'secondary'} onClick={() => setInvoiceFor({ projectId: p.projectId, phaseId: p.id })}>{p.status === 'Completed' ? 'Bill now' : 'Running bill'}</Button></Td>
               </tr>

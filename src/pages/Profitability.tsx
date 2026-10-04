@@ -16,16 +16,17 @@ export function Profitability() {
   const pf = projectFinancials(db, projectId)
   const view = phase ? phaseFinancials(db, phase) : null
 
+  const ZERO = { material: 0, labour: 0, outsource: 0, other: 0, total: 0 }
   // Unify phase / project view
   const v = view
-    ? { revenue: view.revenue, earned: view.earnedRevenue, planned: view.planned, actual: view.actual, expected: view.expectedProfit, expectedMargin: view.expectedMargin, profit: view.actualProfit, margin: view.actualMargin, forecast: view.forecastProfit, completion: view.completion }
-    : { revenue: pf.revenue, earned: pf.earnedRevenue, planned: pf.planned, actual: pf.actual, expected: pf.expectedProfit, expectedMargin: pf.expectedMargin, profit: pf.actualProfit, margin: pf.actualMargin, forecast: pf.forecastProfit, completion: pf.completion }
+    ? { revenue: view.revenue, recognised: view.completedRevenue, recognisedCost: view.done ? view.actual : ZERO, wip: view.wipCost, billedProfit: view.billedProfit, planned: view.planned, actual: view.actual, expected: view.expectedProfit, expectedMargin: view.expectedMargin, profit: view.actualProfit, margin: view.actualMargin, forecast: view.forecastProfit, completion: view.completion }
+    : { revenue: pf.revenue, recognised: pf.completedRevenue, recognisedCost: pf.completedActual, wip: pf.wipCost, billedProfit: pf.billedProfit, planned: pf.planned, actual: pf.actual, expected: pf.expectedProfit, expectedMargin: pf.expectedMargin, profit: pf.actualProfit, margin: pf.actualMargin, forecast: pf.forecastProfit, completion: pf.completion }
 
   const all = db.projects.filter((p) => !['Draft', 'Quotation', 'Rejected', 'Cancelled'].includes(p.status)).map((p) => projectFinancials(db, p.id))
 
   return (
     <>
-      <PageHeader title="Profitability" subtitle="Phase and project profit: Revenue − Material − Own Labour − Outsource − Other Direct = Actual Profit." />
+      <PageHeader title="Profitability" subtitle="Profit is recognised when a phase completes: revenue − material − own labour − outsource − other direct." />
       <Card bodyClassName="flex flex-wrap items-end gap-3 px-4 py-4 sm:px-5">
         <Field label="Project" className="w-full sm:w-72">
           <Select value={projectId} onChange={(e) => { setProjectId(e.target.value); setPhaseId(projectPhases(db, e.target.value)[0]?.id ?? '') }}>
@@ -43,21 +44,22 @@ export function Profitability() {
 
       <div className="mt-5">
         <KpiGrid cols={6}>
-          <Kpi label="Revenue" value={formatINR(v.revenue)} sub={`earned ${formatINR(v.earned)}`} />
+          <Kpi label="Revenue" value={formatINR(v.revenue)} sub={`${formatINR(v.recognised)} from completed phases`} />
           <Kpi label="Planned cost" value={formatINR(v.planned.total)} />
           <Kpi label="Actual cost" value={formatINR(v.actual.total)} tone={v.actual.total > v.planned.total ? 'negative' : 'neutral'} />
           <Kpi label="Expected profit" value={formatINR(v.expected)} sub={formatPct(v.expectedMargin)} />
-          <Kpi label="Actual profit" value={formatINR(v.profit)} tone={v.profit >= 0 ? 'positive' : 'negative'} sub={`${formatPct(v.completion, 0)} complete`} />
-          <Kpi label="Profit margin" value={formatPct(v.margin, 2)} tone="positive" sub={`forecast ${formatINR(v.forecast)}`} />
+          <Kpi label="Actual profit" value={v.recognised ? formatINR(v.profit) : 'In progress'} tone={v.profit >= 0 ? 'positive' : 'negative'} sub={`billed profit ${formatINR(v.billedProfit)}`} />
+          <Kpi label="Forecast profit" value={formatINR(v.forecast)} tone="positive" sub={v.recognised ? `actual margin ${formatPct(v.margin, 2)}` : 'at completion'} />
         </KpiGrid>
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-3">
         <Card title="Profit calculation">
-          <Stat label="Earned revenue">{formatINR(v.earned)}</Stat>
-          {COST_CATEGORIES.map((k) => <Stat key={k} label={`− ${COST_LABEL[k]} cost`}>{formatINR(-v.actual[k])}</Stat>)}
+          <Stat label="Revenue of completed phases">{formatINR(v.recognised)}</Stat>
+          {COST_CATEGORIES.map((k) => <Stat key={k} label={`− ${COST_LABEL[k]} cost`}>{formatINR(-v.recognisedCost[k])}</Stat>)}
           <Stat label="= Actual profit" strong><span className={v.profit >= 0 ? 'text-emerald-700' : 'text-red-600'}>{formatINR(v.profit)}</span></Stat>
-          <div className="mt-2 text-xs text-slate-500">Margin = {formatINR(v.profit)} ÷ {formatINR(v.earned)} × 100 = <b>{formatPct(v.margin, 2)}</b></div>
+          <div className="mt-2 text-xs text-slate-500">Margin = {formatINR(v.profit)} ÷ {formatINR(v.recognised)} × 100 = <b>{formatPct(v.margin, 2)}</b></div>
+          {v.wip > 0 && <div className="mt-1 text-xs text-slate-500">Not in profit yet: <b>{formatINR(v.wip)}</b> cost on unfinished phases (work in progress).</div>}
         </Card>
         <Card title="Cost breakdown">
           <SplitMeter parts={COST_CATEGORIES.filter((k) => k !== 'other' || v.actual.other > 0).map((k) => ({ label: COST_LABEL[k], value: v.actual[k], color: COST_COLORS[k] }))} />
@@ -83,8 +85,8 @@ export function Profitability() {
                   {COST_CATEGORIES.map((k) => <Td key={k} right><Money value={f.actual[k]} /></Td>)}
                   <Td right><Money value={f.actual.total} /></Td>
                   <Td right><Variance value={f.budgetVariance} /></Td>
-                  <Td right><Money value={f.actualProfit} signTone /></Td>
-                  <Td right>{f.earnedRevenue ? formatPct(f.actualMargin) : '—'}</Td>
+                  <Td right>{f.done ? <Money value={f.actualProfit} signTone /> : <span className="text-xs text-slate-400">WIP</span>}</Td>
+                  <Td right>{f.done ? formatPct(f.actualMargin) : '—'}</Td>
                 </tr>
               )
             })}
@@ -119,7 +121,7 @@ export function Profitability() {
             ))}
           </tbody>
         </Table>
-        <p className="px-5 py-3 text-xs text-slate-500">Profit variance compares actual profit with expected profit pro-rated to the work completed. Forecast profit assumes unfinished phases land at the higher of budget or cost already incurred.</p>
+        <p className="px-5 py-3 text-xs text-slate-500">Profit variance compares actual profit with the budgeted profit of the same completed phases. Forecast profit assumes unfinished phases land at the higher of budget or cost already incurred.</p>
       </Card>
     </>
   )

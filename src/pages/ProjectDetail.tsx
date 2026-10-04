@@ -103,7 +103,7 @@ export function ProjectDetail() {
             <Kpi label="Planned cost" value={formatCompact(f.planned.total)} />
             <Kpi label="Actual cost" value={formatCompact(f.actual.total)} sub={`${formatPct(f.planned.total ? (f.actual.total / f.planned.total) * 100 : 0, 0)} of budget used`} />
             <Kpi label="Expected profit" value={formatCompact(f.expectedProfit)} sub={`${formatPct(f.expectedMargin)} margin`} />
-            <Kpi label="Actual profit" value={formatCompact(f.actualProfit)} tone={f.actualProfit >= 0 ? 'positive' : 'negative'} sub={`${formatPct(f.actualMargin)} on earned revenue`} />
+            <Kpi label="Actual profit" value={formatCompact(f.actualProfit)} tone={f.actualProfit >= 0 ? 'positive' : 'negative'} sub={`${formatPct(f.actualMargin)} on completed phases`} />
             <Kpi label="Supplier pending" value={formatCompact(f.supplierPending)} tone={f.supplierPending ? 'warning' : 'neutral'} sub={f.supplierOverdue ? `${formatCompact(f.supplierOverdue)} overdue` : undefined} />
           </KpiGrid>
 
@@ -248,14 +248,15 @@ function WorkflowStrip({ f, contractStatus }: { f: ProjectFinancials; contractSt
 
 export function ProfitabilityCard({ f }: { f: ProjectFinancials }) {
   return (
-    <Card title="Project profitability" subtitle="Revenue − direct cost. Actual profit recognises revenue by % completion.">
+    <Card title="Project profitability" subtitle="Profit is recognised when a phase completes; cost on unfinished phases is work in progress.">
       <div className="grid gap-x-8 md:grid-cols-2">
         <div>
           <Stat label="Original contract">{formatINR(f.originalContract)}</Stat>
           <Stat label="+ Approved change orders">{formatINR(f.changeOrderRevenue)}</Stat>
           <Stat label="Total project revenue" strong>{formatINR(f.revenue)}</Stat>
-          <Stat label="Earned revenue to date">{formatINR(f.earnedRevenue)}</Stat>
+          <Stat label="Revenue of completed phases">{formatINR(f.completedRevenue)}</Stat>
           <Stat label="Expected profit (at budget)">{formatINR(f.expectedProfit)} <span className="text-xs text-slate-400">· {formatPct(f.expectedMargin)}</span></Stat>
+          <Stat label="Billed profit (billed − all cost)"><span className={f.billedProfit < 0 ? 'text-red-600' : ''}>{formatINR(f.billedProfit)}</span></Stat>
           <Stat label="Forecast profit at completion">{formatINR(f.forecastProfit)} <span className="text-xs text-slate-400">· {formatPct(f.forecastMargin)}</span></Stat>
         </div>
         <div>
@@ -264,13 +265,14 @@ export function ProfitabilityCard({ f }: { f: ProjectFinancials }) {
           <Stat label="Outsource cost">{formatINR(f.actual.outsource)}</Stat>
           <Stat label="Other direct cost">{formatINR(f.actual.other)}</Stat>
           <Stat label="Total project cost" strong>{formatINR(f.actual.total)}</Stat>
+          <Stat label="of which work in progress">{formatINR(f.wipCost)}</Stat>
           <Stat label="Budget variance"><Variance value={f.budgetVariance} /></Stat>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-emerald-50 px-4 py-3 ring-1 ring-emerald-100">
         <div>
-          <div className="text-xs font-medium text-emerald-800">Actual profit (earned revenue − actual cost)</div>
-          <div className="num text-[11px] text-emerald-700/80">{formatINR(f.earnedRevenue)} − {formatINR(f.actual.total)}</div>
+          <div className="text-xs font-medium text-emerald-800">Actual profit (completed phases: revenue − cost)</div>
+          <div className="num text-[11px] text-emerald-700/80">{formatINR(f.completedRevenue)} − {formatINR(f.completedCost)}</div>
         </div>
         <div className="text-right">
           <div className={clsx('num text-xl font-semibold', f.actualProfit >= 0 ? 'text-emerald-700' : 'text-red-600')}>{formatINR(f.actualProfit)}</div>
@@ -328,7 +330,7 @@ function PhaseTable({ projectId, onBudget, onAdd, readOnly }: { projectId: strin
                 <Td right><Money value={pf.planned.total} compact /></Td>
                 <Td right><Money value={pf.actual.total} compact /></Td>
                 <Td right><Variance value={pf.budgetVariance} compact /></Td>
-                <Td right><Money value={pf.actualProfit} compact signTone /></Td>
+                <Td right>{pf.done ? <Money value={pf.actualProfit} compact signTone /> : <span className="text-xs text-slate-400">WIP</span>}</Td>
                 <Td right><Money value={pf.billed} compact /></Td>
                 <Td right><Money value={pf.received} compact /></Td>
                 <Td className="w-40">

@@ -145,11 +145,11 @@ export function ClosureReport() {
               <Stat label="Actual profit">{formatINR(f.actualProfit)}</Stat>
               <Stat label="Profit margin">{formatPct(f.actualMargin, 2)}</Stat>
               <Stat label="Budget variance (actual − planned)"><Variance value={f.budgetVariance} /></Stat>
-              <Stat label="Profit variance vs expected"><Money value={f.actualProfit - f.expectedProfit * (f.earnedRevenue / (f.revenue || 1))} signTone /></Stat>
+              <Stat label="Profit variance vs expected"><Money value={f.profitVariance} signTone /></Stat>
             </div>
             <div className="rounded-xl bg-navy-900 p-5 text-white">
               <div className="text-xs uppercase tracking-wide text-slate-300">Final profit</div>
-              <div className="num mt-1 text-xs text-slate-400">{formatINR(f.earnedRevenue)} − {formatINR(f.actual.total)}</div>
+              <div className="num mt-1 text-xs text-slate-400">{formatINR(f.completedRevenue)} − {formatINR(f.completedCost)}</div>
               <div className="num mt-1 text-3xl font-semibold">{formatINR(f.actualProfit)}</div>
               <div className="mt-1 text-sm text-emerald-300">{formatPct(f.actualMargin, 2)} margin</div>
             </div>

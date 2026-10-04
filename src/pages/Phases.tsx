@@ -39,8 +39,8 @@ export function Phases() {
                 <Td right><Money value={f.planned.total} compact /></Td>
                 <Td right><Money value={f.actual.total} compact /></Td>
                 <Td right><Variance value={f.budgetVariance} compact /></Td>
-                <Td right><Money value={f.actualProfit} compact signTone /></Td>
-                <Td right>{f.earnedRevenue ? formatPct(f.actualMargin) : '—'}</Td>
+                <Td right>{f.done ? <Money value={f.actualProfit} compact signTone /> : <span className="text-xs text-slate-400">WIP</span>}</Td>
+                <Td right>{f.done ? formatPct(f.actualMargin) : '—'}</Td>
                 <Td right><Money value={f.billed} compact /></Td>
                 <Td right><Money value={f.clientPending} compact className={f.clientPending ? 'text-red-600' : 'text-slate-400'} /></Td>
                 <Td className="w-32"><Progress value={f.completion} /></Td>

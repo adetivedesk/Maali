@@ -54,12 +54,12 @@ export function PhaseDetail() {
       )}
 
       <KpiGrid cols={5}>
-        <Kpi label="Contract revenue" value={formatINR(f.revenue)} sub={`earned ${formatCompact(f.earnedRevenue)}`} />
+        <Kpi label="Contract revenue" value={formatINR(f.revenue)} sub={f.done ? 'recognised — phase complete' : 'recognised when phase completes'} />
         <Kpi label="Planned cost" value={formatINR(f.planned.total)} sub={`expected profit ${formatCompact(f.expectedProfit)}`} />
         <Kpi label="Actual cost" value={formatINR(f.actual.total)} tone={f.budgetVariance > 0 ? 'negative' : 'neutral'} sub={`${formatPct(f.budgetUsedPct, 0)} of budget`} />
-        <Kpi label="Actual profit" value={formatINR(f.actualProfit)} tone={f.actualProfit >= 0 ? 'positive' : 'negative'} />
-        <Kpi label="Profit margin" value={formatPct(f.actualMargin, 2)} tone="positive" sub={`expected ${formatPct(f.expectedMargin)}`} />
-        <Kpi label="Billed" value={formatINR(f.billed)} sub={`${formatCompact(f.unbilled)} unbilled`} />
+        <Kpi label="Actual profit" value={f.done ? formatINR(f.actualProfit) : 'In progress'} tone={f.done ? (f.actualProfit >= 0 ? 'positive' : 'negative') : 'neutral'} sub={f.done ? 'revenue − actual cost' : `${formatCompact(f.wipCost)} cost in work in progress`} />
+        <Kpi label="Profit margin" value={f.done ? formatPct(f.actualMargin, 2) : '—'} tone="positive" sub={`expected ${formatPct(f.expectedMargin)}`} />
+        <Kpi label="Billed" value={formatINR(f.billed)} sub={`${formatCompact(f.unbilled)} unbilled · billed profit ${formatCompact(f.billedProfit)}`} />
         <Kpi label="Received" value={formatINR(f.received)} tone="positive" />
         <Kpi label="Pending" value={formatINR(f.clientPending)} tone={f.clientPending ? 'negative' : 'neutral'} />
         <Kpi label="Forecast profit" value={formatINR(f.forecastProfit)} sub="at completion" />

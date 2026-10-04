@@ -28,6 +28,9 @@ Screens never compute money inline. Every figure comes from `calc.ts`.
 - **Expense ≠ payment.** An expense is a cost booked to Project → Phase. A supplier invoice is a payable, and supplier payments reduce it.
 - **Own labour** = daily rate × days. **Outsource** = fixed amount, or quantity × rate (sq.ft, sq.m, running ft, …).
 - **Change orders.** Approving one adds its revenue to the project and creates a phase to track its cost.
-- **Revenue recognition.** Actual profit = earned revenue (phase value × completion %) − actual cost. A completed phase therefore shows Revenue − Actual Cost. A phase that is 10% done does not show its whole contract value as profit. Expected profit (at budget) and forecast profit at completion are shown alongside.
+- **Profit recognition.** Profit is recognised only when a phase is completed: actual profit = contract value of completed phases − their actual cost. Cost already spent on unfinished phases is shown as work in progress (WIP), not as a loss. Three other figures are shown alongside:
+  - billed profit = billed − all actual cost
+  - expected profit = revenue − planned cost
+  - forecast profit = final revenue − expected final cost, where unfinished phases count at the higher of their budget or the cost so far
 - **Cash position** = client receipts − supplier payments − own labour/direct site payments. It is kept separate from profit.
 - **Phase status follows billing.** A completed phase that is fully billed becomes *Billed*. Once fully received it becomes *Payment Received*. When all phases are done, an Active project becomes *Completed*.
