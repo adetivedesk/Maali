@@ -188,7 +188,11 @@ export function addExpense(db: Database, input: Omit<Expense, 'id' | 'supplierIn
     supplierInvoiceId = sin.id
   }
   const expense: Expense = { ...input, id: nextId(db.expenses, 'EXP-'), supplierInvoiceId }
-  return [{ ...next, expenses: [...next.expenses, expense] }, expense]
+  next = { ...next, expenses: [...next.expenses, expense] }
+  // Booking cost against a phase that has not started means work has begun.
+  const phase = next.phases.find((p) => p.id === input.phaseId)
+  if (phase?.status === 'Planned') next = setPhaseStatus(next, phase.id, 'In Progress')
+  return [next, expense]
 }
 
 export function deleteExpense(db: Database, expenseId: string): Database {

@@ -6,7 +6,22 @@ A frontend prototype for managing civil engineering projects. It covers the full
 npm install
 npm run dev        # http://localhost:5173
 npm run build      # typecheck + production build
+npm test           # data-integrity audit, worked examples, money identities, full workflow
+npm run figures    # regenerate docs/figures.json after changing the demo seed
 ```
+
+### Every number is calculated, never typed
+
+- **Seed data:** `src/data/seed.ts` stores only primary facts: line items, invoices, payments and budgets.
+- **Audit:** `src/lib/audit.ts` checks that the stored facts agree with the values the calculation layer derives from them:
+  - every amount equals quantity × rate or daily rate × days
+  - no payment exceeds its invoice
+  - each contract value equals the sum of its phases, and each quote equals its project
+  - phase statuses match billing
+  - dates run in order
+- **Tests:** `npm test` fails if the seed breaks any of these rules. It also fails if a workflow action (convert, cost, pay, bill, change order, close) leaves the data inconsistent.
+- **Documentation figures:** every figure quoted in documentation comes from `docs/figures.json`. `npm run figures` builds that file from the same calculation code the app uses, and a test fails if it is stale.
+- **As-of date:** overdue status depends on the date, so the demo is pinned to an **as-of date of 04-Oct-2026**, shown in the header. This keeps the figures stable over time. Set `VITE_AS_OF_DATE=live` to use the real date, or `VITE_AS_OF_DATE=YYYY-MM-DD` for another snapshot.
 
 Demo data is saved in `localStorage`. Use **Reset demo data** in the top bar to restore the original seed.
 

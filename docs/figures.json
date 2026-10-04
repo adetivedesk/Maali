@@ -1,0 +1,2343 @@
+{
+  "asOf": "2026-10-04",
+  "portfolio": {
+    "projects": 3,
+    "activeProjects": 2,
+    "contractValue": 17550000,
+    "billed": 7450000,
+    "received": 6050000,
+    "clientReceivable": 1400000,
+    "clientOverdue": 200000,
+    "supplierInvoiced": 5463550,
+    "supplierPaid": 3959450,
+    "supplierPayable": 1504100,
+    "supplierOverdue": 495600,
+    "plannedCost": 11830000,
+    "actualCost": 6636850,
+    "actualByCategory": {
+      "material": 3746550,
+      "labour": 1083300,
+      "outsource": 1717000,
+      "other": 90000,
+      "total": 6636850
+    },
+    "wipCost": 1650900,
+    "completedRevenue": 7600000,
+    "actualProfit": 2614050,
+    "actualMargin": 34.4,
+    "billedProfit": 813150,
+    "forecastProfit": 5934050,
+    "forecastMargin": 33.81,
+    "forecastCost": 11615950,
+    "clientInvoiceCount": 10,
+    "overdueClientInvoices": 1
+  },
+  "counts": {
+    "clients": 6,
+    "projects": 3,
+    "quotations": 6,
+    "quotationItems": 23,
+    "contracts": 3,
+    "phases": 15,
+    "expenses": 74,
+    "suppliers": 7,
+    "supplierInvoices": 34,
+    "supplierPayments": 32,
+    "clientInvoices": 10,
+    "clientPayments": 15,
+    "changeOrders": 3,
+    "documents": 14,
+    "closures": 0
+  },
+  "projects": {
+    "PRJ-2026-001": {
+      "name": "ABC Residential Villa – Chennai",
+      "shortName": "ABC Villa",
+      "status": "Active",
+      "originalContract": 5000000,
+      "changeOrderRevenue": 500000,
+      "revenue": 5500000,
+      "plannedCost": 3700000,
+      "actualCost": 1461400,
+      "actualByCategory": {
+        "material": 897600,
+        "labour": 275800,
+        "outsource": 288000,
+        "other": 0,
+        "total": 1461400
+      },
+      "completedRevenue": 800000,
+      "completedCost": 510000,
+      "wipCost": 951400,
+      "completedPhases": 1,
+      "phases": 5,
+      "actualProfit": 290000,
+      "actualMargin": 36.25,
+      "expectedProfit": 1800000,
+      "expectedMargin": 32.73,
+      "forecastProfit": 1840000,
+      "forecastMargin": 33.45,
+      "billedProfit": 88600,
+      "budgetVariance": -2238600,
+      "profitVariance": 40000,
+      "completion": 36.18,
+      "billed": 1550000,
+      "received": 900000,
+      "clientPending": 650000,
+      "clientOverdue": 200000,
+      "unbilled": 3950000,
+      "supplierInvoiced": 1185600,
+      "supplierPaid": 694000,
+      "supplierPending": 491600,
+      "supplierOverdue": 117600,
+      "directPaid": 275800,
+      "cashPosition": -69800
+    },
+    "PRJ-2026-002": {
+      "name": "Green Valley Commercial Building",
+      "shortName": "Green Valley",
+      "status": "Active",
+      "originalContract": 8250000,
+      "changeOrderRevenue": 0,
+      "revenue": 8250000,
+      "plannedCost": 5500000,
+      "actualCost": 2651900,
+      "actualByCategory": {
+        "material": 1405900,
+        "labour": 380000,
+        "outsource": 816000,
+        "other": 50000,
+        "total": 2651900
+      },
+      "completedRevenue": 3000000,
+      "completedCost": 1952400,
+      "wipCost": 699500,
+      "completedPhases": 2,
+      "phases": 5,
+      "actualProfit": 1047600,
+      "actualMargin": 34.92,
+      "expectedProfit": 2750000,
+      "expectedMargin": 33.33,
+      "forecastProfit": 2817600,
+      "forecastMargin": 34.15,
+      "billedProfit": -551900,
+      "budgetVariance": -2848100,
+      "profitVariance": 67600,
+      "completion": 47.27,
+      "billed": 2100000,
+      "received": 1600000,
+      "clientPending": 500000,
+      "clientOverdue": 0,
+      "unbilled": 6150000,
+      "supplierInvoiced": 2221900,
+      "supplierPaid": 1306400,
+      "supplierPending": 915500,
+      "supplierOverdue": 281000,
+      "directPaid": 430000,
+      "cashPosition": -136400
+    },
+    "PRJ-2026-003": {
+      "name": "SRK Warehouse Development",
+      "shortName": "SRK Warehouse",
+      "status": "Completed",
+      "originalContract": 3500000,
+      "changeOrderRevenue": 300000,
+      "revenue": 3800000,
+      "plannedCost": 2630000,
+      "actualCost": 2523550,
+      "actualByCategory": {
+        "material": 1443050,
+        "labour": 427500,
+        "outsource": 613000,
+        "other": 40000,
+        "total": 2523550
+      },
+      "completedRevenue": 3800000,
+      "completedCost": 2523550,
+      "wipCost": 0,
+      "completedPhases": 5,
+      "phases": 5,
+      "actualProfit": 1276450,
+      "actualMargin": 33.59,
+      "expectedProfit": 1170000,
+      "expectedMargin": 30.79,
+      "forecastProfit": 1276450,
+      "forecastMargin": 33.59,
+      "billedProfit": 1276450,
+      "budgetVariance": -106450,
+      "profitVariance": 106450,
+      "completion": 100,
+      "billed": 3800000,
+      "received": 3550000,
+      "clientPending": 250000,
+      "clientOverdue": 0,
+      "unbilled": 0,
+      "supplierInvoiced": 2056050,
+      "supplierPaid": 1959050,
+      "supplierPending": 97000,
+      "supplierOverdue": 97000,
+      "directPaid": 467500,
+      "cashPosition": 1123450
+    }
+  },
+  "phases": {
+    "PH-001": {
+      "name": "Foundation",
+      "projectId": "PRJ-2026-001",
+      "status": "Billed",
+      "done": true,
+      "completion": 100,
+      "revenue": 800000,
+      "planned": {
+        "material": 220000,
+        "labour": 130000,
+        "outsource": 200000,
+        "other": 0,
+        "total": 550000
+      },
+      "actual": {
+        "material": 210000,
+        "labour": 120000,
+        "outsource": 180000,
+        "other": 0,
+        "total": 510000
+      },
+      "actualProfit": 290000,
+      "actualMargin": 36.25,
+      "expectedProfit": 250000,
+      "expectedMargin": 31.25,
+      "forecastProfit": 290000,
+      "wipCost": 0,
+      "budgetVariance": -40000,
+      "budgetUsedPct": 92.73,
+      "categoryUsedPct": {
+        "material": 95.45,
+        "labour": 92.31,
+        "outsource": 90,
+        "other": 0
+      },
+      "billed": 800000,
+      "received": 600000,
+      "clientPending": 200000,
+      "unbilled": 0,
+      "billedProfit": 290000
+    },
+    "PH-002": {
+      "name": "Structure",
+      "projectId": "PRJ-2026-001",
+      "status": "In Progress",
+      "done": false,
+      "completion": 70,
+      "revenue": 1500000,
+      "planned": {
+        "material": 550000,
+        "labour": 260000,
+        "outsource": 160000,
+        "other": 30000,
+        "total": 1000000
+      },
+      "actual": {
+        "material": 577600,
+        "labour": 140400,
+        "outsource": 108000,
+        "other": 0,
+        "total": 826000
+      },
+      "actualProfit": 0,
+      "actualMargin": 0,
+      "expectedProfit": 500000,
+      "expectedMargin": 33.33,
+      "forecastProfit": 500000,
+      "wipCost": 826000,
+      "budgetVariance": -174000,
+      "budgetUsedPct": 82.6,
+      "categoryUsedPct": {
+        "material": 105.02,
+        "labour": 54,
+        "outsource": 67.5,
+        "other": 0
+      },
+      "billed": 750000,
+      "received": 300000,
+      "clientPending": 450000,
+      "unbilled": 750000,
+      "billedProfit": -76000
+    },
+    "PH-003": {
+      "name": "Electrical & Plumbing",
+      "projectId": "PRJ-2026-001",
+      "status": "In Progress",
+      "done": false,
+      "completion": 20,
+      "revenue": 700000,
+      "planned": {
+        "material": 250000,
+        "labour": 100000,
+        "outsource": 90000,
+        "other": 10000,
+        "total": 450000
+      },
+      "actual": {
+        "material": 110000,
+        "labour": 15400,
+        "outsource": 0,
+        "other": 0,
+        "total": 125400
+      },
+      "actualProfit": 0,
+      "actualMargin": 0,
+      "expectedProfit": 250000,
+      "expectedMargin": 35.71,
+      "forecastProfit": 250000,
+      "wipCost": 125400,
+      "budgetVariance": -324600,
+      "budgetUsedPct": 27.87,
+      "categoryUsedPct": {
+        "material": 44,
+        "labour": 15.4,
+        "outsource": 0,
+        "other": 0
+      },
+      "billed": 0,
+      "received": 0,
+      "clientPending": 0,
+      "unbilled": 700000,
+      "billedProfit": -125400
+    },
+    "PH-004": {
+      "name": "Finishing",
+      "projectId": "PRJ-2026-001",
+      "status": "Planned",
+      "done": false,
+      "completion": 0,
+      "revenue": 2000000,
+      "planned": {
+        "material": 700000,
+        "labour": 300000,
+        "outsource": 350000,
+        "other": 50000,
+        "total": 1400000
+      },
+      "actual": {
+        "material": 0,
+        "labour": 0,
+        "outsource": 0,
+        "other": 0,
+        "total": 0
+      },
+      "actualProfit": 0,
+      "actualMargin": 0,
+      "expectedProfit": 600000,
+      "expectedMargin": 30,
+      "forecastProfit": 600000,
+      "wipCost": 0,
+      "budgetVariance": -1400000,
+      "budgetUsedPct": 0,
+      "categoryUsedPct": {
+        "material": 0,
+        "labour": 0,
+        "outsource": 0,
+        "other": 0
+      },
+      "billed": 0,
+      "received": 0,
+      "clientPending": 0,
+      "unbilled": 2000000,
+      "billedProfit": 0
+    },
+    "PH-005": {
+      "name": "Compound Wall (CO-2026-001)",
+      "projectId": "PRJ-2026-001",
+      "status": "Planned",
+      "done": false,
+      "completion": 0,
+      "revenue": 500000,
+      "planned": {
+        "material": 150000,
+        "labour": 90000,
+        "outsource": 50000,
+        "other": 10000,
+        "total": 300000
+      },
+      "actual": {
+        "material": 0,
+        "labour": 0,
+        "outsource": 0,
+        "other": 0,
+        "total": 0
+      },
+      "actualProfit": 0,
+      "actualMargin": 0,
+      "expectedProfit": 200000,
+      "expectedMargin": 40,
+      "forecastProfit": 200000,
+      "wipCost": 0,
+      "budgetVariance": -300000,
+      "budgetUsedPct": 0,
+      "categoryUsedPct": {
+        "material": 0,
+        "labour": 0,
+        "outsource": 0,
+        "other": 0
+      },
+      "billed": 0,
+      "received": 0,
+      "clientPending": 0,
+      "unbilled": 500000,
+      "billedProfit": 0
+    },
+    "PH-006": {
+      "name": "Site Preparation & Piling",
+      "projectId": "PRJ-2026-002",
+      "status": "Payment Received",
+      "done": true,
+      "completion": 100,
+      "revenue": 1200000,
+      "planned": {
+        "material": 300000,
+        "labour": 120000,
+        "outsource": 380000,
+        "other": 20000,
+        "total": 820000
+      },
+      "actual": {
+        "material": 298400,
+        "labour": 110000,
+        "outsource": 380000,
+        "other": 18000,
+        "total": 806400
+      },
+      "actualProfit": 393600,
+      "actualMargin": 32.8,
+      "expectedProfit": 380000,
+      "expectedMargin": 31.67,
+      "forecastProfit": 393600,
+      "wipCost": 0,
+      "budgetVariance": -13600,
+      "budgetUsedPct": 98.34,
+      "categoryUsedPct": {
+        "material": 99.47,
+        "labour": 91.67,
+        "outsource": 100,
+        "other": 90
+      },
+      "billed": 1200000,
+      "received": 1200000,
+      "clientPending": 0,
+      "unbilled": 0,
+      "billedProfit": 393600
+    },
+    "PH-007": {
+      "name": "Foundation & Basement",
+      "projectId": "PRJ-2026-002",
+      "status": "Completed",
+      "done": true,
+      "completion": 100,
+      "revenue": 1800000,
+      "planned": {
+        "material": 650000,
+        "labour": 250000,
+        "outsource": 250000,
+        "other": 50000,
+        "total": 1200000
+      },
+      "actual": {
+        "material": 637000,
+        "labour": 230000,
+        "outsource": 247000,
+        "other": 32000,
+        "total": 1146000
+      },
+      "actualProfit": 654000,
+      "actualMargin": 36.33,
+      "expectedProfit": 600000,
+      "expectedMargin": 33.33,
+      "forecastProfit": 654000,
+      "wipCost": 0,
+      "budgetVariance": -54000,
+      "budgetUsedPct": 95.5,
+      "categoryUsedPct": {
+        "material": 98,
+        "labour": 92,
+        "outsource": 98.8,
+        "other": 64
+      },
+      "billed": 0,
+      "received": 0,
+      "clientPending": 0,
+      "unbilled": 1800000,
+      "billedProfit": -1146000
+    },
+    "PH-008": {
+      "name": "Superstructure (G+3)",
+      "projectId": "PRJ-2026-002",
+      "status": "In Progress",
+      "done": false,
+      "completion": 30,
+      "revenue": 3000000,
+      "planned": {
+        "material": 1100000,
+        "labour": 450000,
+        "outsource": 400000,
+        "other": 50000,
+        "total": 2000000
+      },
+      "actual": {
+        "material": 470500,
+        "labour": 40000,
+        "outsource": 189000,
+        "other": 0,
+        "total": 699500
+      },
+      "actualProfit": 0,
+      "actualMargin": 0,
+      "expectedProfit": 1000000,
+      "expectedMargin": 33.33,
+      "forecastProfit": 1000000,
+      "wipCost": 699500,
+      "budgetVariance": -1300500,
+      "budgetUsedPct": 34.98,
+      "categoryUsedPct": {
+        "material": 42.77,
+        "labour": 8.89,
+        "outsource": 47.25,
+        "other": 0
+      },
+      "billed": 900000,
+      "received": 400000,
+      "clientPending": 500000,
+      "unbilled": 2100000,
+      "billedProfit": 200500
+    },
+    "PH-009": {
+      "name": "MEP Services",
+      "projectId": "PRJ-2026-002",
+      "status": "Planned",
+      "done": false,
+      "completion": 0,
+      "revenue": 1000000,
+      "planned": {
+        "material": 350000,
+        "labour": 150000,
+        "outsource": 150000,
+        "other": 0,
+        "total": 650000
+      },
+      "actual": {
+        "material": 0,
+        "labour": 0,
+        "outsource": 0,
+        "other": 0,
+        "total": 0
+      },
+      "actualProfit": 0,
+      "actualMargin": 0,
+      "expectedProfit": 350000,
+      "expectedMargin": 35,
+      "forecastProfit": 350000,
+      "wipCost": 0,
+      "budgetVariance": -650000,
+      "budgetUsedPct": 0,
+      "categoryUsedPct": {
+        "material": 0,
+        "labour": 0,
+        "outsource": 0,
+        "other": 0
+      },
+      "billed": 0,
+      "received": 0,
+      "clientPending": 0,
+      "unbilled": 1000000,
+      "billedProfit": 0
+    },
+    "PH-010": {
+      "name": "Facade & Finishing",
+      "projectId": "PRJ-2026-002",
+      "status": "Planned",
+      "done": false,
+      "completion": 0,
+      "revenue": 1250000,
+      "planned": {
+        "material": 400000,
+        "labour": 200000,
+        "outsource": 200000,
+        "other": 30000,
+        "total": 830000
+      },
+      "actual": {
+        "material": 0,
+        "labour": 0,
+        "outsource": 0,
+        "other": 0,
+        "total": 0
+      },
+      "actualProfit": 0,
+      "actualMargin": 0,
+      "expectedProfit": 420000,
+      "expectedMargin": 33.6,
+      "forecastProfit": 420000,
+      "wipCost": 0,
+      "budgetVariance": -830000,
+      "budgetUsedPct": 0,
+      "categoryUsedPct": {
+        "material": 0,
+        "labour": 0,
+        "outsource": 0,
+        "other": 0
+      },
+      "billed": 0,
+      "received": 0,
+      "clientPending": 0,
+      "unbilled": 1250000,
+      "billedProfit": 0
+    },
+    "PH-011": {
+      "name": "Earthwork & Foundation",
+      "projectId": "PRJ-2026-003",
+      "status": "Payment Received",
+      "done": true,
+      "completion": 100,
+      "revenue": 700000,
+      "planned": {
+        "material": 220000,
+        "labour": 100000,
+        "outsource": 160000,
+        "other": 20000,
+        "total": 500000
+      },
+      "actual": {
+        "material": 214000,
+        "labour": 98000,
+        "outsource": 150000,
+        "other": 15000,
+        "total": 477000
+      },
+      "actualProfit": 223000,
+      "actualMargin": 31.86,
+      "expectedProfit": 200000,
+      "expectedMargin": 28.57,
+      "forecastProfit": 223000,
+      "wipCost": 0,
+      "budgetVariance": -23000,
+      "budgetUsedPct": 95.4,
+      "categoryUsedPct": {
+        "material": 97.27,
+        "labour": 98,
+        "outsource": 93.75,
+        "other": 75
+      },
+      "billed": 700000,
+      "received": 700000,
+      "clientPending": 0,
+      "unbilled": 0,
+      "billedProfit": 223000
+    },
+    "PH-012": {
+      "name": "Steel Structure (PEB)",
+      "projectId": "PRJ-2026-003",
+      "status": "Payment Received",
+      "done": true,
+      "completion": 100,
+      "revenue": 1500000,
+      "planned": {
+        "material": 650000,
+        "labour": 120000,
+        "outsource": 250000,
+        "other": 30000,
+        "total": 1050000
+      },
+      "actual": {
+        "material": 665000,
+        "labour": 144000,
+        "outsource": 264000,
+        "other": 25000,
+        "total": 1098000
+      },
+      "actualProfit": 402000,
+      "actualMargin": 26.8,
+      "expectedProfit": 450000,
+      "expectedMargin": 30,
+      "forecastProfit": 402000,
+      "wipCost": 0,
+      "budgetVariance": 48000,
+      "budgetUsedPct": 104.57,
+      "categoryUsedPct": {
+        "material": 102.31,
+        "labour": 120,
+        "outsource": 105.6,
+        "other": 83.33
+      },
+      "billed": 1500000,
+      "received": 1500000,
+      "clientPending": 0,
+      "unbilled": 0,
+      "billedProfit": 402000
+    },
+    "PH-013": {
+      "name": "Flooring & Roofing",
+      "projectId": "PRJ-2026-003",
+      "status": "Payment Received",
+      "done": true,
+      "completion": 100,
+      "revenue": 900000,
+      "planned": {
+        "material": 350000,
+        "labour": 120000,
+        "outsource": 130000,
+        "other": 20000,
+        "total": 620000
+      },
+      "actual": {
+        "material": 342500,
+        "labour": 96000,
+        "outsource": 132000,
+        "other": 0,
+        "total": 570500
+      },
+      "actualProfit": 329500,
+      "actualMargin": 36.61,
+      "expectedProfit": 280000,
+      "expectedMargin": 31.11,
+      "forecastProfit": 329500,
+      "wipCost": 0,
+      "budgetVariance": -49500,
+      "budgetUsedPct": 92.02,
+      "categoryUsedPct": {
+        "material": 97.86,
+        "labour": 80,
+        "outsource": 101.54,
+        "other": 0
+      },
+      "billed": 900000,
+      "received": 900000,
+      "clientPending": 0,
+      "unbilled": 0,
+      "billedProfit": 329500
+    },
+    "PH-014": {
+      "name": "Electrical & Drainage",
+      "projectId": "PRJ-2026-003",
+      "status": "Billed",
+      "done": true,
+      "completion": 100,
+      "revenue": 400000,
+      "planned": {
+        "material": 140000,
+        "labour": 60000,
+        "outsource": 50000,
+        "other": 10000,
+        "total": 260000
+      },
+      "actual": {
+        "material": 120000,
+        "labour": 49500,
+        "outsource": 45000,
+        "other": 0,
+        "total": 214500
+      },
+      "actualProfit": 185500,
+      "actualMargin": 46.38,
+      "expectedProfit": 140000,
+      "expectedMargin": 35,
+      "forecastProfit": 185500,
+      "wipCost": 0,
+      "budgetVariance": -45500,
+      "budgetUsedPct": 82.5,
+      "categoryUsedPct": {
+        "material": 85.71,
+        "labour": 82.5,
+        "outsource": 90,
+        "other": 0
+      },
+      "billed": 400000,
+      "received": 150000,
+      "clientPending": 250000,
+      "unbilled": 0,
+      "billedProfit": 185500
+    },
+    "PH-015": {
+      "name": "Loading Dock Ramp (CO-2026-003)",
+      "projectId": "PRJ-2026-003",
+      "status": "Payment Received",
+      "done": true,
+      "completion": 100,
+      "revenue": 300000,
+      "planned": {
+        "material": 100000,
+        "labour": 50000,
+        "outsource": 40000,
+        "other": 10000,
+        "total": 200000
+      },
+      "actual": {
+        "material": 101550,
+        "labour": 40000,
+        "outsource": 22000,
+        "other": 0,
+        "total": 163550
+      },
+      "actualProfit": 136450,
+      "actualMargin": 45.48,
+      "expectedProfit": 100000,
+      "expectedMargin": 33.33,
+      "forecastProfit": 136450,
+      "wipCost": 0,
+      "budgetVariance": -36450,
+      "budgetUsedPct": 81.77,
+      "categoryUsedPct": {
+        "material": 101.55,
+        "labour": 80,
+        "outsource": 55,
+        "other": 0
+      },
+      "billed": 300000,
+      "received": 300000,
+      "clientPending": 0,
+      "unbilled": 0,
+      "billedProfit": 136450
+    }
+  },
+  "expenses": {
+    "EXP-001": {
+      "phaseId": "PH-001",
+      "category": "material",
+      "subType": "Cement",
+      "description": "OPC 53 grade cement",
+      "amount": 105000,
+      "quantity": 250,
+      "unit": "Bags",
+      "rate": 420
+    },
+    "EXP-002": {
+      "phaseId": "PH-001",
+      "category": "material",
+      "subType": "Steel",
+      "description": "TMT Fe550 bars 12mm",
+      "amount": 105000,
+      "quantity": 1500,
+      "unit": "Kg",
+      "rate": 70
+    },
+    "EXP-003": {
+      "phaseId": "PH-001",
+      "category": "labour",
+      "subType": "Mason",
+      "description": "Mason — Murugan",
+      "amount": 30000,
+      "dailyRate": 1200,
+      "days": 25,
+      "workerName": "Murugan"
+    },
+    "EXP-004": {
+      "phaseId": "PH-001",
+      "category": "labour",
+      "subType": "Mason",
+      "description": "Mason — Selvam",
+      "amount": 30000,
+      "dailyRate": 1200,
+      "days": 25,
+      "workerName": "Selvam"
+    },
+    "EXP-005": {
+      "phaseId": "PH-001",
+      "category": "labour",
+      "subType": "Helper",
+      "description": "Helper — Karthik",
+      "amount": 20000,
+      "dailyRate": 800,
+      "days": 25,
+      "workerName": "Karthik"
+    },
+    "EXP-006": {
+      "phaseId": "PH-001",
+      "category": "labour",
+      "subType": "Helper",
+      "description": "Helper — Ravi",
+      "amount": 20000,
+      "dailyRate": 800,
+      "days": 25,
+      "workerName": "Ravi"
+    },
+    "EXP-007": {
+      "phaseId": "PH-001",
+      "category": "labour",
+      "subType": "Supervisor",
+      "description": "Supervisor — Senthil",
+      "amount": 20000,
+      "dailyRate": 2000,
+      "days": 10,
+      "workerName": "Senthil"
+    },
+    "EXP-008": {
+      "phaseId": "PH-001",
+      "category": "outsource",
+      "subType": "Excavation",
+      "description": "Foundation excavation — fixed contract",
+      "amount": 150000,
+      "quantity": 1,
+      "unit": "Fixed",
+      "rate": 150000,
+      "basis": "fixed"
+    },
+    "EXP-009": {
+      "phaseId": "PH-001",
+      "category": "outsource",
+      "subType": "Equipment Rental",
+      "description": "JCB excavator hire",
+      "amount": 30000,
+      "quantity": 12,
+      "unit": "Day",
+      "rate": 2500,
+      "basis": "rate"
+    },
+    "EXP-010": {
+      "phaseId": "PH-002",
+      "category": "material",
+      "subType": "Cement",
+      "description": "OPC 53 grade cement",
+      "amount": 252000,
+      "quantity": 600,
+      "unit": "Bags",
+      "rate": 420
+    },
+    "EXP-011": {
+      "phaseId": "PH-002",
+      "category": "material",
+      "subType": "Steel",
+      "description": "TMT Fe550 bars 8–16mm",
+      "amount": 217600,
+      "quantity": 3200,
+      "unit": "Kg",
+      "rate": 68
+    },
+    "EXP-012": {
+      "phaseId": "PH-002",
+      "category": "material",
+      "subType": "Bricks",
+      "description": "Wire-cut red bricks",
+      "amount": 108000,
+      "quantity": 12000,
+      "unit": "Nos",
+      "rate": 9
+    },
+    "EXP-013": {
+      "phaseId": "PH-002",
+      "category": "labour",
+      "subType": "Mason",
+      "description": "Mason — Murugan",
+      "amount": 36000,
+      "dailyRate": 1200,
+      "days": 30,
+      "workerName": "Murugan"
+    },
+    "EXP-014": {
+      "phaseId": "PH-002",
+      "category": "labour",
+      "subType": "Mason",
+      "description": "Mason — Selvam",
+      "amount": 36000,
+      "dailyRate": 1200,
+      "days": 30,
+      "workerName": "Selvam"
+    },
+    "EXP-015": {
+      "phaseId": "PH-002",
+      "category": "labour",
+      "subType": "Helper",
+      "description": "Helper — Karthik",
+      "amount": 24000,
+      "dailyRate": 800,
+      "days": 30,
+      "workerName": "Karthik"
+    },
+    "EXP-016": {
+      "phaseId": "PH-002",
+      "category": "labour",
+      "subType": "Helper",
+      "description": "Helper — Ravi",
+      "amount": 22400,
+      "dailyRate": 800,
+      "days": 28,
+      "workerName": "Ravi"
+    },
+    "EXP-017": {
+      "phaseId": "PH-002",
+      "category": "labour",
+      "subType": "Other Labour",
+      "description": "Other Labour — Gopal (Bar bender)",
+      "amount": 22000,
+      "dailyRate": 1100,
+      "days": 20,
+      "workerName": "Gopal (Bar bender)"
+    },
+    "EXP-018": {
+      "phaseId": "PH-002",
+      "category": "outsource",
+      "subType": "Specialist Contractor",
+      "description": "Centering & shuttering for slabs",
+      "amount": 108000,
+      "quantity": 2400,
+      "unit": "Sq.ft",
+      "rate": 45,
+      "basis": "rate"
+    },
+    "EXP-019": {
+      "phaseId": "PH-003",
+      "category": "material",
+      "subType": "Electrical Materials",
+      "description": "Conduits, boxes & FR wiring",
+      "amount": 68000,
+      "quantity": 1,
+      "unit": "Lot",
+      "rate": 68000
+    },
+    "EXP-020": {
+      "phaseId": "PH-003",
+      "category": "material",
+      "subType": "Plumbing Materials",
+      "description": "CPVC / UPVC pipes & fittings",
+      "amount": 42000,
+      "quantity": 1,
+      "unit": "Lot",
+      "rate": 42000
+    },
+    "EXP-021": {
+      "phaseId": "PH-003",
+      "category": "labour",
+      "subType": "Electrician",
+      "description": "Electrician — Babu",
+      "amount": 8800,
+      "dailyRate": 1100,
+      "days": 8,
+      "workerName": "Babu"
+    },
+    "EXP-022": {
+      "phaseId": "PH-003",
+      "category": "labour",
+      "subType": "Plumber",
+      "description": "Plumber — Joseph",
+      "amount": 6600,
+      "dailyRate": 1100,
+      "days": 6,
+      "workerName": "Joseph"
+    },
+    "EXP-023": {
+      "phaseId": "PH-006",
+      "category": "material",
+      "subType": "Sand",
+      "description": "M-sand for PCC",
+      "amount": 108000,
+      "quantity": 60,
+      "unit": "Cu.m",
+      "rate": 1800
+    },
+    "EXP-024": {
+      "phaseId": "PH-006",
+      "category": "material",
+      "subType": "Steel",
+      "description": "Pile reinforcement cages",
+      "amount": 190400,
+      "quantity": 2800,
+      "unit": "Kg",
+      "rate": 68
+    },
+    "EXP-025": {
+      "phaseId": "PH-006",
+      "category": "labour",
+      "subType": "Helper",
+      "description": "Helper — Pandi",
+      "amount": 24000,
+      "dailyRate": 800,
+      "days": 30,
+      "workerName": "Pandi"
+    },
+    "EXP-026": {
+      "phaseId": "PH-006",
+      "category": "labour",
+      "subType": "Mason",
+      "description": "Mason — Kannan",
+      "amount": 36000,
+      "dailyRate": 1200,
+      "days": 30,
+      "workerName": "Kannan"
+    },
+    "EXP-027": {
+      "phaseId": "PH-006",
+      "category": "labour",
+      "subType": "Supervisor",
+      "description": "Supervisor — Ibrahim",
+      "amount": 50000,
+      "dailyRate": 2000,
+      "days": 25,
+      "workerName": "Ibrahim"
+    },
+    "EXP-028": {
+      "phaseId": "PH-006",
+      "category": "outsource",
+      "subType": "Excavation",
+      "description": "Bulk excavation & site levelling",
+      "amount": 220000,
+      "quantity": 1,
+      "unit": "Fixed",
+      "rate": 220000,
+      "basis": "fixed"
+    },
+    "EXP-029": {
+      "phaseId": "PH-006",
+      "category": "outsource",
+      "subType": "Specialist Contractor",
+      "description": "Bored cast-in-situ piling",
+      "amount": 160000,
+      "quantity": 400,
+      "unit": "Running ft",
+      "rate": 400,
+      "basis": "rate"
+    },
+    "EXP-030": {
+      "phaseId": "PH-006",
+      "category": "other",
+      "subType": "Survey & Testing",
+      "description": "Topographic survey & soil investigation",
+      "amount": 18000
+    },
+    "EXP-031": {
+      "phaseId": "PH-007",
+      "category": "material",
+      "subType": "Cement",
+      "description": "OPC 53 grade cement",
+      "amount": 369000,
+      "quantity": 900,
+      "unit": "Bags",
+      "rate": 410
+    },
+    "EXP-032": {
+      "phaseId": "PH-007",
+      "category": "material",
+      "subType": "Steel",
+      "description": "TMT Fe550 bars 12–25mm",
+      "amount": 268000,
+      "quantity": 4000,
+      "unit": "Kg",
+      "rate": 67
+    },
+    "EXP-033": {
+      "phaseId": "PH-007",
+      "category": "labour",
+      "subType": "Mason",
+      "description": "Mason — Kannan",
+      "amount": 48000,
+      "dailyRate": 1200,
+      "days": 40,
+      "workerName": "Kannan"
+    },
+    "EXP-034": {
+      "phaseId": "PH-007",
+      "category": "labour",
+      "subType": "Mason",
+      "description": "Mason — Velu",
+      "amount": 48000,
+      "dailyRate": 1200,
+      "days": 40,
+      "workerName": "Velu"
+    },
+    "EXP-035": {
+      "phaseId": "PH-007",
+      "category": "labour",
+      "subType": "Helper",
+      "description": "Helper — Pandi",
+      "amount": 32000,
+      "dailyRate": 800,
+      "days": 40,
+      "workerName": "Pandi"
+    },
+    "EXP-036": {
+      "phaseId": "PH-007",
+      "category": "labour",
+      "subType": "Helper",
+      "description": "Helper — Muthu",
+      "amount": 32000,
+      "dailyRate": 800,
+      "days": 40,
+      "workerName": "Muthu"
+    },
+    "EXP-037": {
+      "phaseId": "PH-007",
+      "category": "labour",
+      "subType": "Supervisor",
+      "description": "Supervisor — Ibrahim",
+      "amount": 70000,
+      "dailyRate": 2000,
+      "days": 35,
+      "workerName": "Ibrahim"
+    },
+    "EXP-038": {
+      "phaseId": "PH-007",
+      "category": "outsource",
+      "subType": "Specialist Contractor",
+      "description": "Basement waterproofing membrane",
+      "amount": 112000,
+      "quantity": 3200,
+      "unit": "Sq.ft",
+      "rate": 35,
+      "basis": "rate"
+    },
+    "EXP-039": {
+      "phaseId": "PH-007",
+      "category": "outsource",
+      "subType": "Equipment Rental",
+      "description": "Concrete boom pump hire",
+      "amount": 135000,
+      "quantity": 15,
+      "unit": "Day",
+      "rate": 9000,
+      "basis": "rate"
+    },
+    "EXP-040": {
+      "phaseId": "PH-007",
+      "category": "other",
+      "subType": "Site Utilities",
+      "description": "Curing water tanker supply",
+      "amount": 32000
+    },
+    "EXP-041": {
+      "phaseId": "PH-008",
+      "category": "material",
+      "subType": "Cement",
+      "description": "OPC 53 grade cement",
+      "amount": 290500,
+      "quantity": 700,
+      "unit": "Bags",
+      "rate": 415
+    },
+    "EXP-042": {
+      "phaseId": "PH-008",
+      "category": "material",
+      "subType": "Bricks",
+      "description": "Fly-ash bricks",
+      "amount": 180000,
+      "quantity": 20000,
+      "unit": "Nos",
+      "rate": 9
+    },
+    "EXP-043": {
+      "phaseId": "PH-008",
+      "category": "labour",
+      "subType": "Mason",
+      "description": "Mason — Velu",
+      "amount": 24000,
+      "dailyRate": 1200,
+      "days": 20,
+      "workerName": "Velu"
+    },
+    "EXP-044": {
+      "phaseId": "PH-008",
+      "category": "labour",
+      "subType": "Helper",
+      "description": "Helper — Muthu",
+      "amount": 16000,
+      "dailyRate": 800,
+      "days": 20,
+      "workerName": "Muthu"
+    },
+    "EXP-045": {
+      "phaseId": "PH-008",
+      "category": "outsource",
+      "subType": "Specialist Contractor",
+      "description": "Centering & shuttering — 1st floor",
+      "amount": 189000,
+      "quantity": 4500,
+      "unit": "Sq.ft",
+      "rate": 42,
+      "basis": "rate"
+    },
+    "EXP-046": {
+      "phaseId": "PH-011",
+      "category": "material",
+      "subType": "Cement",
+      "description": "PPC cement",
+      "amount": 160000,
+      "quantity": 400,
+      "unit": "Bags",
+      "rate": 400
+    },
+    "EXP-047": {
+      "phaseId": "PH-011",
+      "category": "material",
+      "subType": "Sand",
+      "description": "River sand",
+      "amount": 54000,
+      "quantity": 30,
+      "unit": "Cu.m",
+      "rate": 1800
+    },
+    "EXP-048": {
+      "phaseId": "PH-011",
+      "category": "labour",
+      "subType": "Mason",
+      "description": "Mason — Arjun",
+      "amount": 42000,
+      "dailyRate": 1200,
+      "days": 35,
+      "workerName": "Arjun"
+    },
+    "EXP-049": {
+      "phaseId": "PH-011",
+      "category": "labour",
+      "subType": "Helper",
+      "description": "Helper — Siva",
+      "amount": 28000,
+      "dailyRate": 800,
+      "days": 35,
+      "workerName": "Siva"
+    },
+    "EXP-050": {
+      "phaseId": "PH-011",
+      "category": "labour",
+      "subType": "Helper",
+      "description": "Helper — Mani",
+      "amount": 28000,
+      "dailyRate": 800,
+      "days": 35,
+      "workerName": "Mani"
+    },
+    "EXP-051": {
+      "phaseId": "PH-011",
+      "category": "outsource",
+      "subType": "Excavation",
+      "description": "Earthwork excavation — fixed contract",
+      "amount": 150000,
+      "quantity": 1,
+      "unit": "Fixed",
+      "rate": 150000,
+      "basis": "fixed"
+    },
+    "EXP-052": {
+      "phaseId": "PH-011",
+      "category": "other",
+      "subType": "Survey & Testing",
+      "description": "Soil bearing capacity test",
+      "amount": 15000
+    },
+    "EXP-053": {
+      "phaseId": "PH-012",
+      "category": "material",
+      "subType": "Steel",
+      "description": "PEB primary & secondary members",
+      "amount": 665000,
+      "quantity": 9500,
+      "unit": "Kg",
+      "rate": 70
+    },
+    "EXP-054": {
+      "phaseId": "PH-012",
+      "category": "labour",
+      "subType": "Other Labour",
+      "description": "Other Labour — Ramesh (Welder)",
+      "amount": 52000,
+      "dailyRate": 1300,
+      "days": 40,
+      "workerName": "Ramesh (Welder)"
+    },
+    "EXP-055": {
+      "phaseId": "PH-012",
+      "category": "labour",
+      "subType": "Helper",
+      "description": "Helper — Siva",
+      "amount": 32000,
+      "dailyRate": 800,
+      "days": 40,
+      "workerName": "Siva"
+    },
+    "EXP-056": {
+      "phaseId": "PH-012",
+      "category": "labour",
+      "subType": "Supervisor",
+      "description": "Supervisor — Dinesh",
+      "amount": 60000,
+      "dailyRate": 2000,
+      "days": 30,
+      "workerName": "Dinesh"
+    },
+    "EXP-057": {
+      "phaseId": "PH-012",
+      "category": "outsource",
+      "subType": "Fabrication",
+      "description": "PEB erection & fabrication",
+      "amount": 216000,
+      "quantity": 12000,
+      "unit": "Sq.ft",
+      "rate": 18,
+      "basis": "rate"
+    },
+    "EXP-058": {
+      "phaseId": "PH-012",
+      "category": "outsource",
+      "subType": "Equipment Rental",
+      "description": "25T crane hire for erection",
+      "amount": 48000,
+      "quantity": 8,
+      "unit": "Day",
+      "rate": 6000,
+      "basis": "rate"
+    },
+    "EXP-059": {
+      "phaseId": "PH-012",
+      "category": "other",
+      "subType": "Site Security",
+      "description": "Site security services",
+      "amount": 25000
+    },
+    "EXP-060": {
+      "phaseId": "PH-013",
+      "category": "material",
+      "subType": "Cement",
+      "description": "OPC 53 grade cement",
+      "amount": 202500,
+      "quantity": 500,
+      "unit": "Bags",
+      "rate": 405
+    },
+    "EXP-061": {
+      "phaseId": "PH-013",
+      "category": "material",
+      "subType": "Other Materials",
+      "description": "Galvalume roofing sheets",
+      "amount": 140000,
+      "quantity": 1,
+      "unit": "Lot",
+      "rate": 140000
+    },
+    "EXP-062": {
+      "phaseId": "PH-013",
+      "category": "labour",
+      "subType": "Mason",
+      "description": "Mason — Arjun",
+      "amount": 36000,
+      "dailyRate": 1200,
+      "days": 30,
+      "workerName": "Arjun"
+    },
+    "EXP-063": {
+      "phaseId": "PH-013",
+      "category": "labour",
+      "subType": "Helper",
+      "description": "Helper — Mani",
+      "amount": 24000,
+      "dailyRate": 800,
+      "days": 30,
+      "workerName": "Mani"
+    },
+    "EXP-064": {
+      "phaseId": "PH-013",
+      "category": "labour",
+      "subType": "Mason",
+      "description": "Mason — Raja",
+      "amount": 36000,
+      "dailyRate": 1200,
+      "days": 30,
+      "workerName": "Raja"
+    },
+    "EXP-065": {
+      "phaseId": "PH-013",
+      "category": "outsource",
+      "subType": "Specialist Contractor",
+      "description": "Trimix flooring with hardener",
+      "amount": 132000,
+      "quantity": 12000,
+      "unit": "Sq.ft",
+      "rate": 11,
+      "basis": "rate"
+    },
+    "EXP-066": {
+      "phaseId": "PH-014",
+      "category": "material",
+      "subType": "Electrical Materials",
+      "description": "LT panel, cables & high-bay fittings",
+      "amount": 120000,
+      "quantity": 1,
+      "unit": "Lot",
+      "rate": 120000
+    },
+    "EXP-067": {
+      "phaseId": "PH-014",
+      "category": "labour",
+      "subType": "Electrician",
+      "description": "Electrician — Babu",
+      "amount": 27500,
+      "dailyRate": 1100,
+      "days": 25,
+      "workerName": "Babu"
+    },
+    "EXP-068": {
+      "phaseId": "PH-014",
+      "category": "labour",
+      "subType": "Plumber",
+      "description": "Plumber — Joseph",
+      "amount": 22000,
+      "dailyRate": 1100,
+      "days": 20,
+      "workerName": "Joseph"
+    },
+    "EXP-069": {
+      "phaseId": "PH-014",
+      "category": "outsource",
+      "subType": "Specialist Contractor",
+      "description": "Electrical installation & testing",
+      "amount": 45000,
+      "quantity": 1,
+      "unit": "Fixed",
+      "rate": 45000,
+      "basis": "fixed"
+    },
+    "EXP-070": {
+      "phaseId": "PH-015",
+      "category": "material",
+      "subType": "Cement",
+      "description": "OPC 53 grade cement",
+      "amount": 60750,
+      "quantity": 150,
+      "unit": "Bags",
+      "rate": 405
+    },
+    "EXP-071": {
+      "phaseId": "PH-015",
+      "category": "material",
+      "subType": "Steel",
+      "description": "TMT Fe550 bars 10mm",
+      "amount": 40800,
+      "quantity": 600,
+      "unit": "Kg",
+      "rate": 68
+    },
+    "EXP-072": {
+      "phaseId": "PH-015",
+      "category": "labour",
+      "subType": "Mason",
+      "description": "Mason — Raja",
+      "amount": 24000,
+      "dailyRate": 1200,
+      "days": 20,
+      "workerName": "Raja"
+    },
+    "EXP-073": {
+      "phaseId": "PH-015",
+      "category": "labour",
+      "subType": "Helper",
+      "description": "Helper — Mani",
+      "amount": 16000,
+      "dailyRate": 800,
+      "days": 20,
+      "workerName": "Mani"
+    },
+    "EXP-074": {
+      "phaseId": "PH-015",
+      "category": "outsource",
+      "subType": "Transport",
+      "description": "Material transport & debris removal",
+      "amount": 22000,
+      "quantity": 1,
+      "unit": "Fixed",
+      "rate": 22000,
+      "basis": "fixed"
+    }
+  },
+  "supplierInvoices": {
+    "SIN-001": {
+      "supplier": "Sri Lakshmi Cement Suppliers",
+      "invoiceNumber": "SLC/26/0412",
+      "projectId": "PRJ-2026-001",
+      "invoiceDate": "2026-08-04",
+      "dueDate": "2026-09-03",
+      "amount": 105000,
+      "paid": 105000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-001"
+      ]
+    },
+    "SIN-002": {
+      "supplier": "Kumar Steel Traders",
+      "invoiceNumber": "KST-2291",
+      "projectId": "PRJ-2026-001",
+      "invoiceDate": "2026-08-06",
+      "dueDate": "2026-09-05",
+      "amount": 105000,
+      "paid": 105000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-002"
+      ]
+    },
+    "SIN-003": {
+      "supplier": "Star Excavation Services",
+      "invoiceNumber": "SES/078",
+      "projectId": "PRJ-2026-001",
+      "invoiceDate": "2026-08-03",
+      "dueDate": "2026-09-02",
+      "amount": 150000,
+      "paid": 150000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-008"
+      ]
+    },
+    "SIN-004": {
+      "supplier": "Chennai Equipment Rentals",
+      "invoiceNumber": "CER-1145",
+      "projectId": "PRJ-2026-001",
+      "invoiceDate": "2026-08-14",
+      "dueDate": "2026-09-13",
+      "amount": 30000,
+      "paid": 30000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-009"
+      ]
+    },
+    "SIN-005": {
+      "supplier": "Sri Lakshmi Cement Suppliers",
+      "invoiceNumber": "SLC/26/0488",
+      "projectId": "PRJ-2026-001",
+      "invoiceDate": "2026-09-03",
+      "dueDate": "2026-10-15",
+      "amount": 252000,
+      "paid": 150000,
+      "pending": 102000,
+      "status": "Partially Paid",
+      "lines": [
+        "EXP-010"
+      ]
+    },
+    "SIN-006": {
+      "supplier": "Kumar Steel Traders",
+      "invoiceNumber": "KST-2350",
+      "projectId": "PRJ-2026-001",
+      "invoiceDate": "2026-09-05",
+      "dueDate": "2026-09-30",
+      "amount": 217600,
+      "paid": 100000,
+      "pending": 117600,
+      "status": "Overdue",
+      "lines": [
+        "EXP-011"
+      ]
+    },
+    "SIN-007": {
+      "supplier": "Annai Building Materials",
+      "invoiceNumber": "ABM/26/331",
+      "projectId": "PRJ-2026-001",
+      "invoiceDate": "2026-09-12",
+      "dueDate": "2026-10-20",
+      "amount": 108000,
+      "paid": 0,
+      "pending": 108000,
+      "status": "Unpaid",
+      "lines": [
+        "EXP-012"
+      ]
+    },
+    "SIN-008": {
+      "supplier": "Vel Murugan Construction Services",
+      "invoiceNumber": "VMC-0217",
+      "projectId": "PRJ-2026-001",
+      "invoiceDate": "2026-09-18",
+      "dueDate": "2026-10-18",
+      "amount": 108000,
+      "paid": 54000,
+      "pending": 54000,
+      "status": "Partially Paid",
+      "lines": [
+        "EXP-018"
+      ]
+    },
+    "SIN-009": {
+      "supplier": "Royal Electrical Works",
+      "invoiceNumber": "REW/26/093",
+      "projectId": "PRJ-2026-001",
+      "invoiceDate": "2026-09-24",
+      "dueDate": "2026-10-25",
+      "amount": 68000,
+      "paid": 0,
+      "pending": 68000,
+      "status": "Unpaid",
+      "lines": [
+        "EXP-019"
+      ]
+    },
+    "SIN-010": {
+      "supplier": "Annai Building Materials",
+      "invoiceNumber": "ABM/26/347",
+      "projectId": "PRJ-2026-001",
+      "invoiceDate": "2026-09-26",
+      "dueDate": "2026-10-30",
+      "amount": 42000,
+      "paid": 0,
+      "pending": 42000,
+      "status": "Unpaid",
+      "lines": [
+        "EXP-020"
+      ]
+    },
+    "SIN-011": {
+      "supplier": "Annai Building Materials",
+      "invoiceNumber": "ABM/26/240",
+      "projectId": "PRJ-2026-002",
+      "invoiceDate": "2026-07-18",
+      "dueDate": "2026-08-17",
+      "amount": 108000,
+      "paid": 108000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-023"
+      ]
+    },
+    "SIN-012": {
+      "supplier": "Kumar Steel Traders",
+      "invoiceNumber": "KST-2204",
+      "projectId": "PRJ-2026-002",
+      "invoiceDate": "2026-07-20",
+      "dueDate": "2026-08-19",
+      "amount": 190400,
+      "paid": 190400,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-024"
+      ]
+    },
+    "SIN-013": {
+      "supplier": "Star Excavation Services",
+      "invoiceNumber": "SES/071",
+      "projectId": "PRJ-2026-002",
+      "invoiceDate": "2026-07-22",
+      "dueDate": "2026-08-21",
+      "amount": 220000,
+      "paid": 220000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-028"
+      ]
+    },
+    "SIN-014": {
+      "supplier": "Star Excavation Services",
+      "invoiceNumber": "SES/076",
+      "projectId": "PRJ-2026-002",
+      "invoiceDate": "2026-08-04",
+      "dueDate": "2026-09-03",
+      "amount": 160000,
+      "paid": 160000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-029"
+      ]
+    },
+    "SIN-015": {
+      "supplier": "Sri Lakshmi Cement Suppliers",
+      "invoiceNumber": "SLC/26/0430",
+      "projectId": "PRJ-2026-002",
+      "invoiceDate": "2026-08-18",
+      "dueDate": "2026-09-17",
+      "amount": 369000,
+      "paid": 200000,
+      "pending": 169000,
+      "status": "Overdue",
+      "lines": [
+        "EXP-031"
+      ]
+    },
+    "SIN-016": {
+      "supplier": "Kumar Steel Traders",
+      "invoiceNumber": "KST-2276",
+      "projectId": "PRJ-2026-002",
+      "invoiceDate": "2026-08-20",
+      "dueDate": "2026-09-19",
+      "amount": 268000,
+      "paid": 268000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-032"
+      ]
+    },
+    "SIN-017": {
+      "supplier": "Vel Murugan Construction Services",
+      "invoiceNumber": "VMC-0204",
+      "projectId": "PRJ-2026-002",
+      "invoiceDate": "2026-08-30",
+      "dueDate": "2026-09-29",
+      "amount": 112000,
+      "paid": 0,
+      "pending": 112000,
+      "status": "Overdue",
+      "lines": [
+        "EXP-038"
+      ]
+    },
+    "SIN-018": {
+      "supplier": "Chennai Equipment Rentals",
+      "invoiceNumber": "CER-1162",
+      "projectId": "PRJ-2026-002",
+      "invoiceDate": "2026-09-04",
+      "dueDate": "2026-10-04",
+      "amount": 135000,
+      "paid": 70000,
+      "pending": 65000,
+      "status": "Partially Paid",
+      "lines": [
+        "EXP-039"
+      ]
+    },
+    "SIN-019": {
+      "supplier": "Sri Lakshmi Cement Suppliers",
+      "invoiceNumber": "SLC/26/0502",
+      "projectId": "PRJ-2026-002",
+      "invoiceDate": "2026-09-17",
+      "dueDate": "2026-10-17",
+      "amount": 290500,
+      "paid": 0,
+      "pending": 290500,
+      "status": "Unpaid",
+      "lines": [
+        "EXP-041"
+      ]
+    },
+    "SIN-020": {
+      "supplier": "Annai Building Materials",
+      "invoiceNumber": "ABM/26/338",
+      "projectId": "PRJ-2026-002",
+      "invoiceDate": "2026-09-19",
+      "dueDate": "2026-10-19",
+      "amount": 180000,
+      "paid": 90000,
+      "pending": 90000,
+      "status": "Partially Paid",
+      "lines": [
+        "EXP-042"
+      ]
+    },
+    "SIN-021": {
+      "supplier": "Vel Murugan Construction Services",
+      "invoiceNumber": "VMC-0222",
+      "projectId": "PRJ-2026-002",
+      "invoiceDate": "2026-09-24",
+      "dueDate": "2026-10-24",
+      "amount": 189000,
+      "paid": 0,
+      "pending": 189000,
+      "status": "Unpaid",
+      "lines": [
+        "EXP-045"
+      ]
+    },
+    "SIN-022": {
+      "supplier": "Sri Lakshmi Cement Suppliers",
+      "invoiceNumber": "SLC/26/0088",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-02-12",
+      "dueDate": "2026-03-14",
+      "amount": 160000,
+      "paid": 160000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-046"
+      ]
+    },
+    "SIN-023": {
+      "supplier": "Annai Building Materials",
+      "invoiceNumber": "ABM/26/041",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-02-15",
+      "dueDate": "2026-03-17",
+      "amount": 54000,
+      "paid": 54000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-047"
+      ]
+    },
+    "SIN-024": {
+      "supplier": "Star Excavation Services",
+      "invoiceNumber": "SES/012",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-02-05",
+      "dueDate": "2026-03-07",
+      "amount": 150000,
+      "paid": 150000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-051"
+      ]
+    },
+    "SIN-025": {
+      "supplier": "Kumar Steel Traders",
+      "invoiceNumber": "KST-1890",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-04-08",
+      "dueDate": "2026-05-08",
+      "amount": 665000,
+      "paid": 665000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-053"
+      ]
+    },
+    "SIN-026": {
+      "supplier": "Vel Murugan Construction Services",
+      "invoiceNumber": "VMC-0115",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-05-18",
+      "dueDate": "2026-06-17",
+      "amount": 216000,
+      "paid": 216000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-057"
+      ]
+    },
+    "SIN-027": {
+      "supplier": "Chennai Equipment Rentals",
+      "invoiceNumber": "CER-0960",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-05-22",
+      "dueDate": "2026-06-21",
+      "amount": 48000,
+      "paid": 48000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-058"
+      ]
+    },
+    "SIN-028": {
+      "supplier": "Sri Lakshmi Cement Suppliers",
+      "invoiceNumber": "SLC/26/0301",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-07-08",
+      "dueDate": "2026-08-07",
+      "amount": 202500,
+      "paid": 202500,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-060"
+      ]
+    },
+    "SIN-029": {
+      "supplier": "Kumar Steel Traders",
+      "invoiceNumber": "KST-2150",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-07-12",
+      "dueDate": "2026-08-11",
+      "amount": 140000,
+      "paid": 140000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-061"
+      ]
+    },
+    "SIN-030": {
+      "supplier": "Vel Murugan Construction Services",
+      "invoiceNumber": "VMC-0181",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-07-30",
+      "dueDate": "2026-08-29",
+      "amount": 132000,
+      "paid": 100000,
+      "pending": 32000,
+      "status": "Overdue",
+      "lines": [
+        "EXP-065"
+      ]
+    },
+    "SIN-031": {
+      "supplier": "Royal Electrical Works",
+      "invoiceNumber": "REW/26/071",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-08-22",
+      "dueDate": "2026-09-21",
+      "amount": 165000,
+      "paid": 100000,
+      "pending": 65000,
+      "status": "Overdue",
+      "lines": [
+        "EXP-066",
+        "EXP-069"
+      ]
+    },
+    "SIN-032": {
+      "supplier": "Sri Lakshmi Cement Suppliers",
+      "invoiceNumber": "SLC/26/0244",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-06-18",
+      "dueDate": "2026-07-18",
+      "amount": 60750,
+      "paid": 60750,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-070"
+      ]
+    },
+    "SIN-033": {
+      "supplier": "Kumar Steel Traders",
+      "invoiceNumber": "KST-2071",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-06-20",
+      "dueDate": "2026-07-20",
+      "amount": 40800,
+      "paid": 40800,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-071"
+      ]
+    },
+    "SIN-034": {
+      "supplier": "Chennai Equipment Rentals",
+      "invoiceNumber": "CER-1021",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-06-24",
+      "dueDate": "2026-07-24",
+      "amount": 22000,
+      "paid": 22000,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-074"
+      ]
+    }
+  },
+  "clientInvoices": {
+    "CINV-001": {
+      "invoiceNumber": "INV-2026-001",
+      "projectId": "PRJ-2026-003",
+      "phaseId": "PH-011",
+      "description": "Earthwork & Foundation — final bill",
+      "invoiceDate": "2026-03-20",
+      "dueDate": "2026-04-04",
+      "amount": 700000,
+      "received": 700000,
+      "pending": 0,
+      "status": "Paid",
+      "payments": [
+        {
+          "id": "PAY-001",
+          "date": "2026-03-28",
+          "amount": 350000,
+          "method": "Bank Transfer"
+        },
+        {
+          "id": "PAY-002",
+          "date": "2026-04-10",
+          "amount": 350000,
+          "method": "Cheque"
+        }
+      ]
+    },
+    "CINV-002": {
+      "invoiceNumber": "INV-2026-002",
+      "projectId": "PRJ-2026-003",
+      "phaseId": "PH-012",
+      "description": "Steel Structure — running bill 1 (50%)",
+      "invoiceDate": "2026-05-15",
+      "dueDate": "2026-05-30",
+      "amount": 750000,
+      "received": 750000,
+      "pending": 0,
+      "status": "Paid",
+      "payments": [
+        {
+          "id": "PAY-003",
+          "date": "2026-05-28",
+          "amount": 750000,
+          "method": "Bank Transfer"
+        }
+      ]
+    },
+    "CINV-003": {
+      "invoiceNumber": "INV-2026-003",
+      "projectId": "PRJ-2026-003",
+      "phaseId": "PH-012",
+      "description": "Steel Structure — final bill",
+      "invoiceDate": "2026-07-05",
+      "dueDate": "2026-07-20",
+      "amount": 750000,
+      "received": 750000,
+      "pending": 0,
+      "status": "Paid",
+      "payments": [
+        {
+          "id": "PAY-004",
+          "date": "2026-07-18",
+          "amount": 500000,
+          "method": "Bank Transfer"
+        },
+        {
+          "id": "PAY-005",
+          "date": "2026-07-30",
+          "amount": 250000,
+          "method": "Cheque"
+        }
+      ]
+    },
+    "CINV-004": {
+      "invoiceNumber": "INV-2026-004",
+      "projectId": "PRJ-2026-003",
+      "phaseId": "PH-015",
+      "description": "CO-2026-003 Loading dock ramp",
+      "invoiceDate": "2026-07-25",
+      "dueDate": "2026-08-09",
+      "amount": 300000,
+      "received": 300000,
+      "pending": 0,
+      "status": "Paid",
+      "payments": [
+        {
+          "id": "PAY-006",
+          "date": "2026-08-05",
+          "amount": 300000,
+          "method": "Bank Transfer"
+        }
+      ]
+    },
+    "CINV-005": {
+      "invoiceNumber": "INV-2026-005",
+      "projectId": "PRJ-2026-003",
+      "phaseId": "PH-013",
+      "description": "Flooring & Roofing — final bill",
+      "invoiceDate": "2026-08-18",
+      "dueDate": "2026-09-02",
+      "amount": 900000,
+      "received": 900000,
+      "pending": 0,
+      "status": "Paid",
+      "payments": [
+        {
+          "id": "PAY-007",
+          "date": "2026-08-28",
+          "amount": 400000,
+          "method": "Bank Transfer"
+        },
+        {
+          "id": "PAY-008",
+          "date": "2026-09-15",
+          "amount": 500000,
+          "method": "Bank Transfer"
+        }
+      ]
+    },
+    "CINV-006": {
+      "invoiceNumber": "INV-2026-006",
+      "projectId": "PRJ-2026-002",
+      "phaseId": "PH-006",
+      "description": "Site Preparation & Piling — final bill",
+      "invoiceDate": "2026-08-20",
+      "dueDate": "2026-09-04",
+      "amount": 1200000,
+      "received": 1200000,
+      "pending": 0,
+      "status": "Paid",
+      "payments": [
+        {
+          "id": "PAY-009",
+          "date": "2026-08-30",
+          "amount": 600000,
+          "method": "Bank Transfer"
+        },
+        {
+          "id": "PAY-010",
+          "date": "2026-09-12",
+          "amount": 600000,
+          "method": "Bank Transfer"
+        }
+      ]
+    },
+    "CINV-007": {
+      "invoiceNumber": "INV-2026-007",
+      "projectId": "PRJ-2026-001",
+      "phaseId": "PH-001",
+      "description": "Foundation — final bill",
+      "invoiceDate": "2026-09-02",
+      "dueDate": "2026-09-17",
+      "amount": 800000,
+      "received": 600000,
+      "pending": 200000,
+      "status": "Overdue",
+      "payments": [
+        {
+          "id": "PAY-011",
+          "date": "2026-09-10",
+          "amount": 400000,
+          "method": "Bank Transfer"
+        },
+        {
+          "id": "PAY-012",
+          "date": "2026-09-25",
+          "amount": 200000,
+          "method": "Cheque"
+        }
+      ]
+    },
+    "CINV-008": {
+      "invoiceNumber": "INV-2026-008",
+      "projectId": "PRJ-2026-002",
+      "phaseId": "PH-008",
+      "description": "Superstructure — running bill 1 (30%)",
+      "invoiceDate": "2026-09-20",
+      "dueDate": "2026-10-05",
+      "amount": 900000,
+      "received": 400000,
+      "pending": 500000,
+      "status": "Partially Paid",
+      "payments": [
+        {
+          "id": "PAY-013",
+          "date": "2026-09-30",
+          "amount": 400000,
+          "method": "Bank Transfer"
+        }
+      ]
+    },
+    "CINV-009": {
+      "invoiceNumber": "INV-2026-009",
+      "projectId": "PRJ-2026-001",
+      "phaseId": "PH-002",
+      "description": "Structure — running bill 1 (50%)",
+      "invoiceDate": "2026-09-25",
+      "dueDate": "2026-10-10",
+      "amount": 750000,
+      "received": 300000,
+      "pending": 450000,
+      "status": "Partially Paid",
+      "payments": [
+        {
+          "id": "PAY-014",
+          "date": "2026-10-01",
+          "amount": 300000,
+          "method": "Bank Transfer"
+        }
+      ]
+    },
+    "CINV-010": {
+      "invoiceNumber": "INV-2026-010",
+      "projectId": "PRJ-2026-003",
+      "phaseId": "PH-014",
+      "description": "Electrical & Drainage — final bill",
+      "invoiceDate": "2026-09-30",
+      "dueDate": "2026-10-15",
+      "amount": 400000,
+      "received": 150000,
+      "pending": 250000,
+      "status": "Partially Paid",
+      "payments": [
+        {
+          "id": "PAY-015",
+          "date": "2026-10-03",
+          "amount": 150000,
+          "method": "Bank Transfer"
+        }
+      ]
+    }
+  },
+  "quotations": {
+    "QT-2026-001": {
+      "projectName": "ABC Residential Villa – Chennai",
+      "status": "Approved",
+      "projectId": "PRJ-2026-001",
+      "value": 5000000,
+      "estimatedCost": 3400000,
+      "expectedProfit": 1600000,
+      "margin": 32
+    },
+    "QT-2026-002": {
+      "projectName": "Green Valley Commercial Building",
+      "status": "Approved",
+      "projectId": "PRJ-2026-002",
+      "value": 8250000,
+      "estimatedCost": 5500000,
+      "expectedProfit": 2750000,
+      "margin": 33.33
+    },
+    "QT-2026-003": {
+      "projectName": "SRK Warehouse Development",
+      "status": "Approved",
+      "projectId": "PRJ-2026-003",
+      "value": 3500000,
+      "estimatedCost": 2430000,
+      "expectedProfit": 1070000,
+      "margin": 30.57
+    },
+    "QT-2026-004": {
+      "projectName": "Meenakshi Hospital Annex Block",
+      "status": "Under Review",
+      "projectId": null,
+      "value": 6000000,
+      "estimatedCost": 4200000,
+      "expectedProfit": 1800000,
+      "margin": 30
+    },
+    "QT-2026-005": {
+      "projectName": "Coastal Logistics Warehouse – Thoothukudi",
+      "status": "Approved",
+      "projectId": null,
+      "value": 4000000,
+      "estimatedCost": 2800000,
+      "expectedProfit": 1200000,
+      "margin": 30
+    },
+    "QT-2026-006": {
+      "projectName": "Sai Ram School – Academic Block",
+      "status": "Rejected",
+      "projectId": null,
+      "value": 2800000,
+      "estimatedCost": 2100000,
+      "expectedProfit": 700000,
+      "margin": 25
+    }
+  },
+  "changeOrders": {
+    "CO-001": {
+      "number": "CO-2026-001",
+      "projectId": "PRJ-2026-001",
+      "description": "Additional compound wall construction (180 running ft)",
+      "status": "Approved",
+      "revenue": 500000,
+      "estimatedCost": 300000,
+      "expectedProfit": 200000,
+      "phaseId": "PH-005"
+    },
+    "CO-002": {
+      "number": "CO-2026-002",
+      "projectId": "PRJ-2026-002",
+      "description": "Additional basement waterproofing & sump",
+      "status": "Pending Approval",
+      "revenue": 250000,
+      "estimatedCost": 160000,
+      "expectedProfit": 90000,
+      "phaseId": null
+    },
+    "CO-003": {
+      "number": "CO-2026-003",
+      "projectId": "PRJ-2026-003",
+      "description": "Additional loading dock ramp",
+      "status": "Approved",
+      "revenue": 300000,
+      "estimatedCost": 200000,
+      "expectedProfit": 100000,
+      "phaseId": "PH-015"
+    }
+  }
+}

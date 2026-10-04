@@ -269,6 +269,11 @@ const clientPayments: ClientPayment[] = [
 ]
 
 export function createSeed(): Database {
+  // Deep copy so callers (Reset demo data, tests) never share mutable objects.
+  return structuredClone(seedData())
+}
+
+function seedData(): Database {
   return {
     clients: [
       { id: 'CLI-001', name: 'ABC Builders Pvt Ltd', contactPerson: 'Rajesh Kumar', phone: '+91 98765 43210', email: 'projects@abcbuilders.in', city: 'Chennai', state: 'Tamil Nadu', createdAt: '2026-06-10' },

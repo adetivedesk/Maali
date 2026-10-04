@@ -36,7 +36,15 @@ export function formatDate(iso?: string): string {
 
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 
-export const today = () => iso(new Date())
+/**
+ * The demo's "as of" date. Overdue statuses and default entry dates use it,
+ * so the seeded figures (and the docs built from them) stay stable over time.
+ * Override with VITE_AS_OF_DATE=live for the real date (e.g. once a backend
+ * exists) or VITE_AS_OF_DATE=YYYY-MM-DD for a different snapshot.
+ */
+const ENV_AS_OF = (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_AS_OF_DATE
+export const AS_OF_DATE = ENV_AS_OF && ENV_AS_OF !== 'live' ? ENV_AS_OF : '2026-10-04'
+export const today = () => (ENV_AS_OF === 'live' ? iso(new Date()) : AS_OF_DATE)
 
 export function addDays(date: string, days: number): string {
   const d = new Date(date + 'T00:00:00')

@@ -6,6 +6,7 @@ import {
   LayoutDashboard, Menu, Plus, Receipt, RotateCcw, TrendingUp, Truck, Users, Wallet, X,
 } from 'lucide-react'
 import { useStore } from '../store/store'
+import { formatDate, today } from '../lib/format'
 import { ToastHost } from './ui'
 import { ClientInvoiceForm, ClientPaymentForm, ExpenseForm, SupplierPaymentForm } from './forms'
 import { ChangeOrderForm, QuotationForm } from './workflowForms'
@@ -88,7 +89,7 @@ export function Layout() {
           <div className="flex min-w-0 items-center gap-2">
             <button type="button" onClick={() => setDrawer(true)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden" aria-label="Open menu"><Menu size={20} /></button>
             <span className="truncate text-sm font-semibold text-navy-900 lg:hidden">Maali ERP</span>
-            <span className="hidden text-sm text-slate-500 lg:inline">FY 2026–27 · All amounts in INR</span>
+            <span className="hidden text-sm text-slate-500 lg:inline">FY 2026–27 · As of {formatDate(today())} · All amounts in INR</span>
           </div>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => { if (window.confirm('Reset all demo data? Changes made in this browser will be lost.')) reset() }} title="Reset demo data" className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100 sm:px-3">
