@@ -146,6 +146,22 @@ const expenses: Expense[] = [
   outFixed('PH-015', 'Transport', 'Material transport & debris removal', 22000, 'SUP-007', 'SIN-034', '2026-06-24'),
 ]
 
+// Transport / freight booked against a specific purchase (landed cost).
+// Same phase and cost category as the purchase; paid at site, on the
+// supplier's own invoice, or on a separate transporter's invoice.
+const transport = (purchaseId: string, amount: number, date: string, description: string, supplierId?: string, supplierInvoiceId?: string): Expense => {
+  const p = expenses.find((e) => e.id === purchaseId)!
+  return {
+    id: nextExp(), projectId: p.projectId, phaseId: p.phaseId, category: p.category, subType: 'Transport', description, date,
+    quantity: 1, unit: 'Trip', rate: amount, amount, linkedExpenseId: purchaseId, supplierId, supplierInvoiceId,
+  }
+}
+expenses.push(
+  transport('EXP-010', 6000, '2026-09-03', 'Lorry hire — cement to site (paid at site)'),
+  transport('EXP-042', 8000, '2026-09-19', 'Delivery charge — fly-ash bricks', 'SUP-005', 'SIN-020'),
+  transport('EXP-053', 18000, '2026-04-08', 'Trailer freight — PEB steel members', 'SUP-008', 'SIN-035'),
+)
+
 // --- supplier invoices -------------------------------------------------------
 const sin = (id: string, supplierId: string, projectId: string, invoiceNumber: string, invoiceDate: string, dueDate: string): SupplierInvoice =>
   ({ id, supplierId, projectId, invoiceNumber, invoiceDate, dueDate })
@@ -185,6 +201,7 @@ const supplierInvoices: SupplierInvoice[] = [
   sin('SIN-032', 'SUP-001', P3, 'SLC/26/0244', '2026-06-18', '2026-07-18'),
   sin('SIN-033', 'SUP-002', P3, 'KST-2071', '2026-06-20', '2026-07-20'),
   sin('SIN-034', 'SUP-007', P3, 'CER-1021', '2026-06-24', '2026-07-24'),
+  sin('SIN-035', 'SUP-008', P3, 'SMT/26/014', '2026-04-08', '2026-05-08'),
 ]
 
 let spaySeq = 0
@@ -204,7 +221,7 @@ const supplierPayments: SupplierPayment[] = [
   spay('SIN-006', '2026-09-28', 100000),
   spay('SIN-008', '2026-09-30', 54000),
   spay('SIN-011', '2026-08-10', 108000),
-  spay('SIN-012', '2026-08-18', 190400),
+  { ...spay('SIN-012', '2026-08-18', 186592), discount: 3808 }, // 2% early-payment discount
   spay('SIN-013', '2026-08-05', 120000),
   spay('SIN-013', '2026-08-28', 100000, 'Cheque', 'CHQ-004488'),
   spay('SIN-014', '2026-09-02', 160000),
@@ -219,13 +236,14 @@ const supplierPayments: SupplierPayment[] = [
   spay('SIN-025', '2026-06-02', 265000),
   spay('SIN-026', '2026-06-15', 216000),
   spay('SIN-027', '2026-06-20', 48000),
-  spay('SIN-028', '2026-08-05', 202500),
+  { ...spay('SIN-028', '2026-08-05', 198450), discount: 4050 }, // 2% early-payment discount
   spay('SIN-029', '2026-08-10', 140000),
   spay('SIN-030', '2026-08-28', 100000),
   spay('SIN-031', '2026-09-20', 100000),
   spay('SIN-032', '2026-07-15', 60750),
   spay('SIN-033', '2026-07-18', 40800),
   spay('SIN-034', '2026-07-20', 22000, 'Cash', 'CASH-0720'),
+  spay('SIN-035', '2026-05-05', 18000),
 ]
 
 // --- client invoices & payments ---------------------------------------------
@@ -325,6 +343,7 @@ function seedData(): Database {
       { id: 'SUP-005', name: 'Annai Building Materials', category: 'Material Supplier', contactPerson: 'Mariappan', phone: '+91 95000 22871', email: 'annaibm@gmail.com', city: 'Madurai' },
       { id: 'SUP-006', name: 'Vel Murugan Construction Services', category: 'Outsource Contractor', contactPerson: 'Velmurugan', phone: '+91 93450 66120', email: 'vmconstructions@gmail.com', city: 'Coimbatore' },
       { id: 'SUP-007', name: 'Chennai Equipment Rentals', category: 'Equipment Rental', contactPerson: 'Prabhu', phone: '+91 98844 30902', email: 'hire@chennaiequip.in', city: 'Chennai' },
+      { id: 'SUP-008', name: 'Sri Murugan Transports', category: 'Transport Contractor', contactPerson: 'Senthil Murugan', phone: '+91 94433 51820', email: 'bookings@srimurugantransports.in', city: 'Coimbatore' },
     ],
     supplierInvoices,
     supplierPayments,

@@ -3,7 +3,7 @@ import type {
   PhaseStatus, Project, ProjectStatus, Quotation, QuotationItem, QuotationStatus, SupplierInvoice, SupplierPayment,
 } from '../data/types'
 import { addDays, today } from '../lib/format'
-import { isPhaseDone, phaseBilling, projectFinancials, quotationTotals } from '../lib/calc'
+import { isPhaseDone, phaseBilling, projectFinancials, quotationTotals, supplierInvoiceOpenForLines, supplierInvoiceView } from '../lib/calc'
 
 // ---------------------------------------------------------------------------
 // Mutations. Each is a pure (db, input) → db function. When the backend
@@ -178,7 +178,11 @@ export type SupplierInvoiceInput =
 export function addExpense(db: Database, input: Omit<Expense, 'id' | 'supplierInvoiceId'>, invoice: SupplierInvoiceInput): [Database, Expense] {
   let next = db
   let supplierInvoiceId: string | undefined
-  if (input.supplierId && invoice.mode === 'existing') supplierInvoiceId = invoice.supplierInvoiceId
+  if (input.supplierId && invoice.mode === 'existing') {
+    const existing = db.supplierInvoices.find((i) => i.id === invoice.supplierInvoiceId)
+    if (!existing || !supplierInvoiceOpenForLines(supplierInvoiceView(db, existing))) throw new Error(`Supplier invoice ${invoice.supplierInvoiceId} is settled or discounted; book this on a new invoice`)
+    supplierInvoiceId = invoice.supplierInvoiceId
+  }
   if (input.supplierId && invoice.mode === 'new') {
     const sin: SupplierInvoice = {
       id: nextId(db.supplierInvoices, 'SIN-'), supplierId: input.supplierId, projectId: input.projectId,
@@ -196,13 +200,43 @@ export function addExpense(db: Database, input: Omit<Expense, 'id' | 'supplierIn
 }
 
 export function deleteExpense(db: Database, expenseId: string): Database {
-  const exp = db.expenses.find((e) => e.id === expenseId)
-  let next: Database = { ...db, expenses: db.expenses.filter((e) => e.id !== expenseId) }
-  // Drop an invoice left with no lines and no payments.
-  const sinId = exp?.supplierInvoiceId
-  if (sinId && !next.expenses.some((e) => e.supplierInvoiceId === sinId) && !next.supplierPayments.some((p) => p.supplierInvoiceId === sinId))
-    next = { ...next, supplierInvoices: next.supplierInvoices.filter((s) => s.id !== sinId) }
+  // Deleting a purchase also removes the transport charges booked against it.
+  const ids = new Set([expenseId, ...db.expenses.filter((e) => e.linkedExpenseId === expenseId).map((e) => e.id)])
+  const invoiceIds = new Set(db.expenses.filter((e) => ids.has(e.id) && e.supplierInvoiceId).map((e) => e.supplierInvoiceId!))
+  let next: Database = { ...db, expenses: db.expenses.filter((e) => !ids.has(e.id)) }
+  // Drop invoices left with no lines and no payments.
+  for (const sinId of invoiceIds)
+    if (!next.expenses.some((e) => e.supplierInvoiceId === sinId) && !next.supplierPayments.some((p) => p.supplierInvoiceId === sinId))
+      next = { ...next, supplierInvoices: next.supplierInvoices.filter((x) => x.id !== sinId) }
   return next
+}
+
+export type TransportPayment =
+  | { via: 'cash' }
+  | { via: 'sameInvoice' }
+  | { via: 'transporter'; supplierId: string; invoiceNumber: string; invoiceDate: string; dueDate: string }
+
+/**
+ * Transport / freight for a specific purchase. It is booked in the purchase's
+ * own cost category (landed cost), linked to the purchase, and paid either at
+ * site in cash, as an extra line on the supplier's invoice, or on a separate
+ * transporter's invoice.
+ */
+export function addTransportCharge(db: Database, purchaseId: string, input: { amount: number; date: string; note?: string; payment: TransportPayment }): [Database, Expense] {
+  const purchase = db.expenses.find((e) => e.id === purchaseId)
+  if (!purchase) throw new Error(`Unknown purchase ${purchaseId}`)
+  const base = {
+    projectId: purchase.projectId, phaseId: purchase.phaseId, category: purchase.category, subType: 'Transport',
+    description: input.note || `Transport — ${purchase.description}`, date: input.date,
+    quantity: 1, unit: 'Trip', rate: input.amount, amount: input.amount, linkedExpenseId: purchase.id,
+  }
+  const p = input.payment
+  if (p.via === 'cash') return addExpense(db, base, { mode: 'none' })
+  if (p.via === 'sameInvoice') {
+    if (!purchase.supplierInvoiceId || !purchase.supplierId) throw new Error('Purchase has no supplier invoice')
+    return addExpense(db, { ...base, supplierId: purchase.supplierId }, { mode: 'existing', supplierInvoiceId: purchase.supplierInvoiceId })
+  }
+  return addExpense(db, { ...base, supplierId: p.supplierId }, { mode: 'new', invoiceNumber: p.invoiceNumber, invoiceDate: p.invoiceDate, dueDate: p.dueDate })
 }
 
 export function addSupplierPayment(db: Database, input: Omit<SupplierPayment, 'id'>): Database {

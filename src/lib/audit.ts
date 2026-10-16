@@ -1,6 +1,6 @@
 import type { Database, Phase } from '../data/types'
 import {
-  clientInvoicePaid, isPhaseDone, phaseBilling, plannedCost, quotationTotals, supplierInvoiceAmount, supplierInvoicePaid,
+  clientInvoicePaid, isPhaseDone, phaseBilling, plannedCost, quotationTotals, supplierInvoiceAmount, supplierInvoiceDiscount, supplierInvoicePaid,
 } from './calc'
 import { today } from './format'
 
@@ -128,7 +128,17 @@ export function auditDatabase(db: Database): AuditIssue[] {
     if (e.category === 'labour' && round((e.dailyRate ?? 0) * (e.days ?? 0)) !== round(e.amount)) err('expenses', e.id, `labour ${e.dailyRate} × ${e.days} ≠ ${e.amount}`)
     if ((e.category === 'material' || (e.category === 'outsource' && e.basis === 'rate')) && round((e.quantity ?? 0) * (e.rate ?? 0)) !== round(e.amount)) err('expenses', e.id, `${e.quantity} × ${e.rate} ≠ ${e.amount}`)
     if (e.category === 'outsource' && e.basis === 'fixed' && e.rate !== e.amount) err('expenses', e.id, 'fixed outsource rate ≠ amount')
-    if ((e.category === 'material' || e.category === 'outsource') && !e.supplierInvoiceId) err('expenses', e.id, 'supplier cost without a supplier invoice')
+    const isTransport = !!e.linkedExpenseId
+    if ((e.category === 'material' || e.category === 'outsource') && !e.supplierInvoiceId && !isTransport) err('expenses', e.id, 'supplier cost without a supplier invoice')
+    if (isTransport) {
+      const purchase = db.expenses.find((x) => x.id === e.linkedExpenseId)
+      if (!purchase) err('expenses', e.id, `transport for unknown purchase ${e.linkedExpenseId}`)
+      else {
+        if (purchase.linkedExpenseId) err('expenses', e.id, 'transport linked to another transport charge')
+        if (purchase.phaseId !== e.phaseId) err('expenses', e.id, `transport booked to ${e.phaseId} but purchase is in ${purchase.phaseId}`)
+        if (e.date < purchase.date) warn('expenses', e.id, 'transport dated before its purchase')
+      }
+    }
     if (e.supplierId && !suppliers.has(e.supplierId)) err('expenses', e.id, `unknown supplier ${e.supplierId}`)
     if (e.supplierInvoiceId) {
       const s = sins.get(e.supplierInvoiceId)
@@ -136,7 +146,7 @@ export function auditDatabase(db: Database): AuditIssue[] {
       else {
         if (s.supplierId !== e.supplierId) err('expenses', e.id, `supplier differs from invoice ${s.id}`)
         if (s.projectId !== e.projectId) err('expenses', e.id, `project differs from invoice ${s.id}`)
-        if (s.invoiceDate !== e.date) warn('expenses', e.id, `dated ${e.date} but invoice ${s.id} is ${s.invoiceDate}`)
+        if (e.date < s.invoiceDate) warn('expenses', e.id, `dated ${e.date}, before invoice ${s.id} (${s.invoiceDate})`)
       }
     }
     if (e.date > asOf) err('expenses', e.id, `dated after as-of date ${asOf}`)
@@ -147,15 +157,17 @@ export function auditDatabase(db: Database): AuditIssue[] {
   // ---- supplier invoices & payments ----
   for (const s of db.supplierInvoices) {
     if (!suppliers.has(s.supplierId)) err('supplierInvoices', s.id, `unknown supplier ${s.supplierId}`)
-    const amount = supplierInvoiceAmount(db, s.id), paid = supplierInvoicePaid(db, s.id)
+    const amount = supplierInvoiceAmount(db, s.id), paid = supplierInvoicePaid(db, s.id), discount = supplierInvoiceDiscount(db, s.id)
     if (amount <= 0) err('supplierInvoices', s.id, 'no expense lines')
-    if (paid > amount) err('supplierInvoices', s.id, `paid ${paid} exceeds invoice ${amount}`)
+    if (paid + discount > amount) err('supplierInvoices', s.id, `paid ${paid} + discount ${discount} exceeds invoice ${amount}`)
     if (s.dueDate < s.invoiceDate) err('supplierInvoices', s.id, 'due before invoice date')
   }
   for (const p of db.supplierPayments) {
     const s = sins.get(p.supplierInvoiceId)
     if (!s) { err('supplierPayments', p.id, `unknown invoice ${p.supplierInvoiceId}`); continue }
-    if (p.amount <= 0) err('supplierPayments', p.id, 'non-positive amount')
+    const discount = p.discount ?? 0
+    if (p.amount < 0 || discount < 0) err('supplierPayments', p.id, 'negative amount or discount')
+    if (p.amount + discount <= 0) err('supplierPayments', p.id, 'records neither a payment nor a discount')
     if (p.date < s.invoiceDate) err('supplierPayments', p.id, 'paid before the invoice date')
     if (p.date > asOf) err('supplierPayments', p.id, `dated after as-of date ${asOf}`)
   }

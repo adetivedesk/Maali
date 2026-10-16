@@ -1,5 +1,5 @@
 import type {
-  ClientInvoice, CostCategory, Database, Phase, PhaseStatus, Project, SupplierInvoice,
+  ClientInvoice, CostCategory, Database, Expense, Phase, PhaseStatus, Project, SupplierInvoice,
 } from '../data/types'
 import { today } from './format'
 
@@ -47,10 +47,52 @@ export function plannedCost(p: Phase): CostBreakdown {
   return { ...b, total: b.material + b.labour + b.outsource + b.other }
 }
 
+// ---- Supplier settlement discounts -------------------------------------------
+// A discount accepted when paying a supplier invoice lowers the cost of that
+// purchase. It is spread across the invoice's lines pro rata (the last line
+// takes the rounding remainder), so phase and category costs stay exact.
+
+const discountCache = new WeakMap<Database, Map<string, number>>()
+
+export function expenseDiscounts(db: Database): Map<string, number> {
+  const cached = discountCache.get(db)
+  if (cached) return cached
+  const out = new Map<string, number>()
+  for (const inv of db.supplierInvoices) {
+    const discount = supplierInvoiceDiscount(db, inv.id)
+    if (!discount) continue
+    const lines = db.expenses.filter((e) => e.supplierInvoiceId === inv.id)
+    const gross = sum(lines.map((l) => l.amount))
+    let left = discount
+    lines.forEach((l, i) => {
+      const share = i === lines.length - 1 ? left : Math.round((discount * l.amount) / gross)
+      out.set(l.id, share)
+      left -= share
+    })
+  }
+  discountCache.set(db, out)
+  return out
+}
+
+/** Cost of an expense after any settlement discount on its supplier invoice. */
+export const expenseNetAmount = (db: Database, e: Expense) => e.amount - (expenseDiscounts(db).get(e.id) ?? 0)
+
 export function actualCost(db: Database, phaseId: string): CostBreakdown {
   const out = emptyBreakdown()
-  for (const e of db.expenses) if (e.phaseId === phaseId) { out[e.category] += e.amount; out.total += e.amount }
+  for (const e of db.expenses) {
+    if (e.phaseId !== phaseId) continue
+    const net = expenseNetAmount(db, e)
+    out[e.category] += net
+    out.total += net
+  }
   return out
+}
+
+/** Transport charges booked against a purchase, and its landed cost. */
+export function purchaseLanding(db: Database, purchase: Expense) {
+  const transport = db.expenses.filter((e) => e.linkedExpenseId === purchase.id)
+  const transportCost = sum(transport.map((t) => expenseNetAmount(db, t)))
+  return { transport, transportCost, landedCost: expenseNetAmount(db, purchase) + transportCost }
 }
 
 export function phaseBilling(db: Database, phaseId: string) {
@@ -121,24 +163,35 @@ export type SupplierInvoiceStatus = 'Unpaid' | 'Partially Paid' | 'Paid' | 'Over
 export const supplierInvoiceAmount = (db: Database, invoiceId: string) =>
   sum(db.expenses.filter((e) => e.supplierInvoiceId === invoiceId).map((e) => e.amount))
 
+/** Cash actually paid against a supplier invoice. */
 export const supplierInvoicePaid = (db: Database, invoiceId: string) =>
   sum(db.supplierPayments.filter((p) => p.supplierInvoiceId === invoiceId).map((p) => p.amount))
+
+/** Settlement discounts accepted against a supplier invoice. */
+export const supplierInvoiceDiscount = (db: Database, invoiceId: string) =>
+  sum(db.supplierPayments.filter((p) => p.supplierInvoiceId === invoiceId).map((p) => p.discount ?? 0))
 
 export function supplierInvoiceView(db: Database, inv: SupplierInvoice) {
   const amount = supplierInvoiceAmount(db, inv.id)
   const paid = supplierInvoicePaid(db, inv.id)
-  const pending = amount - paid
-  let status: SupplierInvoiceStatus = paid >= amount ? 'Paid' : paid > 0 ? 'Partially Paid' : 'Unpaid'
+  const discount = supplierInvoiceDiscount(db, inv.id)
+  const settled = paid + discount
+  const pending = amount - settled
+  let status: SupplierInvoiceStatus = settled >= amount ? 'Paid' : settled > 0 ? 'Partially Paid' : 'Unpaid'
   if (pending > 0 && inv.dueDate < today()) status = 'Overdue'
   const phaseIds = [...new Set(db.expenses.filter((e) => e.supplierInvoiceId === inv.id).map((e) => e.phaseId))]
-  return { ...inv, amount, paid, pending, status, overdue: status === 'Overdue' ? pending : 0, phaseIds }
+  return { ...inv, amount, paid, discount, netCost: amount - discount, pending, status, overdue: status === 'Overdue' ? pending : 0, phaseIds }
 }
 export type SupplierInvoiceView = ReturnType<typeof supplierInvoiceView>
+
+/** A settled or discounted invoice is closed: new lines would reopen it or dilute a discount agreed on the original goods. */
+export const supplierInvoiceOpenForLines = (v: SupplierInvoiceView) => v.pending > 0 && v.discount === 0
 
 function supplierTotals(views: SupplierInvoiceView[]) {
   return {
     invoiced: sum(views.map((v) => v.amount)),
     paid: sum(views.map((v) => v.paid)),
+    discount: sum(views.map((v) => v.discount)),
     pending: sum(views.map((v) => v.pending)),
     overdue: sum(views.map((v) => v.overdue)),
   }
@@ -222,6 +275,7 @@ export function projectFinancials(db: Database, projectId: string) {
     clientOverdue,
     unbilled: revenue - billed,
     supplierInvoiced: sup.invoiced,
+    supplierDiscount: sup.discount,
     supplierPaid: sup.paid,
     supplierPending: sup.pending,
     supplierOverdue: sup.overdue,
@@ -297,6 +351,7 @@ export function portfolioSummary(db: Database) {
     actualByCategory: addBreakdowns(fins.map((f) => f.actual)),
     supplierInvoiced: sum(fins.map((f) => f.supplierInvoiced)),
     supplierPaid: sum(fins.map((f) => f.supplierPaid)),
+    supplierDiscount: sum(fins.map((f) => f.supplierDiscount)),
     supplierPayable: sum(fins.map((f) => f.supplierPending)),
     supplierOverdue: sum(fins.map((f) => f.supplierOverdue)),
     completedRevenue,

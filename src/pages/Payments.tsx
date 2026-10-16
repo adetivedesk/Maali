@@ -26,6 +26,7 @@ export function Payments() {
 
   const inflow = client.reduce((a, x) => a + x.p.amount, 0)
   const outflow = supplier.reduce((a, x) => a + x.p.amount, 0)
+  const discounts = supplier.reduce((a, x) => a + (x.p.discount ?? 0), 0)
 
   return (
     <>
@@ -33,7 +34,7 @@ export function Payments() {
         actions={<><Button onClick={() => setModal('supplier')}>Record supplier payment</Button><Button variant="primary" onClick={() => setModal('client')}>Record client payment</Button></>} />
       <KpiGrid cols={3}>
         <Kpi label="Client receipts" value={formatCompact(inflow)} tone="positive" sub={`${client.length} payments`} />
-        <Kpi label="Supplier payments" value={formatCompact(outflow)} tone="warning" sub={`${supplier.length} payments`} />
+        <Kpi label="Supplier payments" value={formatCompact(outflow)} tone="warning" sub={`${supplier.length} payments${discounts ? ` · ${formatCompact(discounts)} discounts received` : ''}`} />
         <Kpi label="Net (receipts − supplier payments)" value={formatCompact(inflow - outflow)} tone={inflow - outflow >= 0 ? 'positive' : 'negative'} sub="excludes own labour paid at site" />
       </KpiGrid>
       <div className="mt-5">
@@ -61,15 +62,16 @@ export function Payments() {
           </Table>
         ) : (
           <Table>
-            <thead><tr><Th>Payment</Th><Th>Date</Th><Th>Supplier</Th><Th>Invoice</Th><Th>Project</Th><Th>Method</Th><Th>Reference</Th><Th right>Amount</Th></tr></thead>
+            <thead><tr><Th>Payment</Th><Th>Date</Th><Th>Supplier</Th><Th>Invoice</Th><Th>Project</Th><Th>Method</Th><Th>Reference</Th><Th right>Amount</Th><Th right>Discount</Th></tr></thead>
             <tbody>
-              {supplier.length === 0 && <EmptyRow cols={8} />}
+              {supplier.length === 0 && <EmptyRow cols={9} />}
               {supplier.map(({ p, inv }) => (
                 <tr key={p.id} className="hover:bg-slate-50/60">
                   <Td className="font-mono text-xs">{p.id}</Td><Td className="whitespace-nowrap">{formatDate(p.date)}</Td>
                   <Td><Link to={`/suppliers/${inv.supplierId}`} className="hover:text-blue-600">{db.suppliers.find((x) => x.id === inv.supplierId)?.name}</Link></Td>
                   <Td>{inv.invoiceNumber}</Td><Td>{db.projects.find((x) => x.id === inv.projectId)?.shortName}</Td><Td>{p.method}</Td><Td className="text-slate-500">{p.reference}</Td>
                   <Td right><Money value={p.amount} className="font-medium" /></Td>
+                  <Td right>{p.discount ? <Money value={p.discount} className="text-emerald-700" /> : <span className="text-slate-300">—</span>}</Td>
                 </tr>
               ))}
             </tbody>

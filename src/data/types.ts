@@ -131,9 +131,11 @@ export interface Expense {
   // supplier link (material / outsource)
   supplierId?: string
   supplierInvoiceId?: string
+  /** Transport/freight charge for a specific purchase: the purchase expense id. */
+  linkedExpenseId?: string
 }
 
-export type SupplierCategory = 'Material Supplier' | 'Steel Supplier' | 'Outsource Contractor' | 'Electrical Contractor' | 'Equipment Rental'
+export type SupplierCategory = 'Material Supplier' | 'Steel Supplier' | 'Outsource Contractor' | 'Electrical Contractor' | 'Equipment Rental' | 'Transport Contractor'
 
 export interface Supplier {
   id: string // SUP-001
@@ -162,7 +164,10 @@ export interface SupplierPayment {
   id: string // SPAY-001
   supplierInvoiceId: string
   date: ISODate
+  /** Cash actually paid. */
   amount: number
+  /** Settlement discount accepted by the supplier with this payment (reduces the purchase cost). */
+  discount?: number
   method: PaymentMethod
   reference: string
 }

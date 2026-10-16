@@ -8,27 +8,28 @@
     "received": 6050000,
     "clientReceivable": 1400000,
     "clientOverdue": 200000,
-    "supplierInvoiced": 5463550,
-    "supplierPaid": 3959450,
-    "supplierPayable": 1504100,
+    "supplierInvoiced": 5489550,
+    "supplierPaid": 3969592,
+    "supplierDiscount": 7858,
+    "supplierPayable": 1512100,
     "supplierOverdue": 495600,
     "plannedCost": 11830000,
-    "actualCost": 6636850,
+    "actualCost": 6660992,
     "actualByCategory": {
-      "material": 3746550,
+      "material": 3770692,
       "labour": 1083300,
       "outsource": 1717000,
       "other": 90000,
-      "total": 6636850
+      "total": 6660992
     },
-    "wipCost": 1650900,
+    "wipCost": 1664900,
     "completedRevenue": 7600000,
-    "actualProfit": 2614050,
-    "actualMargin": 34.4,
-    "billedProfit": 813150,
-    "forecastProfit": 5934050,
-    "forecastMargin": 33.81,
-    "forecastCost": 11615950,
+    "actualProfit": 2603908,
+    "actualMargin": 34.26,
+    "billedProfit": 789008,
+    "forecastProfit": 5923908,
+    "forecastMargin": 33.75,
+    "forecastCost": 11626092,
     "clientInvoiceCount": 10,
     "overdueClientInvoices": 1
   },
@@ -39,10 +40,10 @@
     "quotationItems": 23,
     "contracts": 3,
     "phases": 15,
-    "expenses": 74,
-    "suppliers": 7,
-    "supplierInvoices": 34,
-    "supplierPayments": 32,
+    "expenses": 77,
+    "suppliers": 8,
+    "supplierInvoices": 35,
+    "supplierPayments": 33,
     "clientInvoices": 10,
     "clientPayments": 15,
     "changeOrders": 3,
@@ -58,17 +59,17 @@
       "changeOrderRevenue": 500000,
       "revenue": 5500000,
       "plannedCost": 3700000,
-      "actualCost": 1461400,
+      "actualCost": 1467400,
       "actualByCategory": {
-        "material": 897600,
+        "material": 903600,
         "labour": 275800,
         "outsource": 288000,
         "other": 0,
-        "total": 1461400
+        "total": 1467400
       },
       "completedRevenue": 800000,
       "completedCost": 510000,
-      "wipCost": 951400,
+      "wipCost": 957400,
       "completedPhases": 1,
       "phases": 5,
       "actualProfit": 290000,
@@ -77,8 +78,8 @@
       "expectedMargin": 32.73,
       "forecastProfit": 1840000,
       "forecastMargin": 33.45,
-      "billedProfit": 88600,
-      "budgetVariance": -2238600,
+      "billedProfit": 82600,
+      "budgetVariance": -2232600,
       "profitVariance": 40000,
       "completion": 36.18,
       "billed": 1550000,
@@ -88,10 +89,11 @@
       "unbilled": 3950000,
       "supplierInvoiced": 1185600,
       "supplierPaid": 694000,
+      "supplierDiscount": 0,
       "supplierPending": 491600,
       "supplierOverdue": 117600,
-      "directPaid": 275800,
-      "cashPosition": -69800
+      "directPaid": 281800,
+      "cashPosition": -75800
     },
     "PRJ-2026-002": {
       "name": "Green Valley Commercial Building",
@@ -101,40 +103,41 @@
       "changeOrderRevenue": 0,
       "revenue": 8250000,
       "plannedCost": 5500000,
-      "actualCost": 2651900,
+      "actualCost": 2656092,
       "actualByCategory": {
-        "material": 1405900,
+        "material": 1410092,
         "labour": 380000,
         "outsource": 816000,
         "other": 50000,
-        "total": 2651900
+        "total": 2656092
       },
       "completedRevenue": 3000000,
-      "completedCost": 1952400,
-      "wipCost": 699500,
+      "completedCost": 1948592,
+      "wipCost": 707500,
       "completedPhases": 2,
       "phases": 5,
-      "actualProfit": 1047600,
-      "actualMargin": 34.92,
+      "actualProfit": 1051408,
+      "actualMargin": 35.05,
       "expectedProfit": 2750000,
       "expectedMargin": 33.33,
-      "forecastProfit": 2817600,
-      "forecastMargin": 34.15,
-      "billedProfit": -551900,
-      "budgetVariance": -2848100,
-      "profitVariance": 67600,
+      "forecastProfit": 2821408,
+      "forecastMargin": 34.2,
+      "billedProfit": -556092,
+      "budgetVariance": -2843908,
+      "profitVariance": 71408,
       "completion": 47.27,
       "billed": 2100000,
       "received": 1600000,
       "clientPending": 500000,
       "clientOverdue": 0,
       "unbilled": 6150000,
-      "supplierInvoiced": 2221900,
-      "supplierPaid": 1306400,
-      "supplierPending": 915500,
+      "supplierInvoiced": 2229900,
+      "supplierPaid": 1302592,
+      "supplierDiscount": 3808,
+      "supplierPending": 923500,
       "supplierOverdue": 281000,
       "directPaid": 430000,
-      "cashPosition": -136400
+      "cashPosition": -132592
     },
     "PRJ-2026-003": {
       "name": "SRK Warehouse Development",
@@ -144,40 +147,41 @@
       "changeOrderRevenue": 300000,
       "revenue": 3800000,
       "plannedCost": 2630000,
-      "actualCost": 2523550,
+      "actualCost": 2537500,
       "actualByCategory": {
-        "material": 1443050,
+        "material": 1457000,
         "labour": 427500,
         "outsource": 613000,
         "other": 40000,
-        "total": 2523550
+        "total": 2537500
       },
       "completedRevenue": 3800000,
-      "completedCost": 2523550,
+      "completedCost": 2537500,
       "wipCost": 0,
       "completedPhases": 5,
       "phases": 5,
-      "actualProfit": 1276450,
-      "actualMargin": 33.59,
+      "actualProfit": 1262500,
+      "actualMargin": 33.22,
       "expectedProfit": 1170000,
       "expectedMargin": 30.79,
-      "forecastProfit": 1276450,
-      "forecastMargin": 33.59,
-      "billedProfit": 1276450,
-      "budgetVariance": -106450,
-      "profitVariance": 106450,
+      "forecastProfit": 1262500,
+      "forecastMargin": 33.22,
+      "billedProfit": 1262500,
+      "budgetVariance": -92500,
+      "profitVariance": 92500,
       "completion": 100,
       "billed": 3800000,
       "received": 3550000,
       "clientPending": 250000,
       "clientOverdue": 0,
       "unbilled": 0,
-      "supplierInvoiced": 2056050,
-      "supplierPaid": 1959050,
+      "supplierInvoiced": 2074050,
+      "supplierPaid": 1973000,
+      "supplierDiscount": 4050,
       "supplierPending": 97000,
       "supplierOverdue": 97000,
       "directPaid": 467500,
-      "cashPosition": 1123450
+      "cashPosition": 1109500
     }
   },
   "phases": {
@@ -237,22 +241,22 @@
         "total": 1000000
       },
       "actual": {
-        "material": 577600,
+        "material": 583600,
         "labour": 140400,
         "outsource": 108000,
         "other": 0,
-        "total": 826000
+        "total": 832000
       },
       "actualProfit": 0,
       "actualMargin": 0,
       "expectedProfit": 500000,
       "expectedMargin": 33.33,
       "forecastProfit": 500000,
-      "wipCost": 826000,
-      "budgetVariance": -174000,
-      "budgetUsedPct": 82.6,
+      "wipCost": 832000,
+      "budgetVariance": -168000,
+      "budgetUsedPct": 83.2,
       "categoryUsedPct": {
-        "material": 105.02,
+        "material": 106.11,
         "labour": 54,
         "outsource": 67.5,
         "other": 0
@@ -261,7 +265,7 @@
       "received": 300000,
       "clientPending": 450000,
       "unbilled": 750000,
-      "billedProfit": -76000
+      "billedProfit": -82000
     },
     "PH-003": {
       "name": "Electrical & Plumbing",
@@ -401,22 +405,22 @@
         "total": 820000
       },
       "actual": {
-        "material": 298400,
+        "material": 294592,
         "labour": 110000,
         "outsource": 380000,
         "other": 18000,
-        "total": 806400
+        "total": 802592
       },
-      "actualProfit": 393600,
-      "actualMargin": 32.8,
+      "actualProfit": 397408,
+      "actualMargin": 33.12,
       "expectedProfit": 380000,
       "expectedMargin": 31.67,
-      "forecastProfit": 393600,
+      "forecastProfit": 397408,
       "wipCost": 0,
-      "budgetVariance": -13600,
-      "budgetUsedPct": 98.34,
+      "budgetVariance": -17408,
+      "budgetUsedPct": 97.88,
       "categoryUsedPct": {
-        "material": 99.47,
+        "material": 98.2,
         "labour": 91.67,
         "outsource": 100,
         "other": 90
@@ -425,7 +429,7 @@
       "received": 1200000,
       "clientPending": 0,
       "unbilled": 0,
-      "billedProfit": 393600
+      "billedProfit": 397408
     },
     "PH-007": {
       "name": "Foundation & Basement",
@@ -483,22 +487,22 @@
         "total": 2000000
       },
       "actual": {
-        "material": 470500,
+        "material": 478500,
         "labour": 40000,
         "outsource": 189000,
         "other": 0,
-        "total": 699500
+        "total": 707500
       },
       "actualProfit": 0,
       "actualMargin": 0,
       "expectedProfit": 1000000,
       "expectedMargin": 33.33,
       "forecastProfit": 1000000,
-      "wipCost": 699500,
-      "budgetVariance": -1300500,
-      "budgetUsedPct": 34.98,
+      "wipCost": 707500,
+      "budgetVariance": -1292500,
+      "budgetUsedPct": 35.38,
       "categoryUsedPct": {
-        "material": 42.77,
+        "material": 43.5,
         "labour": 8.89,
         "outsource": 47.25,
         "other": 0
@@ -507,7 +511,7 @@
       "received": 400000,
       "clientPending": 500000,
       "unbilled": 2100000,
-      "billedProfit": 200500
+      "billedProfit": 192500
     },
     "PH-009": {
       "name": "MEP Services",
@@ -647,22 +651,22 @@
         "total": 1050000
       },
       "actual": {
-        "material": 665000,
+        "material": 683000,
         "labour": 144000,
         "outsource": 264000,
         "other": 25000,
-        "total": 1098000
+        "total": 1116000
       },
-      "actualProfit": 402000,
-      "actualMargin": 26.8,
+      "actualProfit": 384000,
+      "actualMargin": 25.6,
       "expectedProfit": 450000,
       "expectedMargin": 30,
-      "forecastProfit": 402000,
+      "forecastProfit": 384000,
       "wipCost": 0,
-      "budgetVariance": 48000,
-      "budgetUsedPct": 104.57,
+      "budgetVariance": 66000,
+      "budgetUsedPct": 106.29,
       "categoryUsedPct": {
-        "material": 102.31,
+        "material": 105.08,
         "labour": 120,
         "outsource": 105.6,
         "other": 83.33
@@ -671,7 +675,7 @@
       "received": 1500000,
       "clientPending": 0,
       "unbilled": 0,
-      "billedProfit": 402000
+      "billedProfit": 384000
     },
     "PH-013": {
       "name": "Flooring & Roofing",
@@ -688,22 +692,22 @@
         "total": 620000
       },
       "actual": {
-        "material": 342500,
+        "material": 338450,
         "labour": 96000,
         "outsource": 132000,
         "other": 0,
-        "total": 570500
+        "total": 566450
       },
-      "actualProfit": 329500,
-      "actualMargin": 36.61,
+      "actualProfit": 333550,
+      "actualMargin": 37.06,
       "expectedProfit": 280000,
       "expectedMargin": 31.11,
-      "forecastProfit": 329500,
+      "forecastProfit": 333550,
       "wipCost": 0,
-      "budgetVariance": -49500,
-      "budgetUsedPct": 92.02,
+      "budgetVariance": -53550,
+      "budgetUsedPct": 91.36,
       "categoryUsedPct": {
-        "material": 97.86,
+        "material": 96.7,
         "labour": 80,
         "outsource": 101.54,
         "other": 0
@@ -712,7 +716,7 @@
       "received": 900000,
       "clientPending": 0,
       "unbilled": 0,
-      "billedProfit": 329500
+      "billedProfit": 333550
     },
     "PH-014": {
       "name": "Electrical & Drainage",
@@ -806,7 +810,9 @@
       "amount": 105000,
       "quantity": 250,
       "unit": "Bags",
-      "rate": 420
+      "rate": 420,
+      "netAmount": 105000,
+      "landedCost": 105000
     },
     "EXP-002": {
       "phaseId": "PH-001",
@@ -816,7 +822,9 @@
       "amount": 105000,
       "quantity": 1500,
       "unit": "Kg",
-      "rate": 70
+      "rate": 70,
+      "netAmount": 105000,
+      "landedCost": 105000
     },
     "EXP-003": {
       "phaseId": "PH-001",
@@ -826,7 +834,8 @@
       "amount": 30000,
       "dailyRate": 1200,
       "days": 25,
-      "workerName": "Murugan"
+      "workerName": "Murugan",
+      "netAmount": 30000
     },
     "EXP-004": {
       "phaseId": "PH-001",
@@ -836,7 +845,8 @@
       "amount": 30000,
       "dailyRate": 1200,
       "days": 25,
-      "workerName": "Selvam"
+      "workerName": "Selvam",
+      "netAmount": 30000
     },
     "EXP-005": {
       "phaseId": "PH-001",
@@ -846,7 +856,8 @@
       "amount": 20000,
       "dailyRate": 800,
       "days": 25,
-      "workerName": "Karthik"
+      "workerName": "Karthik",
+      "netAmount": 20000
     },
     "EXP-006": {
       "phaseId": "PH-001",
@@ -856,7 +867,8 @@
       "amount": 20000,
       "dailyRate": 800,
       "days": 25,
-      "workerName": "Ravi"
+      "workerName": "Ravi",
+      "netAmount": 20000
     },
     "EXP-007": {
       "phaseId": "PH-001",
@@ -866,7 +878,8 @@
       "amount": 20000,
       "dailyRate": 2000,
       "days": 10,
-      "workerName": "Senthil"
+      "workerName": "Senthil",
+      "netAmount": 20000
     },
     "EXP-008": {
       "phaseId": "PH-001",
@@ -877,7 +890,8 @@
       "quantity": 1,
       "unit": "Fixed",
       "rate": 150000,
-      "basis": "fixed"
+      "basis": "fixed",
+      "netAmount": 150000
     },
     "EXP-009": {
       "phaseId": "PH-001",
@@ -888,7 +902,8 @@
       "quantity": 12,
       "unit": "Day",
       "rate": 2500,
-      "basis": "rate"
+      "basis": "rate",
+      "netAmount": 30000
     },
     "EXP-010": {
       "phaseId": "PH-002",
@@ -898,7 +913,9 @@
       "amount": 252000,
       "quantity": 600,
       "unit": "Bags",
-      "rate": 420
+      "rate": 420,
+      "netAmount": 252000,
+      "landedCost": 258000
     },
     "EXP-011": {
       "phaseId": "PH-002",
@@ -908,7 +925,9 @@
       "amount": 217600,
       "quantity": 3200,
       "unit": "Kg",
-      "rate": 68
+      "rate": 68,
+      "netAmount": 217600,
+      "landedCost": 217600
     },
     "EXP-012": {
       "phaseId": "PH-002",
@@ -918,7 +937,9 @@
       "amount": 108000,
       "quantity": 12000,
       "unit": "Nos",
-      "rate": 9
+      "rate": 9,
+      "netAmount": 108000,
+      "landedCost": 108000
     },
     "EXP-013": {
       "phaseId": "PH-002",
@@ -928,7 +949,8 @@
       "amount": 36000,
       "dailyRate": 1200,
       "days": 30,
-      "workerName": "Murugan"
+      "workerName": "Murugan",
+      "netAmount": 36000
     },
     "EXP-014": {
       "phaseId": "PH-002",
@@ -938,7 +960,8 @@
       "amount": 36000,
       "dailyRate": 1200,
       "days": 30,
-      "workerName": "Selvam"
+      "workerName": "Selvam",
+      "netAmount": 36000
     },
     "EXP-015": {
       "phaseId": "PH-002",
@@ -948,7 +971,8 @@
       "amount": 24000,
       "dailyRate": 800,
       "days": 30,
-      "workerName": "Karthik"
+      "workerName": "Karthik",
+      "netAmount": 24000
     },
     "EXP-016": {
       "phaseId": "PH-002",
@@ -958,7 +982,8 @@
       "amount": 22400,
       "dailyRate": 800,
       "days": 28,
-      "workerName": "Ravi"
+      "workerName": "Ravi",
+      "netAmount": 22400
     },
     "EXP-017": {
       "phaseId": "PH-002",
@@ -968,7 +993,8 @@
       "amount": 22000,
       "dailyRate": 1100,
       "days": 20,
-      "workerName": "Gopal (Bar bender)"
+      "workerName": "Gopal (Bar bender)",
+      "netAmount": 22000
     },
     "EXP-018": {
       "phaseId": "PH-002",
@@ -979,7 +1005,8 @@
       "quantity": 2400,
       "unit": "Sq.ft",
       "rate": 45,
-      "basis": "rate"
+      "basis": "rate",
+      "netAmount": 108000
     },
     "EXP-019": {
       "phaseId": "PH-003",
@@ -989,7 +1016,9 @@
       "amount": 68000,
       "quantity": 1,
       "unit": "Lot",
-      "rate": 68000
+      "rate": 68000,
+      "netAmount": 68000,
+      "landedCost": 68000
     },
     "EXP-020": {
       "phaseId": "PH-003",
@@ -999,7 +1028,9 @@
       "amount": 42000,
       "quantity": 1,
       "unit": "Lot",
-      "rate": 42000
+      "rate": 42000,
+      "netAmount": 42000,
+      "landedCost": 42000
     },
     "EXP-021": {
       "phaseId": "PH-003",
@@ -1009,7 +1040,8 @@
       "amount": 8800,
       "dailyRate": 1100,
       "days": 8,
-      "workerName": "Babu"
+      "workerName": "Babu",
+      "netAmount": 8800
     },
     "EXP-022": {
       "phaseId": "PH-003",
@@ -1019,7 +1051,8 @@
       "amount": 6600,
       "dailyRate": 1100,
       "days": 6,
-      "workerName": "Joseph"
+      "workerName": "Joseph",
+      "netAmount": 6600
     },
     "EXP-023": {
       "phaseId": "PH-006",
@@ -1029,7 +1062,9 @@
       "amount": 108000,
       "quantity": 60,
       "unit": "Cu.m",
-      "rate": 1800
+      "rate": 1800,
+      "netAmount": 108000,
+      "landedCost": 108000
     },
     "EXP-024": {
       "phaseId": "PH-006",
@@ -1039,7 +1074,9 @@
       "amount": 190400,
       "quantity": 2800,
       "unit": "Kg",
-      "rate": 68
+      "rate": 68,
+      "netAmount": 186592,
+      "landedCost": 186592
     },
     "EXP-025": {
       "phaseId": "PH-006",
@@ -1049,7 +1086,8 @@
       "amount": 24000,
       "dailyRate": 800,
       "days": 30,
-      "workerName": "Pandi"
+      "workerName": "Pandi",
+      "netAmount": 24000
     },
     "EXP-026": {
       "phaseId": "PH-006",
@@ -1059,7 +1097,8 @@
       "amount": 36000,
       "dailyRate": 1200,
       "days": 30,
-      "workerName": "Kannan"
+      "workerName": "Kannan",
+      "netAmount": 36000
     },
     "EXP-027": {
       "phaseId": "PH-006",
@@ -1069,7 +1108,8 @@
       "amount": 50000,
       "dailyRate": 2000,
       "days": 25,
-      "workerName": "Ibrahim"
+      "workerName": "Ibrahim",
+      "netAmount": 50000
     },
     "EXP-028": {
       "phaseId": "PH-006",
@@ -1080,7 +1120,8 @@
       "quantity": 1,
       "unit": "Fixed",
       "rate": 220000,
-      "basis": "fixed"
+      "basis": "fixed",
+      "netAmount": 220000
     },
     "EXP-029": {
       "phaseId": "PH-006",
@@ -1091,14 +1132,16 @@
       "quantity": 400,
       "unit": "Running ft",
       "rate": 400,
-      "basis": "rate"
+      "basis": "rate",
+      "netAmount": 160000
     },
     "EXP-030": {
       "phaseId": "PH-006",
       "category": "other",
       "subType": "Survey & Testing",
       "description": "Topographic survey & soil investigation",
-      "amount": 18000
+      "amount": 18000,
+      "netAmount": 18000
     },
     "EXP-031": {
       "phaseId": "PH-007",
@@ -1108,7 +1151,9 @@
       "amount": 369000,
       "quantity": 900,
       "unit": "Bags",
-      "rate": 410
+      "rate": 410,
+      "netAmount": 369000,
+      "landedCost": 369000
     },
     "EXP-032": {
       "phaseId": "PH-007",
@@ -1118,7 +1163,9 @@
       "amount": 268000,
       "quantity": 4000,
       "unit": "Kg",
-      "rate": 67
+      "rate": 67,
+      "netAmount": 268000,
+      "landedCost": 268000
     },
     "EXP-033": {
       "phaseId": "PH-007",
@@ -1128,7 +1175,8 @@
       "amount": 48000,
       "dailyRate": 1200,
       "days": 40,
-      "workerName": "Kannan"
+      "workerName": "Kannan",
+      "netAmount": 48000
     },
     "EXP-034": {
       "phaseId": "PH-007",
@@ -1138,7 +1186,8 @@
       "amount": 48000,
       "dailyRate": 1200,
       "days": 40,
-      "workerName": "Velu"
+      "workerName": "Velu",
+      "netAmount": 48000
     },
     "EXP-035": {
       "phaseId": "PH-007",
@@ -1148,7 +1197,8 @@
       "amount": 32000,
       "dailyRate": 800,
       "days": 40,
-      "workerName": "Pandi"
+      "workerName": "Pandi",
+      "netAmount": 32000
     },
     "EXP-036": {
       "phaseId": "PH-007",
@@ -1158,7 +1208,8 @@
       "amount": 32000,
       "dailyRate": 800,
       "days": 40,
-      "workerName": "Muthu"
+      "workerName": "Muthu",
+      "netAmount": 32000
     },
     "EXP-037": {
       "phaseId": "PH-007",
@@ -1168,7 +1219,8 @@
       "amount": 70000,
       "dailyRate": 2000,
       "days": 35,
-      "workerName": "Ibrahim"
+      "workerName": "Ibrahim",
+      "netAmount": 70000
     },
     "EXP-038": {
       "phaseId": "PH-007",
@@ -1179,7 +1231,8 @@
       "quantity": 3200,
       "unit": "Sq.ft",
       "rate": 35,
-      "basis": "rate"
+      "basis": "rate",
+      "netAmount": 112000
     },
     "EXP-039": {
       "phaseId": "PH-007",
@@ -1190,14 +1243,16 @@
       "quantity": 15,
       "unit": "Day",
       "rate": 9000,
-      "basis": "rate"
+      "basis": "rate",
+      "netAmount": 135000
     },
     "EXP-040": {
       "phaseId": "PH-007",
       "category": "other",
       "subType": "Site Utilities",
       "description": "Curing water tanker supply",
-      "amount": 32000
+      "amount": 32000,
+      "netAmount": 32000
     },
     "EXP-041": {
       "phaseId": "PH-008",
@@ -1207,7 +1262,9 @@
       "amount": 290500,
       "quantity": 700,
       "unit": "Bags",
-      "rate": 415
+      "rate": 415,
+      "netAmount": 290500,
+      "landedCost": 290500
     },
     "EXP-042": {
       "phaseId": "PH-008",
@@ -1217,7 +1274,9 @@
       "amount": 180000,
       "quantity": 20000,
       "unit": "Nos",
-      "rate": 9
+      "rate": 9,
+      "netAmount": 180000,
+      "landedCost": 188000
     },
     "EXP-043": {
       "phaseId": "PH-008",
@@ -1227,7 +1286,8 @@
       "amount": 24000,
       "dailyRate": 1200,
       "days": 20,
-      "workerName": "Velu"
+      "workerName": "Velu",
+      "netAmount": 24000
     },
     "EXP-044": {
       "phaseId": "PH-008",
@@ -1237,7 +1297,8 @@
       "amount": 16000,
       "dailyRate": 800,
       "days": 20,
-      "workerName": "Muthu"
+      "workerName": "Muthu",
+      "netAmount": 16000
     },
     "EXP-045": {
       "phaseId": "PH-008",
@@ -1248,7 +1309,8 @@
       "quantity": 4500,
       "unit": "Sq.ft",
       "rate": 42,
-      "basis": "rate"
+      "basis": "rate",
+      "netAmount": 189000
     },
     "EXP-046": {
       "phaseId": "PH-011",
@@ -1258,7 +1320,9 @@
       "amount": 160000,
       "quantity": 400,
       "unit": "Bags",
-      "rate": 400
+      "rate": 400,
+      "netAmount": 160000,
+      "landedCost": 160000
     },
     "EXP-047": {
       "phaseId": "PH-011",
@@ -1268,7 +1332,9 @@
       "amount": 54000,
       "quantity": 30,
       "unit": "Cu.m",
-      "rate": 1800
+      "rate": 1800,
+      "netAmount": 54000,
+      "landedCost": 54000
     },
     "EXP-048": {
       "phaseId": "PH-011",
@@ -1278,7 +1344,8 @@
       "amount": 42000,
       "dailyRate": 1200,
       "days": 35,
-      "workerName": "Arjun"
+      "workerName": "Arjun",
+      "netAmount": 42000
     },
     "EXP-049": {
       "phaseId": "PH-011",
@@ -1288,7 +1355,8 @@
       "amount": 28000,
       "dailyRate": 800,
       "days": 35,
-      "workerName": "Siva"
+      "workerName": "Siva",
+      "netAmount": 28000
     },
     "EXP-050": {
       "phaseId": "PH-011",
@@ -1298,7 +1366,8 @@
       "amount": 28000,
       "dailyRate": 800,
       "days": 35,
-      "workerName": "Mani"
+      "workerName": "Mani",
+      "netAmount": 28000
     },
     "EXP-051": {
       "phaseId": "PH-011",
@@ -1309,14 +1378,16 @@
       "quantity": 1,
       "unit": "Fixed",
       "rate": 150000,
-      "basis": "fixed"
+      "basis": "fixed",
+      "netAmount": 150000
     },
     "EXP-052": {
       "phaseId": "PH-011",
       "category": "other",
       "subType": "Survey & Testing",
       "description": "Soil bearing capacity test",
-      "amount": 15000
+      "amount": 15000,
+      "netAmount": 15000
     },
     "EXP-053": {
       "phaseId": "PH-012",
@@ -1326,7 +1397,9 @@
       "amount": 665000,
       "quantity": 9500,
       "unit": "Kg",
-      "rate": 70
+      "rate": 70,
+      "netAmount": 665000,
+      "landedCost": 683000
     },
     "EXP-054": {
       "phaseId": "PH-012",
@@ -1336,7 +1409,8 @@
       "amount": 52000,
       "dailyRate": 1300,
       "days": 40,
-      "workerName": "Ramesh (Welder)"
+      "workerName": "Ramesh (Welder)",
+      "netAmount": 52000
     },
     "EXP-055": {
       "phaseId": "PH-012",
@@ -1346,7 +1420,8 @@
       "amount": 32000,
       "dailyRate": 800,
       "days": 40,
-      "workerName": "Siva"
+      "workerName": "Siva",
+      "netAmount": 32000
     },
     "EXP-056": {
       "phaseId": "PH-012",
@@ -1356,7 +1431,8 @@
       "amount": 60000,
       "dailyRate": 2000,
       "days": 30,
-      "workerName": "Dinesh"
+      "workerName": "Dinesh",
+      "netAmount": 60000
     },
     "EXP-057": {
       "phaseId": "PH-012",
@@ -1367,7 +1443,8 @@
       "quantity": 12000,
       "unit": "Sq.ft",
       "rate": 18,
-      "basis": "rate"
+      "basis": "rate",
+      "netAmount": 216000
     },
     "EXP-058": {
       "phaseId": "PH-012",
@@ -1378,14 +1455,16 @@
       "quantity": 8,
       "unit": "Day",
       "rate": 6000,
-      "basis": "rate"
+      "basis": "rate",
+      "netAmount": 48000
     },
     "EXP-059": {
       "phaseId": "PH-012",
       "category": "other",
       "subType": "Site Security",
       "description": "Site security services",
-      "amount": 25000
+      "amount": 25000,
+      "netAmount": 25000
     },
     "EXP-060": {
       "phaseId": "PH-013",
@@ -1395,7 +1474,9 @@
       "amount": 202500,
       "quantity": 500,
       "unit": "Bags",
-      "rate": 405
+      "rate": 405,
+      "netAmount": 198450,
+      "landedCost": 198450
     },
     "EXP-061": {
       "phaseId": "PH-013",
@@ -1405,7 +1486,9 @@
       "amount": 140000,
       "quantity": 1,
       "unit": "Lot",
-      "rate": 140000
+      "rate": 140000,
+      "netAmount": 140000,
+      "landedCost": 140000
     },
     "EXP-062": {
       "phaseId": "PH-013",
@@ -1415,7 +1498,8 @@
       "amount": 36000,
       "dailyRate": 1200,
       "days": 30,
-      "workerName": "Arjun"
+      "workerName": "Arjun",
+      "netAmount": 36000
     },
     "EXP-063": {
       "phaseId": "PH-013",
@@ -1425,7 +1509,8 @@
       "amount": 24000,
       "dailyRate": 800,
       "days": 30,
-      "workerName": "Mani"
+      "workerName": "Mani",
+      "netAmount": 24000
     },
     "EXP-064": {
       "phaseId": "PH-013",
@@ -1435,7 +1520,8 @@
       "amount": 36000,
       "dailyRate": 1200,
       "days": 30,
-      "workerName": "Raja"
+      "workerName": "Raja",
+      "netAmount": 36000
     },
     "EXP-065": {
       "phaseId": "PH-013",
@@ -1446,7 +1532,8 @@
       "quantity": 12000,
       "unit": "Sq.ft",
       "rate": 11,
-      "basis": "rate"
+      "basis": "rate",
+      "netAmount": 132000
     },
     "EXP-066": {
       "phaseId": "PH-014",
@@ -1456,7 +1543,9 @@
       "amount": 120000,
       "quantity": 1,
       "unit": "Lot",
-      "rate": 120000
+      "rate": 120000,
+      "netAmount": 120000,
+      "landedCost": 120000
     },
     "EXP-067": {
       "phaseId": "PH-014",
@@ -1466,7 +1555,8 @@
       "amount": 27500,
       "dailyRate": 1100,
       "days": 25,
-      "workerName": "Babu"
+      "workerName": "Babu",
+      "netAmount": 27500
     },
     "EXP-068": {
       "phaseId": "PH-014",
@@ -1476,7 +1566,8 @@
       "amount": 22000,
       "dailyRate": 1100,
       "days": 20,
-      "workerName": "Joseph"
+      "workerName": "Joseph",
+      "netAmount": 22000
     },
     "EXP-069": {
       "phaseId": "PH-014",
@@ -1487,7 +1578,8 @@
       "quantity": 1,
       "unit": "Fixed",
       "rate": 45000,
-      "basis": "fixed"
+      "basis": "fixed",
+      "netAmount": 45000
     },
     "EXP-070": {
       "phaseId": "PH-015",
@@ -1497,7 +1589,9 @@
       "amount": 60750,
       "quantity": 150,
       "unit": "Bags",
-      "rate": 405
+      "rate": 405,
+      "netAmount": 60750,
+      "landedCost": 60750
     },
     "EXP-071": {
       "phaseId": "PH-015",
@@ -1507,7 +1601,9 @@
       "amount": 40800,
       "quantity": 600,
       "unit": "Kg",
-      "rate": 68
+      "rate": 68,
+      "netAmount": 40800,
+      "landedCost": 40800
     },
     "EXP-072": {
       "phaseId": "PH-015",
@@ -1517,7 +1613,8 @@
       "amount": 24000,
       "dailyRate": 1200,
       "days": 20,
-      "workerName": "Raja"
+      "workerName": "Raja",
+      "netAmount": 24000
     },
     "EXP-073": {
       "phaseId": "PH-015",
@@ -1527,7 +1624,8 @@
       "amount": 16000,
       "dailyRate": 800,
       "days": 20,
-      "workerName": "Mani"
+      "workerName": "Mani",
+      "netAmount": 16000
     },
     "EXP-074": {
       "phaseId": "PH-015",
@@ -1538,7 +1636,44 @@
       "quantity": 1,
       "unit": "Fixed",
       "rate": 22000,
-      "basis": "fixed"
+      "basis": "fixed",
+      "netAmount": 22000
+    },
+    "EXP-075": {
+      "phaseId": "PH-002",
+      "category": "material",
+      "subType": "Transport",
+      "description": "Lorry hire — cement to site (paid at site)",
+      "amount": 6000,
+      "quantity": 1,
+      "unit": "Trip",
+      "rate": 6000,
+      "linkedExpenseId": "EXP-010",
+      "netAmount": 6000
+    },
+    "EXP-076": {
+      "phaseId": "PH-008",
+      "category": "material",
+      "subType": "Transport",
+      "description": "Delivery charge — fly-ash bricks",
+      "amount": 8000,
+      "quantity": 1,
+      "unit": "Trip",
+      "rate": 8000,
+      "linkedExpenseId": "EXP-042",
+      "netAmount": 8000
+    },
+    "EXP-077": {
+      "phaseId": "PH-012",
+      "category": "material",
+      "subType": "Transport",
+      "description": "Trailer freight — PEB steel members",
+      "amount": 18000,
+      "quantity": 1,
+      "unit": "Trip",
+      "rate": 18000,
+      "linkedExpenseId": "EXP-053",
+      "netAmount": 18000
     }
   },
   "supplierInvoices": {
@@ -1550,6 +1685,7 @@
       "dueDate": "2026-09-03",
       "amount": 105000,
       "paid": 105000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1564,6 +1700,7 @@
       "dueDate": "2026-09-05",
       "amount": 105000,
       "paid": 105000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1578,6 +1715,7 @@
       "dueDate": "2026-09-02",
       "amount": 150000,
       "paid": 150000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1592,6 +1730,7 @@
       "dueDate": "2026-09-13",
       "amount": 30000,
       "paid": 30000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1606,6 +1745,7 @@
       "dueDate": "2026-10-15",
       "amount": 252000,
       "paid": 150000,
+      "discount": 0,
       "pending": 102000,
       "status": "Partially Paid",
       "lines": [
@@ -1620,6 +1760,7 @@
       "dueDate": "2026-09-30",
       "amount": 217600,
       "paid": 100000,
+      "discount": 0,
       "pending": 117600,
       "status": "Overdue",
       "lines": [
@@ -1634,6 +1775,7 @@
       "dueDate": "2026-10-20",
       "amount": 108000,
       "paid": 0,
+      "discount": 0,
       "pending": 108000,
       "status": "Unpaid",
       "lines": [
@@ -1648,6 +1790,7 @@
       "dueDate": "2026-10-18",
       "amount": 108000,
       "paid": 54000,
+      "discount": 0,
       "pending": 54000,
       "status": "Partially Paid",
       "lines": [
@@ -1662,6 +1805,7 @@
       "dueDate": "2026-10-25",
       "amount": 68000,
       "paid": 0,
+      "discount": 0,
       "pending": 68000,
       "status": "Unpaid",
       "lines": [
@@ -1676,6 +1820,7 @@
       "dueDate": "2026-10-30",
       "amount": 42000,
       "paid": 0,
+      "discount": 0,
       "pending": 42000,
       "status": "Unpaid",
       "lines": [
@@ -1690,6 +1835,7 @@
       "dueDate": "2026-08-17",
       "amount": 108000,
       "paid": 108000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1703,7 +1849,8 @@
       "invoiceDate": "2026-07-20",
       "dueDate": "2026-08-19",
       "amount": 190400,
-      "paid": 190400,
+      "paid": 186592,
+      "discount": 3808,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1718,6 +1865,7 @@
       "dueDate": "2026-08-21",
       "amount": 220000,
       "paid": 220000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1732,6 +1880,7 @@
       "dueDate": "2026-09-03",
       "amount": 160000,
       "paid": 160000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1746,6 +1895,7 @@
       "dueDate": "2026-09-17",
       "amount": 369000,
       "paid": 200000,
+      "discount": 0,
       "pending": 169000,
       "status": "Overdue",
       "lines": [
@@ -1760,6 +1910,7 @@
       "dueDate": "2026-09-19",
       "amount": 268000,
       "paid": 268000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1774,6 +1925,7 @@
       "dueDate": "2026-09-29",
       "amount": 112000,
       "paid": 0,
+      "discount": 0,
       "pending": 112000,
       "status": "Overdue",
       "lines": [
@@ -1788,6 +1940,7 @@
       "dueDate": "2026-10-04",
       "amount": 135000,
       "paid": 70000,
+      "discount": 0,
       "pending": 65000,
       "status": "Partially Paid",
       "lines": [
@@ -1802,6 +1955,7 @@
       "dueDate": "2026-10-17",
       "amount": 290500,
       "paid": 0,
+      "discount": 0,
       "pending": 290500,
       "status": "Unpaid",
       "lines": [
@@ -1814,12 +1968,14 @@
       "projectId": "PRJ-2026-002",
       "invoiceDate": "2026-09-19",
       "dueDate": "2026-10-19",
-      "amount": 180000,
+      "amount": 188000,
       "paid": 90000,
-      "pending": 90000,
+      "discount": 0,
+      "pending": 98000,
       "status": "Partially Paid",
       "lines": [
-        "EXP-042"
+        "EXP-042",
+        "EXP-076"
       ]
     },
     "SIN-021": {
@@ -1830,6 +1986,7 @@
       "dueDate": "2026-10-24",
       "amount": 189000,
       "paid": 0,
+      "discount": 0,
       "pending": 189000,
       "status": "Unpaid",
       "lines": [
@@ -1844,6 +2001,7 @@
       "dueDate": "2026-03-14",
       "amount": 160000,
       "paid": 160000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1858,6 +2016,7 @@
       "dueDate": "2026-03-17",
       "amount": 54000,
       "paid": 54000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1872,6 +2031,7 @@
       "dueDate": "2026-03-07",
       "amount": 150000,
       "paid": 150000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1886,6 +2046,7 @@
       "dueDate": "2026-05-08",
       "amount": 665000,
       "paid": 665000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1900,6 +2061,7 @@
       "dueDate": "2026-06-17",
       "amount": 216000,
       "paid": 216000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1914,6 +2076,7 @@
       "dueDate": "2026-06-21",
       "amount": 48000,
       "paid": 48000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1927,7 +2090,8 @@
       "invoiceDate": "2026-07-08",
       "dueDate": "2026-08-07",
       "amount": 202500,
-      "paid": 202500,
+      "paid": 198450,
+      "discount": 4050,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1942,6 +2106,7 @@
       "dueDate": "2026-08-11",
       "amount": 140000,
       "paid": 140000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1956,6 +2121,7 @@
       "dueDate": "2026-08-29",
       "amount": 132000,
       "paid": 100000,
+      "discount": 0,
       "pending": 32000,
       "status": "Overdue",
       "lines": [
@@ -1970,6 +2136,7 @@
       "dueDate": "2026-09-21",
       "amount": 165000,
       "paid": 100000,
+      "discount": 0,
       "pending": 65000,
       "status": "Overdue",
       "lines": [
@@ -1985,6 +2152,7 @@
       "dueDate": "2026-07-18",
       "amount": 60750,
       "paid": 60750,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -1999,6 +2167,7 @@
       "dueDate": "2026-07-20",
       "amount": 40800,
       "paid": 40800,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
@@ -2013,10 +2182,26 @@
       "dueDate": "2026-07-24",
       "amount": 22000,
       "paid": 22000,
+      "discount": 0,
       "pending": 0,
       "status": "Paid",
       "lines": [
         "EXP-074"
+      ]
+    },
+    "SIN-035": {
+      "supplier": "Sri Murugan Transports",
+      "invoiceNumber": "SMT/26/014",
+      "projectId": "PRJ-2026-003",
+      "invoiceDate": "2026-04-08",
+      "dueDate": "2026-05-08",
+      "amount": 18000,
+      "paid": 18000,
+      "discount": 0,
+      "pending": 0,
+      "status": "Paid",
+      "lines": [
+        "EXP-077"
       ]
     }
   },

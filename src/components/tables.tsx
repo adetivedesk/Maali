@@ -1,25 +1,30 @@
 import { Fragment, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronDown, ChevronRight, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronRight, CornerDownRight, Trash2, Truck } from 'lucide-react'
 import clsx from 'clsx'
 import type { ClientInvoice, Expense, Phase } from '../data/types'
 import { PHASE_STATUSES } from '../data/types'
 import {
-  COST_CATEGORIES, COST_LABEL, clientInvoicePaid, clientInvoiceStatus, type CostBreakdown, type SupplierInvoiceView,
+  COST_CATEGORIES, COST_LABEL, clientInvoicePaid, clientInvoiceStatus, expenseDiscounts, purchaseLanding, type CostBreakdown, type SupplierInvoiceView,
 } from '../lib/calc'
 import { formatDate, formatINR, formatPct } from '../lib/format'
 import * as A from '../store/actions'
 import { useLookups, useStore } from '../store/store'
 import { Button, EmptyRow, Money, Pill, StatusBadge, Table, Td, Th, Variance } from './ui'
+import { TransportForm } from './forms'
 
 const CATEGORY_TONE = { material: 'blue', labour: 'amber', outsource: 'green', other: 'slate' } as const
 
 export function ExpenseTable({ expenses, showProject = true, showPhase = true, allowDelete = true }: { expenses: Expense[]; showProject?: boolean; showPhase?: boolean; allowDelete?: boolean }) {
   const { db, commit } = useStore()
   const L = useLookups()
-  const total = expenses.reduce((a, e) => a + e.amount, 0)
+  const [transportFor, setTransportFor] = useState<string | null>(null)
+  const discounts = expenseDiscounts(db)
+  const net = (e: Expense) => e.amount - (discounts.get(e.id) ?? 0)
+  const total = expenses.reduce((a, e) => a + net(e), 0)
   const cols = 7 + (showProject ? 1 : 0) + (showPhase ? 1 : 0)
   return (
+    <>
     <Table>
       <thead>
         <tr>
@@ -30,6 +35,9 @@ export function ExpenseTable({ expenses, showProject = true, showPhase = true, a
         {expenses.length === 0 && <EmptyRow cols={cols}>No expenses recorded</EmptyRow>}
         {expenses.map((e) => {
           const sin = db.supplierInvoices.find((s) => s.id === e.supplierInvoiceId)
+          const disc = discounts.get(e.id) ?? 0
+          const isPurchase = e.category === 'material' && !e.linkedExpenseId
+          const land = isPurchase ? purchaseLanding(db, e) : null
           return (
             <tr key={e.id} className="group hover:bg-slate-50/60">
               <Td className="font-mono text-xs text-slate-500">{e.id}</Td>
@@ -37,7 +45,12 @@ export function ExpenseTable({ expenses, showProject = true, showPhase = true, a
               {showProject && <Td><Link to={`/projects/${e.projectId}`} className="text-slate-700 hover:text-blue-600">{L.project(e.projectId)?.shortName}</Link></Td>}
               {showPhase && <Td><Link to={`/phases/${e.phaseId}`} className="text-slate-700 hover:text-blue-600">{L.phase(e.phaseId)?.name}</Link></Td>}
               <Td><Pill tone={CATEGORY_TONE[e.category]}>{COST_LABEL[e.category]}</Pill></Td>
-              <Td><div className="font-medium text-slate-800">{e.subType}</div><div className="max-w-60 truncate text-xs text-slate-500">{e.category === 'labour' ? e.workerName : e.description}</div></Td>
+              <Td>
+                <div className="flex items-center gap-1 font-medium text-slate-800">{e.linkedExpenseId && <CornerDownRight size={13} className="text-slate-400" />}{e.subType}</div>
+                <div className="max-w-60 truncate text-xs text-slate-500">{e.category === 'labour' ? e.workerName : e.description}</div>
+                {e.linkedExpenseId && <div className="text-[11px] text-blue-600">for purchase {e.linkedExpenseId}</div>}
+                {land && land.transportCost > 0 && <div className="text-[11px] text-slate-500">+ {formatINR(land.transportCost)} transport · landed {formatINR(land.landedCost)}</div>}
+              </Td>
               <Td className="num whitespace-nowrap text-xs text-slate-600">
                 {e.category === 'labour' ? `${formatINR(e.dailyRate ?? 0)}/day × ${e.days} days`
                   : e.basis === 'fixed' ? 'Fixed contract'
@@ -53,9 +66,17 @@ export function ExpenseTable({ expenses, showProject = true, showPhase = true, a
               </Td>
               <Td right className="font-medium">
                 <div className="flex items-center justify-end gap-2">
-                  <Money value={e.amount} />
+                  <div>
+                    <Money value={net(e)} />
+                    {disc > 0 && <div className="num text-[11px] font-normal text-emerald-700">{formatINR(e.amount)} − {formatINR(disc)} discount</div>}
+                  </div>
+                  {allowDelete && isPurchase && (
+                    <button type="button" title="Add transport for this purchase" onClick={() => setTransportFor(e.id)} className="rounded p-1 text-slate-300 opacity-0 hover:bg-blue-50 hover:text-blue-600 group-hover:opacity-100">
+                      <Truck size={13} />
+                    </button>
+                  )}
                   {allowDelete && (
-                    <button type="button" title="Delete expense" onClick={() => commit(A.deleteExpense(db, e.id), `${e.id} deleted`)} className="rounded p-1 text-slate-300 opacity-0 hover:bg-red-50 hover:text-red-600 group-hover:opacity-100">
+                    <button type="button" title={land && land.transport.length ? 'Delete purchase and its transport' : 'Delete expense'} onClick={() => commit(A.deleteExpense(db, e.id), `${e.id} deleted${land && land.transport.length ? ` with ${land.transport.length} transport charge(s)` : ''}`)} className="rounded p-1 text-slate-300 opacity-0 hover:bg-red-50 hover:text-red-600 group-hover:opacity-100">
                       <Trash2 size={13} />
                     </button>
                   )}
@@ -66,9 +87,11 @@ export function ExpenseTable({ expenses, showProject = true, showPhase = true, a
         })}
       </tbody>
       {expenses.length > 0 && (
-        <tfoot><tr className="bg-slate-50 font-semibold text-navy-900"><Td colSpan={cols - 1}>Total · {expenses.length} entries</Td><Td right><Money value={total} /></Td></tr></tfoot>
+        <tfoot><tr className="bg-slate-50 font-semibold text-navy-900"><Td colSpan={cols - 1}>Total · {expenses.length} entries (net of discounts)</Td><Td right><Money value={total} /></Td></tr></tfoot>
       )}
     </Table>
+    {transportFor && <TransportForm open onClose={() => setTransportFor(null)} purchaseId={transportFor} />}
+    </>
   )
 }
 
@@ -144,7 +167,7 @@ export function SupplierInvoiceTable({ views, onPay, showSupplier = true, showPr
   const { db } = useStore()
   const L = useLookups()
   const [open, setOpen] = useState<string | null>(null)
-  const t = views.reduce((a, v) => ({ amount: a.amount + v.amount, paid: a.paid + v.paid }), { amount: 0, paid: 0 })
+  const t = views.reduce((a, v) => ({ amount: a.amount + v.amount, paid: a.paid + v.paid, discount: a.discount + v.discount, pending: a.pending + v.pending }), { amount: 0, paid: 0, discount: 0, pending: 0 })
   const cols = 8 + (showSupplier ? 1 : 0) + (showProject ? 1 : 0) + (onPay ? 1 : 0)
   return (
     <Table>
@@ -167,7 +190,7 @@ export function SupplierInvoiceTable({ views, onPay, showSupplier = true, showPr
                 <Td className="whitespace-nowrap">{formatDate(v.invoiceDate)}</Td>
                 <Td className={clsx('whitespace-nowrap', v.status === 'Overdue' && 'font-medium text-red-600')}>{formatDate(v.dueDate)}</Td>
                 <Td right><Money value={v.amount} /></Td>
-                <Td right><Money value={v.paid} className="text-emerald-700" /></Td>
+                <Td right><Money value={v.paid} className="text-emerald-700" />{v.discount > 0 && <div className="num text-[11px] text-slate-500">+ {formatINR(v.discount)} discount</div>}</Td>
                 <Td right><Money value={v.pending} className={v.pending > 0 ? 'font-medium text-red-600' : 'text-slate-400'} /></Td>
                 <Td><StatusBadge status={v.status} /></Td>
                 {onPay && <Td>{v.pending > 0 && <Button size="sm" onClick={() => onPay(v.id)}>Pay</Button>}</Td>}
@@ -179,14 +202,14 @@ export function SupplierInvoiceTable({ views, onPay, showSupplier = true, showPr
                       <div>
                         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Invoice lines (expenses)</div>
                         {lines.map((e) => (
-                          <div key={e.id} className="flex justify-between gap-4 py-0.5 text-sm"><span><span className="font-mono text-xs text-slate-400">{e.id}</span> {e.subType} — {e.description}</span><span className="num">{formatINR(e.amount)}</span></div>
+                          <div key={e.id} className="flex justify-between gap-4 py-0.5 text-sm"><span><span className="font-mono text-xs text-slate-400">{e.id}</span> {e.linkedExpenseId ? '↳ ' : ''}{e.subType} — {e.description}</span><span className="num">{formatINR(e.amount)}</span></div>
                         ))}
                       </div>
                       <div>
                         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Payments</div>
                         {pays.length === 0 && <div className="text-sm text-slate-400">No payments yet</div>}
                         {pays.map((p) => (
-                          <div key={p.id} className="flex justify-between gap-4 py-0.5 text-sm"><span><span className="font-mono text-xs text-slate-400">{p.id}</span> {formatDate(p.date)} · {p.method} · {p.reference}</span><span className="num">{formatINR(p.amount)}</span></div>
+                          <div key={p.id} className="flex justify-between gap-4 py-0.5 text-sm"><span><span className="font-mono text-xs text-slate-400">{p.id}</span> {formatDate(p.date)} · {p.method} · {p.reference}</span><span className="num">{formatINR(p.amount)}{p.discount ? <span className="text-emerald-700"> + {formatINR(p.discount)} discount</span> : null}</span></div>
                         ))}
                         <div className="mt-1 flex justify-between border-t border-slate-200 pt-1 text-sm font-semibold"><span>Pending</span><span className="num">{formatINR(v.pending)}</span></div>
                       </div>
@@ -202,7 +225,7 @@ export function SupplierInvoiceTable({ views, onPay, showSupplier = true, showPr
         <tfoot>
           <tr className="bg-slate-50 font-semibold text-navy-900">
             <Td colSpan={4 + (showSupplier ? 1 : 0) + (showProject ? 1 : 0)}>Total · {views.length} invoices</Td>
-            <Td right><Money value={t.amount} /></Td><Td right><Money value={t.paid} /></Td><Td right><Money value={t.amount - t.paid} /></Td>
+            <Td right><Money value={t.amount} /></Td><Td right><Money value={t.paid} />{t.discount > 0 && <div className="num text-[11px] font-normal text-slate-500">+ {formatINR(t.discount)} discount</div>}</Td><Td right><Money value={t.pending} /></Td>
             <Td colSpan={onPay ? 2 : 1} />
           </tr>
         </tfoot>

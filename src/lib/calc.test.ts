@@ -5,7 +5,7 @@ import type { Database } from '../data/types'
 import * as A from '../store/actions'
 import { auditDatabase } from './audit'
 import {
-  canCloseProject, clientInvoicePaid, phaseFinancials, portfolioSummary, projectFinancials, quotationTotals, supplierInvoiceView,
+  canCloseProject, clientInvoicePaid, expenseNetAmount, phaseFinancials, portfolioSummary, projectFinancials, purchaseLanding, quotationTotals, supplierInvoiceView,
 } from './calc'
 import { buildFigures } from './figures'
 
@@ -86,24 +86,107 @@ describe('money identities hold for every project and the portfolio', () => {
     expect(f.billedProfit).toBe(f.billed - f.actual.total)
     expect(f.clientPending).toBe(f.billed - f.received)
     expect(f.unbilled).toBe(f.revenue - f.billed)
-    expect(f.supplierPending).toBe(f.supplierInvoiced - f.supplierPaid)
     expect(f.cashPosition).toBe(f.received - f.supplierPaid - f.directPaid)
-    // every rupee of cost is either a supplier invoice or a direct site payment
-    expect(f.actual.total).toBe(f.supplierInvoiced + f.directPaid)
+    // every rupee of cost is a supplier invoice (net of settlement discounts) or a direct site payment
+    expect(f.actual.total).toBe(f.supplierInvoiced - f.supplierDiscount + f.directPaid)
+    expect(f.supplierPending).toBe(f.supplierInvoiced - f.supplierPaid - f.supplierDiscount)
     expect(f.forecastProfit).toBe(f.revenue - f.estimateAtCompletion)
   })
 
   it('portfolio totals equal the sum of projects', () => {
     const fins = db.projects.map((p) => projectFinancials(db, p.id))
     expect(s.contractValue).toBe(sum(fins.map((f) => f.revenue)))
-    expect(s.actualCost).toBe(sum(db.expenses.map((e) => e.amount)))
     expect(s.billed).toBe(sum(db.clientInvoices.map((i) => i.amount)))
     expect(s.received).toBe(sum(db.clientPayments.map((p) => p.amount)))
     expect(s.supplierPaid).toBe(sum(db.supplierPayments.map((p) => p.amount)))
     expect(s.clientReceivable).toBe(s.billed - s.received)
-    expect(s.supplierPayable).toBe(s.supplierInvoiced - s.supplierPaid)
+    expect(s.supplierPayable).toBe(s.supplierInvoiced - s.supplierPaid - s.supplierDiscount)
+    expect(s.actualCost).toBe(sum(db.expenses.map((e) => e.amount)) - s.supplierDiscount)
     expect(s.actualProfit).toBe(sum(fins.map((f) => f.actualProfit)))
     expect(s.wipCost).toBe(sum(fins.map((f) => f.wipCost)))
+  })
+})
+
+describe('supplier settlement discounts', () => {
+  const view = (db: Database, id: string) => supplierInvoiceView(db, db.supplierInvoices.find((i) => i.id === id)!)
+
+  it('demo: SRK cement SIN-028 settled at 2% discount', () => {
+    const v = view(createSeed(), 'SIN-028')
+    expect(v).toMatchObject({ amount: 202500, paid: 198450, discount: 4050, pending: 0, status: 'Paid', netCost: 198450 })
+  })
+
+  it('paying with a discount settles the invoice and lowers the purchase cost, not just the payable', () => {
+    const db0 = createSeed()
+    const before = { inv: view(db0, 'SIN-007'), phase: phase(db0, 'PH-002'), project: projectFinancials(db0, 'PRJ-2026-001') }
+    expect(before.inv).toMatchObject({ amount: 108000, pending: 108000 })
+    const db = A.addSupplierPayment(db0, { supplierInvoiceId: 'SIN-007', date: '2026-10-04', amount: 105000, discount: 3000, method: 'Bank Transfer', reference: 'D1' })
+    expect(errors(db)).toEqual([])
+    expect(view(db, 'SIN-007')).toMatchObject({ paid: 105000, discount: 3000, pending: 0, status: 'Paid' })
+    expect(phase(db, 'PH-002').actual.material).toBe(before.phase.actual.material - 3000)
+    const after = projectFinancials(db, 'PRJ-2026-001')
+    expect(after.actual.total).toBe(before.project.actual.total - 3000)
+    expect(after.supplierPending).toBe(before.project.supplierPending - 108000)
+    expect(after.cashPosition).toBe(before.project.cashPosition - 105000) // only cash moves cash
+    expect(after.forecastProfit).toBeGreaterThanOrEqual(before.project.forecastProfit)
+  })
+
+  it('splits a discount across invoice lines pro rata, to the rupee', () => {
+    // SIN-031: ₹1,20,000 electrical material + ₹45,000 installation (outsource), ₹1,00,000 already paid
+    const db = A.addSupplierPayment(createSeed(), { supplierInvoiceId: 'SIN-031', date: '2026-10-04', amount: 61700, discount: 3300, method: 'Bank Transfer', reference: 'D2' })
+    expect(errors(db)).toEqual([])
+    const lines = db.expenses.filter((e) => e.supplierInvoiceId === 'SIN-031')
+    expect(lines.map((e) => e.amount - expenseNetAmount(db, e))).toEqual([2400, 900])
+    expect(phase(db, 'PH-014').actual).toMatchObject({ material: 120000 - 2400, outsource: 45000 - 900 })
+  })
+
+  it('the audit rejects payment + discount above the invoice', () => {
+    const db = A.addSupplierPayment(createSeed(), { supplierInvoiceId: 'SIN-007', date: '2026-10-04', amount: 108000, discount: 1, method: 'Cash', reference: 'X' })
+    expect(errors(db).some((i) => i.table === 'supplierInvoices')).toBe(true)
+  })
+})
+
+describe('transport for a specific purchase', () => {
+  it('demo: freight on three purchases, one per payment route', () => {
+    const db = createSeed()
+    const t = db.expenses.filter((e) => e.linkedExpenseId)
+    expect(t.map((e) => [e.linkedExpenseId, e.amount, e.supplierInvoiceId ?? 'cash'])).toEqual([
+      ['EXP-010', 6000, 'cash'], ['EXP-042', 8000, 'SIN-020'], ['EXP-053', 18000, 'SIN-035'],
+    ])
+    expect(purchaseLanding(db, db.expenses.find((e) => e.id === 'EXP-010')!).landedCost).toBe(252000 + 6000)
+  })
+
+  it.each([
+    ['paid at site', { via: 'cash' } as A.TransportPayment],
+    ['on the supplier invoice', { via: 'sameInvoice' } as A.TransportPayment],
+    ['on a transporter invoice', { via: 'transporter', supplierId: 'SUP-008', invoiceNumber: 'SMT/26/099', invoiceDate: '2026-10-04', dueDate: '2026-11-03' } as A.TransportPayment],
+  ])('adds landed cost to the purchase phase when %s', (_, payment) => {
+    const db0 = createSeed()
+    const purchase = db0.expenses.find((e) => e.id === 'EXP-041')! // GV cement, SIN-019
+    const [db, t] = A.addTransportCharge(db0, purchase.id, { amount: 7500, date: '2026-10-04', payment })
+    expect(errors(db)).toEqual([])
+    expect(t).toMatchObject({ linkedExpenseId: purchase.id, phaseId: purchase.phaseId, category: 'material', amount: 7500 })
+    expect(phase(db, purchase.phaseId).actual.material).toBe(phase(db0, purchase.phaseId).actual.material + 7500)
+    expect(purchaseLanding(db, purchase).landedCost).toBe(purchase.amount + 7500)
+    const f0 = projectFinancials(db0, purchase.projectId), f = projectFinancials(db, purchase.projectId)
+    if (payment.via === 'cash') expect(f.directPaid).toBe(f0.directPaid + 7500)
+    if (payment.via === 'sameInvoice') expect(supplierInvoiceView(db, db.supplierInvoices.find((i) => i.id === 'SIN-019')!).amount).toBe(290500 + 7500)
+    if (payment.via === 'transporter') expect(f.supplierInvoiced).toBe(f0.supplierInvoiced + 7500)
+  })
+
+  it('will not add lines to an invoice already settled with a discount', () => {
+    const db = A.addSupplierPayment(createSeed(), { supplierInvoiceId: 'SIN-007', date: '2026-10-04', amount: 105000, discount: 3000, method: 'Bank Transfer', reference: 'D1' })
+    expect(() => A.addTransportCharge(db, 'EXP-012', { amount: 4500, date: '2026-10-04', payment: { via: 'sameInvoice' } })).toThrow(/settled or discounted/)
+    const [ok] = A.addTransportCharge(db, 'EXP-012', { amount: 4500, date: '2026-10-04', payment: { via: 'cash' } })
+    expect(supplierInvoiceView(ok, ok.supplierInvoices.find((i) => i.id === 'SIN-007')!)).toMatchObject({ pending: 0, discount: 3000, status: 'Paid' })
+  })
+
+  it('deleting a purchase removes its transport and any invoice left empty', () => {
+    const [d1, p] = A.addExpense(createSeed(), { projectId: 'PRJ-2026-001', phaseId: 'PH-003', category: 'material', subType: 'Sand', description: 'M-sand', date: '2026-10-04', quantity: 10, unit: 'Cu.m', rate: 1800, amount: 18000, supplierId: 'SUP-005' }, { mode: 'new', invoiceNumber: 'ABM/26/400', invoiceDate: '2026-10-04', dueDate: '2026-11-03' })
+    const [d2] = A.addTransportCharge(d1, p.id, { amount: 2500, date: '2026-10-04', payment: { via: 'transporter', supplierId: 'SUP-008', invoiceNumber: 'SMT/26/100', invoiceDate: '2026-10-04', dueDate: '2026-11-03' } })
+    const d3 = A.deleteExpense(d2, p.id)
+    expect(errors(d3)).toEqual([])
+    expect(d3.expenses).toHaveLength(createSeed().expenses.length)
+    expect(d3.supplierInvoices).toHaveLength(createSeed().supplierInvoices.length)
   })
 })
 

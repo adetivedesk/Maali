@@ -5,7 +5,7 @@ import type { CostCategory, OutsourceBasis, PaymentMethod } from '../data/types'
 import { PAYMENT_METHODS } from '../data/types'
 import { DEFAULT_DAILY_RATE, DEFAULT_MATERIAL_UNIT, EXPENSE_SUBTYPES, MATERIAL_UNITS, OUTSOURCE_UNITS } from '../data/catalog'
 import {
-  actualCost, clientInvoicePaid, phaseBilling, plannedCost, projectPhases, supplierInvoiceView,
+  actualCost, clientInvoicePaid, expenseNetAmount, phaseBilling, plannedCost, projectPhases, purchaseLanding, supplierInvoiceOpenForLines, supplierInvoiceView,
 } from '../lib/calc'
 import { addDays, formatDate, formatINR, today } from '../lib/format'
 import * as A from '../store/actions'
@@ -59,6 +59,12 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
   const [invoiceNumber, setInvoiceNumber] = useState('')
   const [invoiceDate, setInvoiceDate] = useState(today())
   const [dueDate, setDueDate] = useState(addDays(today(), 30))
+  // optional transport for a material purchase
+  const [tOn, setTOn] = useState(false)
+  const [tAmount, setTAmount] = useState<number | ''>('')
+  const [tVia, setTVia] = useState<TransportVia>('cash')
+  const [tSupplier, setTSupplier] = useState('')
+  const [tInvoiceNo, setTInvoiceNo] = useState('')
 
   // Reset when opened
   useEffect(() => {
@@ -70,6 +76,7 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
     setSupplierId(defaults.supplierId ?? '')
     setDescription(''); setQuantity(''); setRate(''); setFixedAmount(''); setWorkerName(''); setDays(''); setOtHours(''); setOtherAmount('')
     setInvoiceMode('new'); setExistingInvoice(''); setInvoiceNumber(''); setDate(today()); setInvoiceDate(today()); setDueDate(addDays(today(), 30))
+    setTOn(false); setTAmount(''); setTVia('cash'); setTSupplier(''); setTInvoiceNo('')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
@@ -96,17 +103,19 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
           : num(otherAmount)
 
   const supplierOpenInvoices = useMemo(
-    () => db.supplierInvoices.filter((i) => i.supplierId === supplierId && i.projectId === projectId).map((i) => supplierInvoiceView(db, i)),
+    () => db.supplierInvoices.filter((i) => i.supplierId === supplierId && i.projectId === projectId).map((i) => supplierInvoiceView(db, i)).filter(supplierInvoiceOpenForLines),
     [db, supplierId, projectId],
   )
 
   const phaseActual = phase ? actualCost(db, phase.id) : null
   const phasePlanned = phase ? plannedCost(phase) : null
-  const catAfter = phaseActual ? phaseActual[category] + amount : 0
+  const withTransport = category === 'material' && tOn ? num(tAmount) : 0
+  const catAfter = phaseActual ? phaseActual[category] + amount + withTransport : 0
   const catPlanned = phasePlanned ? phasePlanned[category] : 0
 
   const valid = projectId && phaseId && amount > 0 && (!needsSupplier || (supplierId && (invoiceMode === 'existing' ? existingInvoice : invoiceNumber)))
     && (category !== 'labour' || workerName.trim())
+    && (category !== 'material' || !tOn || (num(tAmount) > 0 && (tVia !== 'transporter' || (tSupplier && tInvoiceNo.trim()))))
 
   function save() {
     if (!valid) return
@@ -122,8 +131,13 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
     const inv: A.SupplierInvoiceInput = !needsSupplier ? { mode: 'none' }
       : invoiceMode === 'existing' ? { mode: 'existing', supplierInvoiceId: existingInvoice }
         : { mode: 'new', invoiceNumber, invoiceDate, dueDate }
-    const [next, exp] = A.addExpense(db, input, inv)
-    commit(next, `${exp.id} recorded · ${formatINR(amount)} to ${phase?.name}`)
+    let [next, exp] = A.addExpense(db, input, inv)
+    let msg = `${exp.id} recorded · ${formatINR(amount)} to ${phase?.name}`
+    if (category === 'material' && tOn && num(tAmount) > 0) {
+      ;[next] = A.addTransportCharge(next, exp.id, { amount: num(tAmount), date, payment: transportPayment(tVia, tSupplier, tInvoiceNo, date) })
+      msg += ` + ${formatINR(num(tAmount))} transport`
+    }
+    commit(next, msg)
     onClose()
   }
 
@@ -270,6 +284,19 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
         </div>
       )}
 
+      {category === 'material' && (
+        <div className="mt-4 rounded-xl border border-slate-200 p-4">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+            <input type="checkbox" checked={tOn} onChange={(e) => setTOn(e.target.checked)} className="h-4 w-4 rounded border-slate-300" />
+            <Truck size={15} className="text-slate-500" /> Add transport for this purchase
+          </label>
+          {tOn && (
+            <TransportFields amount={tAmount} setAmount={setTAmount} via={tVia} setVia={setTVia} supplier={tSupplier} setSupplier={setTSupplier}
+              invoiceNo={tInvoiceNo} setInvoiceNo={setTInvoiceNo} sameInvoiceLabel="Add to this supplier's invoice" landed={amount + num(tAmount)} />
+          )}
+        </div>
+      )}
+
       {phase && amount > 0 && (
         <div className="mt-4">
           <Callout tone={catAfter > catPlanned ? 'warning' : 'info'}>
@@ -278,6 +305,86 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
           </Callout>
         </div>
       )}
+    </Modal>
+  )
+}
+
+type TransportVia = 'cash' | 'sameInvoice' | 'transporter'
+
+function transportPayment(via: TransportVia, supplierId: string, invoiceNumber: string, date: string): A.TransportPayment {
+  return via === 'transporter' ? { via, supplierId, invoiceNumber, invoiceDate: date, dueDate: addDays(date, 30) } : { via }
+}
+
+function TransportFields(p: {
+  amount: number | ''; setAmount: (v: number | '') => void; via: TransportVia; setVia: (v: TransportVia) => void
+  supplier: string; setSupplier: (v: string) => void; invoiceNo: string; setInvoiceNo: (v: string) => void
+  sameInvoiceLabel: string; sameInvoiceDisabled?: boolean; landed: number
+}) {
+  const { db } = useStore()
+  return (
+    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <Field label="Transport amount (₹)"><NumberInput value={p.amount} onChange={p.setAmount} min={0} /></Field>
+      <Field label="Paid how">
+        <Select value={p.via} onChange={(e) => p.setVia(e.target.value as TransportVia)}>
+          <option value="cash">Paid at site (cash)</option>
+          <option value="sameInvoice" disabled={p.sameInvoiceDisabled}>{p.sameInvoiceLabel}</option>
+          <option value="transporter">Separate transporter invoice</option>
+        </Select>
+      </Field>
+      <div className="rounded-lg bg-slate-50 px-3 py-1.5 ring-1 ring-slate-200">
+        <div className="text-[11px] text-slate-500">Landed cost (material + transport)</div>
+        <div className="num text-lg font-semibold text-navy-900">{formatINR(p.landed)}</div>
+      </div>
+      {p.via === 'transporter' && (
+        <>
+          <Field label="Transporter">
+            <Select value={p.supplier} onChange={(e) => p.setSupplier(e.target.value)}>
+              <option value="">Select transporter…</option>
+              {db.suppliers.map((x) => <option key={x.id} value={x.id}>{x.name}{x.category === 'Transport Contractor' ? ' (transport)' : ''}</option>)}
+            </Select>
+          </Field>
+          <Field label="Transporter invoice no."><Input value={p.invoiceNo} onChange={(e) => p.setInvoiceNo(e.target.value)} placeholder="e.g. SMT/26/045" /></Field>
+        </>
+      )}
+    </div>
+  )
+}
+
+/** Add transport / freight to an existing material purchase. */
+export function TransportForm({ open, onClose, purchaseId }: { open: boolean; onClose: () => void; purchaseId: string }) {
+  const { db, commit } = useStore()
+  const purchase = db.expenses.find((e) => e.id === purchaseId)
+  const [amount, setAmount] = useState<number | ''>('')
+  const [date, setDate] = useState(today())
+  const [via, setVia] = useState<TransportVia>('cash')
+  const [supplier, setSupplier] = useState('')
+  const [invoiceNo, setInvoiceNo] = useState('')
+  useEffect(() => { if (open) { setAmount(''); setDate(today()); setVia('cash'); setSupplier(''); setInvoiceNo('') } }, [open])
+  if (!purchase) return null
+  const land = purchaseLanding(db, purchase)
+  const pInv = db.supplierInvoices.find((i) => i.id === purchase.supplierInvoiceId)
+  const pView = pInv ? supplierInvoiceView(db, pInv) : null
+  const sameOk = !!pView && supplierInvoiceOpenForLines(pView)
+  const valid = num(amount) > 0 && (via !== 'transporter' || (supplier && invoiceNo.trim())) && (via !== 'sameInvoice' || sameOk)
+  function save() {
+    if (!valid || !purchase) return
+    const [next, t] = A.addTransportCharge(db, purchase.id, { amount: num(amount), date, payment: transportPayment(via, supplier, invoiceNo, date) })
+    commit(next, `${t.id} transport ${formatINR(num(amount))} added to ${purchase.id}`)
+    onClose()
+  }
+  return (
+    <Modal open={open} onClose={onClose} title="Add Transport to Purchase" subtitle={`${purchase.id} · ${purchase.subType} — ${purchase.description}`} width="max-w-2xl"
+      footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" disabled={!valid} onClick={save}>Add transport</Button></>}>
+      <div className="grid grid-cols-2 gap-3 rounded-lg bg-slate-50 p-3 text-sm sm:grid-cols-3">
+        <div><div className="text-xs text-slate-500">Purchase cost</div><div className="num font-semibold">{formatINR(expenseNetAmount(db, purchase))}</div></div>
+        <div><div className="text-xs text-slate-500">Transport so far</div><div className="num font-semibold">{formatINR(land.transportCost)}</div></div>
+        <div><div className="text-xs text-slate-500">Date</div><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
+      </div>
+      <TransportFields amount={amount} setAmount={setAmount} via={via} setVia={setVia} supplier={supplier} setSupplier={setSupplier}
+        invoiceNo={invoiceNo} setInvoiceNo={setInvoiceNo} sameInvoiceLabel={`Add to supplier invoice ${pInv?.invoiceNumber ?? ''}${pView && !sameOk ? ' (settled — not available)' : ''}`}
+        sameInvoiceDisabled={!sameOk} landed={land.landedCost + num(amount)} />
+      {pView && !sameOk && <p className="mt-2 text-xs text-amber-700">Invoice {pInv?.invoiceNumber} is already {pView.discount > 0 ? 'settled with a discount' : 'fully paid'}. Pay the transport at site, or record it as a separate invoice (choose the same supplier as transporter if they billed it).</p>}
+      <p className="mt-3 text-xs text-slate-500">Transport is booked to the same phase and cost category as the purchase, so the phase's material cost reflects the landed cost.</p>
     </Modal>
   )
 }
@@ -304,6 +411,7 @@ export function SupplierPaymentForm({ open, onClose, supplierInvoiceId, supplier
 
   const [invId, setInvId] = useState('')
   const [amount, setAmount] = useState<number | ''>('')
+  const [discount, setDiscount] = useState<number | ''>('')
   const [date, setDate] = useState(today())
   const [method, setMethod] = useState<PaymentMethod>('Bank Transfer')
   const [reference, setReference] = useState('')
@@ -313,47 +421,62 @@ export function SupplierPaymentForm({ open, onClose, supplierInvoiceId, supplier
     const id = supplierInvoiceId ?? candidates[0]?.id ?? ''
     setInvId(id)
     setAmount(candidates.find((c) => c.id === id)?.pending ?? '')
+    setDiscount('')
     setDate(today()); setMethod('Bank Transfer'); setReference('')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
   const inv = candidates.find((c) => c.id === invId)
   const supplier = db.suppliers.find((s) => s.id === inv?.supplierId)
-  const valid = inv && num(amount) > 0 && num(amount) <= inv.pending
+  const settling = num(amount) + num(discount)
+  const balance = inv ? inv.pending - settling : 0
+  const valid = inv && num(amount) >= 0 && num(discount) >= 0 && settling > 0 && settling <= inv.pending
 
   function save() {
     if (!valid || !inv) return
-    commit(A.addSupplierPayment(db, { supplierInvoiceId: inv.id, date, amount: num(amount), method, reference: reference || `${method === 'Cash' ? 'CASH' : 'NEFT'}/${date.replaceAll('-', '')}` }),
-      `Payment of ${formatINR(num(amount))} recorded to ${supplier?.name}`)
+    const d = num(discount)
+    commit(A.addSupplierPayment(db, { supplierInvoiceId: inv.id, date, amount: num(amount), ...(d > 0 ? { discount: d } : {}), method, reference: reference || `${method === 'Cash' ? 'CASH' : 'NEFT'}/${date.replaceAll('-', '')}` }),
+      `Paid ${formatINR(num(amount))}${d > 0 ? ` + ${formatINR(d)} discount` : ''} to ${supplier?.name}${balance === 0 ? ' · invoice settled' : ''}`)
     onClose()
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Record Supplier Payment" subtitle="Expense ≠ payment — this reduces the supplier payable, not the project cost."
+    <Modal open={open} onClose={onClose} title="Record Supplier Payment" subtitle="Expense ≠ payment: a payment clears the payable. A settlement discount also lowers the purchase cost."
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" disabled={!valid} onClick={save}>Record payment</Button></>}>
       {candidates.length === 0 ? <Callout tone="success">No pending supplier invoices.</Callout> : (
         <>
           <Field label="Supplier invoice">
-            <Select value={invId} onChange={(e) => { setInvId(e.target.value); setAmount(candidates.find((c) => c.id === e.target.value)?.pending ?? '') }}>
+            <Select value={invId} onChange={(e) => { setInvId(e.target.value); setAmount(candidates.find((c) => c.id === e.target.value)?.pending ?? ''); setDiscount('') }}>
               {candidates.map((c) => <option key={c.id} value={c.id}>{db.suppliers.find((s) => s.id === c.supplierId)?.name} · {c.invoiceNumber} · pending {formatINR(c.pending)}</option>)}
             </Select>
           </Field>
           {inv && (
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4 rounded-lg bg-slate-50 p-3 text-sm">
               <div><div className="text-xs text-slate-500">Invoice amount</div><div className="num font-semibold">{formatINR(inv.amount)}</div></div>
-              <div><div className="text-xs text-slate-500">Paid so far</div><div className="num font-semibold text-emerald-700">{formatINR(inv.paid)}</div></div>
+              <div><div className="text-xs text-slate-500">Paid so far</div><div className="num font-semibold text-emerald-700">{formatINR(inv.paid)}</div>{inv.discount > 0 && <div className="num text-[11px] text-slate-500">+ {formatINR(inv.discount)} discount</div>}</div>
               <div><div className="text-xs text-slate-500">Pending</div><div className="num font-semibold text-red-600">{formatINR(inv.pending)}</div></div>
               <div><div className="text-xs text-slate-500">Due date</div><div className="font-semibold">{formatDate(inv.dueDate)}</div></div>
             </div>
           )}
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Field label="Amount (₹)" hint={inv && num(amount) > inv.pending ? <span className="text-red-600">Cannot exceed pending amount</span> : inv && `Balance after payment: ${formatINR(inv.pending - num(amount))}`}>
-              <NumberInput value={amount} onChange={setAmount} min={0} />
+            <Field label="Amount paid (₹)"><NumberInput value={amount} onChange={setAmount} min={0} /></Field>
+            <Field label="Discount received (₹)" hint={inv && num(amount) < inv.pending ? <button type="button" className="font-medium text-blue-600 hover:underline" onClick={() => setDiscount(inv.pending - num(amount))}>Settle balance {formatINR(inv.pending - num(amount))} as discount</button> : 'Optional · e.g. early-payment discount'}>
+              <NumberInput value={discount} onChange={setDiscount} min={0} />
             </Field>
             <Field label="Payment date"><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>
             <Field label="Method"><Select value={method} onChange={(e) => setMethod(e.target.value as PaymentMethod)}>{PAYMENT_METHODS.map((m) => <option key={m}>{m}</option>)}</Select></Field>
             <Field label="Reference no."><Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="UTR / Cheque no." /></Field>
           </div>
+          {inv && settling > 0 && (
+            <div className="mt-4">
+              {settling > inv.pending ? <Callout tone="danger">Payment + discount ({formatINR(settling)}) exceeds the pending {formatINR(inv.pending)}.</Callout> : (
+                <Callout tone={balance === 0 ? 'success' : 'info'}>
+                  {balance === 0 ? <b>Invoice will be fully settled.</b> : <>Balance after this payment: <b>{formatINR(balance)}</b>.</>}
+                  {num(discount) > 0 && <> The {formatINR(num(discount))} discount lowers the cost of this purchase (net cost {formatINR(inv.amount - inv.discount - num(discount))}) and adds the same amount to project profit.</>}
+                </Callout>
+              )}
+            </div>
+          )}
         </>
       )}
     </Modal>

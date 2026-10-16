@@ -41,6 +41,8 @@ Screens never compute money inline. Every figure comes from `calc.ts`.
 
 - **Only primary facts are stored.** Totals, pending amounts and statuses are always derived. A supplier invoice amount is the sum of its expense lines. Pending = invoice − payments.
 - **Expense ≠ payment.** An expense is a cost booked to Project → Phase. A supplier invoice is a payable, and supplier payments reduce it.
+- **Settlement discount.** A supplier payment can carry a discount, e.g. 2% for early payment. The invoice is settled when payments + discounts cover it. The discount lowers that purchase's project cost: it is spread across the invoice lines in proportion to their amounts, to the rupee. Cash flow counts only the money actually paid. A settled or discounted invoice can't take new lines.
+- **Transport for a purchase.** Freight is linked to the purchase it delivers and booked in the same phase and cost category, giving a landed cost (material + transport). It can be paid in cash at site, added to the supplier's open invoice, or billed on a separate transporter's invoice. Deleting a purchase also deletes its transport charges.
 - **Own labour** = daily rate × days. **Outsource** = fixed amount, or quantity × rate (sq.ft, sq.m, running ft, …).
 - **Change orders.** Approving one adds its revenue to the project and creates a phase to track its cost.
 - **Profit recognition.** Profit is recognised only when a phase is completed: actual profit = contract value of completed phases − their actual cost. Cost already spent on unfinished phases is shown as work in progress (WIP), not as a loss. Three other figures are shown alongside:

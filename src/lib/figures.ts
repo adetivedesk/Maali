@@ -1,7 +1,7 @@
 import type { Database } from '../data/types'
 import {
-  COST_CATEGORIES, clientInvoicePaid, clientInvoiceStatus, phaseFinancials, portfolioSummary, projectFinancials,
-  quotationTotals, supplierInvoiceView,
+  COST_CATEGORIES, clientInvoicePaid, clientInvoiceStatus, expenseNetAmount, phaseFinancials, portfolioSummary, projectFinancials,
+  purchaseLanding, quotationTotals, supplierInvoiceView,
 } from './calc'
 import { today } from './format'
 
@@ -31,7 +31,7 @@ export function buildFigures(db: Database) {
       billedProfit: f.billedProfit, budgetVariance: f.budgetVariance, profitVariance: f.profitVariance,
       completion: r2(f.completion),
       billed: f.billed, received: f.received, clientPending: f.clientPending, clientOverdue: f.clientOverdue, unbilled: f.unbilled,
-      supplierInvoiced: f.supplierInvoiced, supplierPaid: f.supplierPaid, supplierPending: f.supplierPending, supplierOverdue: f.supplierOverdue,
+      supplierInvoiced: f.supplierInvoiced, supplierPaid: f.supplierPaid, supplierDiscount: f.supplierDiscount, supplierPending: f.supplierPending, supplierOverdue: f.supplierOverdue,
       directPaid: f.directPaid, cashPosition: f.cashPosition,
     }]
   }))
@@ -51,13 +51,15 @@ export function buildFigures(db: Database) {
   const expenses = Object.fromEntries(db.expenses.map((e) => [e.id, {
     phaseId: e.phaseId, category: e.category, subType: e.subType, description: e.description, amount: e.amount,
     quantity: e.quantity, unit: e.unit, rate: e.rate, dailyRate: e.dailyRate, days: e.days, workerName: e.workerName, basis: e.basis,
+    linkedExpenseId: e.linkedExpenseId, netAmount: expenseNetAmount(db, e),
+    ...(e.category === 'material' && !e.linkedExpenseId ? { landedCost: purchaseLanding(db, e).landedCost } : {}),
   }]))
 
   const supplierInvoices = Object.fromEntries(db.supplierInvoices.map((i) => {
     const v = supplierInvoiceView(db, i)
     return [i.id, {
       supplier: db.suppliers.find((x) => x.id === i.supplierId)?.name, invoiceNumber: i.invoiceNumber, projectId: i.projectId,
-      invoiceDate: i.invoiceDate, dueDate: i.dueDate, amount: v.amount, paid: v.paid, pending: v.pending, status: v.status,
+      invoiceDate: i.invoiceDate, dueDate: i.dueDate, amount: v.amount, paid: v.paid, discount: v.discount, pending: v.pending, status: v.status,
       lines: db.expenses.filter((e) => e.supplierInvoiceId === i.id).map((e) => e.id),
     }]
   }))
@@ -85,7 +87,7 @@ export function buildFigures(db: Database) {
       projects: s.totalProjects, activeProjects: s.activeProjects,
       contractValue: s.contractValue, billed: s.billed, received: s.received,
       clientReceivable: s.clientReceivable, clientOverdue: s.clientOverdue,
-      supplierInvoiced: s.supplierInvoiced, supplierPaid: s.supplierPaid, supplierPayable: s.supplierPayable, supplierOverdue: s.supplierOverdue,
+      supplierInvoiced: s.supplierInvoiced, supplierPaid: s.supplierPaid, supplierDiscount: s.supplierDiscount, supplierPayable: s.supplierPayable, supplierOverdue: s.supplierOverdue,
       plannedCost: s.plannedCost, actualCost: s.actualCost, actualByCategory: pick(s.actualByCategory), wipCost: s.wipCost,
       completedRevenue: s.completedRevenue, actualProfit: s.actualProfit, actualMargin: r2(s.averageMargin),
       billedProfit: s.billedProfit, forecastProfit: s.forecastProfit, forecastMargin: r2(s.forecastMargin),
