@@ -107,6 +107,9 @@ export interface Phase {
 
 export type OutsourceBasis = 'fixed' | 'rate'
 
+/** Labour paid per worker-day (own gang) or handed over to a labour contractor per unit of work (e.g. ₹/sq.ft). */
+export type LabourBasis = 'daily' | 'contract'
+
 export interface Expense {
   id: string // EXP-001
   projectId: string
@@ -117,13 +120,15 @@ export interface Expense {
   description: string
   date: ISODate
   amount: number
-  // material + rate-based outsource
+  // material + rate-based outsource + contract labour
   quantity?: number
   unit?: string
   rate?: number
   // outsource
   basis?: OutsourceBasis
-  // own labour
+  // labour — basis defaults to 'daily' when absent
+  labourBasis?: LabourBasis
+  /** Worker name (daily) or labour contractor / maistry (contract). */
   workerName?: string
   dailyRate?: number
   days?: number
@@ -245,6 +250,17 @@ export interface ProjectClosure {
   supplierPending: number
 }
 
+/** A voided invoice or payment, moved out of its live collection and kept for history. */
+export interface CancelledRecord {
+  id: string // CXL-001
+  collection: 'clientInvoices' | 'clientPayments' | 'supplierPayments'
+  recordId: string
+  record: ClientInvoice | ClientPayment | SupplierPayment
+  reason: string
+  cancelledAt: ISODate
+  cancelledBy: string
+}
+
 export interface Database {
   clients: Client[]
   projects: Project[]
@@ -261,4 +277,5 @@ export interface Database {
   changeOrders: ChangeOrder[]
   documents: DocumentRecord[]
   closures: ProjectClosure[]
+  cancelled: CancelledRecord[]
 }

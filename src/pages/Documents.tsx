@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FileImage, FileSpreadsheet, FileText, Search, Upload } from 'lucide-react'
+import { FileImage, FileSpreadsheet, FileText, Search, Trash2, Upload } from 'lucide-react'
 import { DocumentUploadForm } from '../components/workflowForms'
-import { Button, Card, EmptyRow, FilterBar, Input, PageHeader, Pill, Select, Table, Td, Th } from '../components/ui'
+import { Button, Can, Card, EmptyRow, FilterBar, IconAction, Input, PageHeader, Pill, Select, Table, Td, Th } from '../components/ui'
 import type { DocumentRecord } from '../data/types'
 import { formatDate } from '../lib/format'
 import { useStore } from '../store/store'
@@ -22,19 +22,24 @@ function entityLink(d: DocumentRecord): string | undefined {
 }
 
 export function DocumentTable({ docs }: { docs: DocumentRecord[] }) {
-  const { db, notify } = useStore()
+  const { db, notify, source, run, can } = useStore()
+  const signed = new Set(db.contracts.map((c) => c.documentId).filter(Boolean))
+  const open = (d: (typeof docs)[number]) => {
+    if (source === 'cloud') window.open(`/api/files?id=${encodeURIComponent(d.id)}`, '_blank', 'noopener')
+    else notify(`${d.name}: files are not stored in the browser-only demo`, 'info')
+  }
   return (
     <Table>
-      <thead><tr><Th>Document</Th><Th>Type</Th><Th>Project</Th><Th>Linked to</Th><Th>Uploaded</Th><Th>By</Th><Th right>Size</Th></tr></thead>
+      <thead><tr><Th>Document</Th><Th>Type</Th><Th>Project</Th><Th>Linked to</Th><Th>Uploaded</Th><Th>By</Th><Th right>Size</Th>{can('documents', 'delete') && <Th />}</tr></thead>
       <tbody>
-        {docs.length === 0 && <EmptyRow cols={7}>No documents</EmptyRow>}
+        {docs.length === 0 && <EmptyRow cols={8}>No documents</EmptyRow>}
         {docs.map((d) => {
           const Icon = icon(d.name)
           const to = entityLink(d)
           return (
             <tr key={d.id} className="hover:bg-slate-50/60">
               <Td>
-                <button type="button" onClick={() => notify(`Opening ${d.name} (demo — no file stored)`, 'info')} className="flex items-center gap-2 text-left font-medium text-navy-900 hover:text-blue-600">
+                <button type="button" onClick={() => open(d)} title="Open file" className="flex items-center gap-2 text-left font-medium text-navy-900 hover:text-blue-600">
                   <Icon size={16} className="shrink-0 text-slate-400" />{d.name}
                 </button>
               </Td>
@@ -44,6 +49,9 @@ export function DocumentTable({ docs }: { docs: DocumentRecord[] }) {
               <Td className="whitespace-nowrap">{formatDate(d.uploadedAt)}</Td>
               <Td className="text-slate-600">{d.uploadedBy}</Td>
               <Td right className="text-slate-500">{d.sizeKb >= 1024 ? `${(d.sizeKb / 1024).toFixed(1)} MB` : `${d.sizeKb} KB`}</Td>
+              {can('documents', 'delete') && (
+                <Td>{!signed.has(d.id) && <IconAction title="Delete document" tone="red" onClick={() => { if (window.confirm(`Delete ${d.name}?`)) void run('deleteDocument', [d.id], { success: `${d.name} deleted` }) }}><Trash2 size={14} /></IconAction>}</Td>
+              )}
             </tr>
           )
         })}
@@ -68,7 +76,7 @@ export function Documents() {
   return (
     <>
       <PageHeader title="Documents" subtitle="Quotations, contracts, BOQs, invoices, receipts, reports and site photos linked to their records."
-        actions={<Button variant="primary" icon={<Upload size={15} />} onClick={() => setOpen(true)}>Upload document</Button>} />
+        actions={<Can menu="documents"><Button variant="primary" icon={<Upload size={15} />} onClick={() => setOpen(true)}>Upload document</Button></Can>} />
       <Card bodyClassName="">
         <FilterBar>
           <div className="relative w-64"><Search size={15} className="absolute left-3 top-2.5 text-slate-400" /><Input className="pl-9" placeholder="Search file name…" value={q} onChange={(e) => setQ(e.target.value)} /></div>

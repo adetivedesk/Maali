@@ -4,6 +4,10 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { createSeed } from '../src/data/seed'
 import { auditDatabase } from '../src/lib/audit'
 import { buildFigures } from '../src/lib/figures'
+import { DEMO_AS_OF_DATE } from '../src/lib/format'
+
+// The documented figures are a snapshot on the demo date, not today.
+process.env.VITE_AS_OF_DATE ??= DEMO_AS_OF_DATE
 
 const db = createSeed()
 const issues = auditDatabase(db)

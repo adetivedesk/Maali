@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { Mail, MapPin, Phone, Plus, Search, User } from 'lucide-react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Mail, MapPin, Phone, Plus, Search, Trash2, User } from 'lucide-react'
 import { ClientForm, QuotationForm } from '../components/workflowForms'
-import { Button, Card, EmptyRow, FilterBar, Input, Kpi, KpiGrid, Money, PageHeader, Progress, StatusBadge, Table, Td, Th } from '../components/ui'
+import { Button, Can, Card, EmptyRow, FilterBar, Input, Kpi, KpiGrid, Money, PageHeader, Progress, StatusBadge, Table, Td, Th } from '../components/ui'
 import { clientFinancials, clientInvoicePaid, clientInvoiceStatus, projectFinancials, quotationTotals } from '../lib/calc'
 import { formatCompact, formatDate } from '../lib/format'
 import { useStore } from '../store/store'
@@ -17,7 +17,7 @@ export function Clients() {
 
   return (
     <>
-      <PageHeader title="Clients" subtitle="Client accounts, contracted value and outstanding balances." actions={<Button variant="primary" icon={<Plus size={15} />} onClick={() => setOpen(true)}>New client</Button>} />
+      <PageHeader title="Clients" subtitle="Client accounts, contracted value and outstanding balances." actions={<Can menu="clients"><Button variant="primary" icon={<Plus size={15} />} onClick={() => setOpen(true)}>New client</Button></Can>} />
       <Card bodyClassName="">
         <FilterBar>
           <div className="relative w-72"><Search size={15} className="absolute left-3 top-2.5 text-slate-400" /><Input className="pl-9" placeholder="Search clients…" value={q} onChange={(e) => setQ(e.target.value)} /></div>
@@ -52,7 +52,8 @@ export function Clients() {
 
 export function ClientDetail() {
   const { id } = useParams()
-  const { db } = useStore()
+  const { db, run } = useStore()
+  const navigate = useNavigate()
   const [quoteOpen, setQuoteOpen] = useState(false)
   const c = db.clients.find((x) => x.id === id)
   if (!c) return <PageHeader title="Client not found" />
@@ -63,7 +64,14 @@ export function ClientDetail() {
   return (
     <>
       <PageHeader title={c.name} subtitle={`${c.id} · Client since ${formatDate(c.createdAt)}`} crumbs={[{ label: 'Clients', to: '/clients' }, { label: c.name }]}
-        actions={<Button icon={<Plus size={15} />} onClick={() => setQuoteOpen(true)}>New quotation</Button>} />
+        actions={<>
+          <Can menu="clients" level="delete"><Button variant="ghost" icon={<Trash2 size={14} />} onClick={async () => {
+            if (!window.confirm(`Delete client ${c.name}? Only clients with no quotations or projects can be deleted.`)) return
+            const r = await run('deleteClient', [c.id], { success: `${c.name} deleted` })
+            if (r.ok) navigate('/clients')
+          }}>Delete</Button></Can>
+          <Can menu="quotations"><Button icon={<Plus size={15} />} onClick={() => setQuoteOpen(true)}>New quotation</Button></Can>
+        </>} />
       <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
         <Card title="Client information">
           <ul className="space-y-3 text-sm text-slate-700">

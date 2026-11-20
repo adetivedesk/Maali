@@ -26,7 +26,7 @@ export function Profitability() {
 
   return (
     <>
-      <PageHeader title="Profitability" subtitle="Profit is recognised when a phase completes: revenue − material − own labour − outsource − other direct." />
+      <PageHeader title="Profitability" subtitle="Profit is recognised when a phase completes: revenue − material − labour − outsource − other direct." />
       <Card bodyClassName="flex flex-wrap items-end gap-3 px-4 py-4 sm:px-5">
         <Field label="Project" className="w-full sm:w-72">
           <Select value={projectId} onChange={(e) => { setProjectId(e.target.value); setPhaseId(projectPhases(db, e.target.value)[0]?.id ?? '') }}>
@@ -74,7 +74,7 @@ export function Profitability() {
 
       <Card className="mt-5" title="Phase profitability" subtitle={pf.project.name} bodyClassName="">
         <Table>
-          <thead><tr><Th>Phase</Th><Th right>Revenue</Th><Th right>Material</Th><Th right>Own labour</Th><Th right>Outsource</Th><Th right>Other</Th><Th right>Actual cost</Th><Th right>Variance</Th><Th right>Actual profit</Th><Th right>Margin</Th></tr></thead>
+          <thead><tr><Th>Phase</Th><Th right>Revenue</Th><Th right>Material</Th><Th right>Labour</Th><Th right>Outsource</Th><Th right>Other</Th><Th right>Actual cost</Th><Th right>Variance</Th><Th right>Actual profit</Th><Th right>Margin</Th></tr></thead>
           <tbody>
             {phases.map((p) => {
               const f = phaseFinancials(db, p)

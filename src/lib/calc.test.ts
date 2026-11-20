@@ -223,7 +223,7 @@ describe('the full workflow keeps every figure consistent', () => {
 
     // 2. Upload the signed contract
     const contract = db.contracts.find((c) => c.projectId === project.id)!
-    step(A.uploadSignedContract(db, contract.id, 'Coastal_Signed_Contract.pdf', '2026-10-04'))
+    step(A.uploadSignedContract(db, contract.id, 'Coastal_Signed_Contract.pdf', '2026-10-04')[0])
     expect(db.projects.find((p) => p.id === project.id)!.status).toBe('Active')
 
     // 3. Book an outsource cost on a Planned phase → phase starts, supplier invoice created
@@ -266,5 +266,24 @@ describe('the full workflow keeps every figure consistent', () => {
     expect(canCloseProject(db, 'PRJ-2026-003').ready).toBe(true)
     step(A.closeProject(db, 'PRJ-2026-003', 'Admin'))
     expect(db.closures.at(-1)).toMatchObject({ finalRevenue: srk.revenue, finalCost: srk.actual.total, finalProfit: srk.actualProfit, clientPending: srk.clientPending, supplierPending: srk.supplierPending })
+  })
+})
+
+describe('contract labour (per sq.ft)', () => {
+  it('books area × rate as labour cost, paid at site, and passes the audit', () => {
+    const db = createSeed()
+    const ph = db.phases.find((p) => p.projectId === 'PRJ-2026-001' && p.status === 'In Progress')!
+    const before = phaseFinancials(db, ph)
+    const directBefore = projectFinancials(db, ph.projectId).directPaid
+    const [next, exp] = A.addExpense(db, {
+      projectId: ph.projectId, phaseId: ph.id, category: 'labour', subType: 'Mason', description: 'Brickwork contract — Selvam', date: '2026-10-04',
+      labourBasis: 'contract', workerName: 'Selvam', quantity: 1200, unit: 'Sq.ft', rate: 45, amount: 54000,
+    }, { mode: 'none' })
+    expect(exp.supplierInvoiceId).toBeUndefined()
+    expect(phaseFinancials(next, ph).actual.labour).toBe(before.actual.labour + 54000)
+    expect(projectFinancials(next, ph.projectId).directPaid).toBe(directBefore + 54000)
+    expect(auditDatabase(next)).toEqual([])
+    const bad = { ...next, expenses: next.expenses.map((e) => (e.id === exp.id ? { ...e, amount: 50000 } : e)) }
+    expect(errors(bad).map((i) => i.message)).toContain('contract labour 1200 × 45 ≠ 50000')
   })
 })

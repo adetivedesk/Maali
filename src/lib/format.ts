@@ -36,15 +36,24 @@ export function formatDate(iso?: string): string {
 
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 
+/** Business time zone: "today" is the Indian calendar date, also on UTC servers. */
+const TIME_ZONE = 'Asia/Kolkata'
+const tzDate = new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit' })
+
+/** Demo snapshot used by the tests and docs/figures.json, so their figures never drift. */
+export const DEMO_AS_OF_DATE = '2026-10-04'
+
 /**
- * The demo's "as of" date. Overdue statuses and default entry dates use it,
- * so the seeded figures (and the docs built from them) stay stable over time.
- * Override with VITE_AS_OF_DATE=live for the real date (e.g. once a backend
- * exists) or VITE_AS_OF_DATE=YYYY-MM-DD for a different snapshot.
+ * VITE_AS_OF_DATE=YYYY-MM-DD pins "today" (tests, figures script, demo snapshots);
+ * unset or 'live' uses the real date in India. Read on every call so scripts can set it.
  */
-const ENV_AS_OF = (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_AS_OF_DATE
-export const AS_OF_DATE = ENV_AS_OF && ENV_AS_OF !== 'live' ? ENV_AS_OF : '2026-10-04'
-export const today = () => (ENV_AS_OF === 'live' ? iso(new Date()) : AS_OF_DATE)
+function pinnedDate(): string | undefined {
+  const env = (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_AS_OF_DATE
+    ?? (typeof process !== 'undefined' ? process.env?.VITE_AS_OF_DATE : undefined)
+  return env && env !== 'live' ? env : undefined
+}
+
+export const today = () => pinnedDate() ?? tzDate.format(new Date())
 
 export function addDays(date: string, days: number): string {
   const d = new Date(date + 'T00:00:00')

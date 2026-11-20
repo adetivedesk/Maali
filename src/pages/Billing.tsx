@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Receipt } from 'lucide-react'
 import { ClientInvoiceForm, ClientPaymentForm } from '../components/forms'
 import { ClientInvoiceTable } from '../components/tables'
-import { Button, Card, EmptyRow, FilterBar, Kpi, KpiGrid, Money, PageHeader, Progress, Select, StatusBadge, Table, Td, Th } from '../components/ui'
+import { Button, Can, Card, EmptyRow, FilterBar, Kpi, KpiGrid, Money, PageHeader, Progress, Select, StatusBadge, Table, Td, Th } from '../components/ui'
 import { clientInvoiceStatus, phaseFinancials, portfolioSummary } from '../lib/calc'
 import { formatCompact } from '../lib/format'
 import { useStore } from '../store/store'
@@ -30,7 +30,7 @@ export function Billing() {
   return (
     <>
       <PageHeader title="Client Billing" subtitle="Billing is tracked separately from revenue: contract value → invoices → receipts."
-        actions={<><Button onClick={() => setPayFor(undefined)}>Record client payment</Button><Button variant="primary" icon={<Receipt size={15} />} onClick={() => setInvoiceFor({})}>Generate invoice</Button></>} />
+        actions={<><Can menu="payments"><Button onClick={() => setPayFor(undefined)}>Record client payment</Button></Can><Can menu="billing"><Button variant="primary" icon={<Receipt size={15} />} onClick={() => setInvoiceFor({})}>Generate invoice</Button></Can></>} />
       <KpiGrid cols={5}>
         <Kpi label="Total revenue" value={formatCompact(s.contractValue)} />
         <Kpi label="Billed" value={formatCompact(s.billed)} sub={`${db.clientInvoices.length} invoices`} />
@@ -54,7 +54,7 @@ export function Billing() {
                 <Td right><Money value={f.billed} /></Td>
                 <Td right><Money value={f.done ? f.unbilled : 0} className={f.done && f.unbilled > 0 ? 'font-medium text-blue-700' : 'text-slate-400'} /></Td>
                 <Td right><Money value={f.unbilled} /></Td>
-                <Td><Button size="sm" variant={p.status === 'Completed' ? 'primary' : 'secondary'} onClick={() => setInvoiceFor({ projectId: p.projectId, phaseId: p.id })}>{p.status === 'Completed' ? 'Bill now' : 'Running bill'}</Button></Td>
+                <Td><Can menu="billing"><Button size="sm" variant={p.status === 'Completed' ? 'primary' : 'secondary'} onClick={() => setInvoiceFor({ projectId: p.projectId, phaseId: p.id })}>{p.status === 'Completed' ? 'Bill now' : 'Running bill'}</Button></Can></Td>
               </tr>
             ))}
           </tbody>

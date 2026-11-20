@@ -5,27 +5,46 @@ import type { CostCategory, DocumentEntity, DocumentType, PhaseBudget } from '..
 import { PROJECT_MANAGERS } from '../data/catalog'
 import { COST_CATEGORIES, COST_LABEL, canCloseProject, quotationTotals } from '../lib/calc'
 import { addDays, formatINR, formatPct, today } from '../lib/format'
-import * as A from '../store/actions'
 import { useStore } from '../store/store'
 import { Button, Callout, Field, Input, Modal, NumberInput, Select, Stat, Textarea } from './ui'
 
 const num = (v: number | '') => (v === '' ? 0 : v)
+
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024
+const ACCEPT = '.pdf,.png,.jpg,.jpeg,.webp,.xlsx,.xls,.csv,.docx,.doc'
+
+/** File chooser. On the server the file itself is stored (≤ 4 MB); in the browser-only demo only its name. */
+function FileDrop({ file, onFile, accept = ACCEPT, placeholder = 'Choose a file' }: { file: File | null; onFile: (f: File | null) => void; accept?: string; placeholder?: string }) {
+  const { source, notify } = useStore()
+  return (
+    <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-7 text-center hover:border-blue-400 hover:bg-blue-50/40">
+      <FileUp className="text-slate-400" size={26} />
+      <span className="break-all text-sm font-medium text-slate-700">{file ? `${file.name} · ${Math.max(1, Math.round(file.size / 1024))} KB` : placeholder}</span>
+      <span className="text-xs text-slate-400">{source === 'cloud' ? 'PDF, image, Excel, Word or CSV · up to 4 MB' : 'Browser-only demo: only the file name is kept'}</span>
+      <input type="file" className="hidden" accept={accept} onChange={(e) => {
+        const f = e.target.files?.[0] ?? null
+        if (f && source === 'cloud' && f.size > MAX_UPLOAD_BYTES) { notify(`${f.name} is larger than 4 MB`, 'error'); onFile(null); return }
+        onFile(f)
+      }} />
+    </label>
+  )
+}
 
 // =============================================================================
 // Client
 // =============================================================================
 
 export function ClientForm({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated?: (id: string) => void }) {
-  const { db, commit } = useStore()
+  const { run } = useStore()
   const blank = { name: '', contactPerson: '', phone: '', email: '', city: '', state: 'Tamil Nadu' }
   const [f, setF] = useState(blank)
   useEffect(() => { if (open) setF(blank) }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
   const set = (k: keyof typeof blank) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value })
   const valid = f.name.trim() && f.contactPerson.trim()
-  function save() {
-    const [next, c] = A.addClient(db, f)
-    commit(next, `Client ${c.id} created`)
-    onCreated?.(c.id)
+  async function save() {
+    const r = await run('addClient', [f], { success: (c: { id: string }) => `Client ${c.id} created` })
+    if (!r.ok) return
+    onCreated?.(r.result.id)
     onClose()
   }
   return (
@@ -50,7 +69,7 @@ export function ClientForm({ open, onClose, onCreated }: { open: boolean; onClos
 interface ItemRow { description: string; amount: number | ''; estimatedCost: number | '' }
 
 export function QuotationForm({ open, onClose, clientId: cDefault }: { open: boolean; onClose: () => void; clientId?: string }) {
-  const { db, commit } = useStore()
+  const { db, run } = useStore()
   const navigate = useNavigate()
   const [clientId, setClientId] = useState('')
   const [projectName, setProjectName] = useState('')
@@ -72,13 +91,14 @@ export function QuotationForm({ open, onClose, clientId: cDefault }: { open: boo
   const valid = clientId && projectName.trim() && items.length > 0 && items.every((i) => i.description.trim() && num(i.amount) > 0)
   const upd = (idx: number, patch: Partial<ItemRow>) => setItems(items.map((it, i) => (i === idx ? { ...it, ...patch } : it)))
 
-  function save(status: 'Draft' | 'Sent') {
+  async function save(status: 'Draft' | 'Sent') {
     const client = db.clients.find((c) => c.id === clientId)
-    const [next, q] = A.addQuotation(db, { clientId, projectName, location: location || `${client?.city}, ${client?.state}`, quoteDate, validUntil, status },
-      items.map((i) => ({ description: i.description, amount: num(i.amount), estimatedCost: num(i.estimatedCost) })))
-    commit(next, `${q.id} saved as ${status}`)
+    const r = await run('addQuotation', [{ clientId, projectName, location: location || `${client?.city}, ${client?.state}`, quoteDate, validUntil, status },
+      items.map((i) => ({ description: i.description, amount: num(i.amount), estimatedCost: num(i.estimatedCost) }))],
+    { success: (q: { id: string }) => `${q.id} saved as ${status}` })
+    if (!r.ok) return
     onClose()
-    navigate(`/quotations/${q.id}`)
+    navigate(`/quotations/${r.result.id}`)
   }
 
   return (
@@ -140,7 +160,7 @@ export function QuotationForm({ open, onClose, clientId: cDefault }: { open: boo
 }
 
 export function ConvertQuoteForm({ open, onClose, quotationId }: { open: boolean; onClose: () => void; quotationId: string }) {
-  const { db, commit } = useStore()
+  const { db, run } = useStore()
   const navigate = useNavigate()
   const q = db.quotations.find((x) => x.id === quotationId)
   const [pm, setPm] = useState(PROJECT_MANAGERS[0])
@@ -148,11 +168,11 @@ export function ConvertQuoteForm({ open, onClose, quotationId }: { open: boolean
   const [endDate, setEndDate] = useState(addDays(today(), 194))
   if (!q) return null
   const t = quotationTotals(db, quotationId)
-  function save() {
-    const [next, project] = A.convertQuotation(db, quotationId, { projectManager: pm, startDate, endDate })
-    commit(next, `${project.id} created from ${quotationId}`)
+  async function save() {
+    const r = await run('convertQuotation', [quotationId, { projectManager: pm, startDate, endDate }], { success: (p: { id: string }) => `${p.id} created from ${quotationId}` })
+    if (!r.ok) return
     onClose()
-    navigate(`/projects/${project.id}`)
+    navigate(`/projects/${r.result.id}`)
   }
   return (
     <Modal open={open} onClose={onClose} title={`Convert ${q.id} → Project`} subtitle={q.projectName}
@@ -179,28 +199,24 @@ export function ConvertQuoteForm({ open, onClose, quotationId }: { open: boolean
 // =============================================================================
 
 export function ContractUploadForm({ open, onClose, contractId }: { open: boolean; onClose: () => void; contractId: string }) {
-  const { db, commit } = useStore()
+  const { db, run, busy } = useStore()
   const c = db.contracts.find((x) => x.id === contractId)
   const project = db.projects.find((p) => p.id === c?.projectId)
-  const [fileName, setFileName] = useState('')
+  const [file, setFile] = useState<File | null>(null)
   const [signedDate, setSignedDate] = useState(today())
-  useEffect(() => {
-    if (open && project) { setFileName(`${project.shortName.replace(/\W+/g, '_')}_Signed_Contract.pdf`); setSignedDate(today()) }
-  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (open) { setFile(null); setSignedDate(today()) } }, [open])
   if (!c || !project) return null
-  function save() {
-    commit(A.uploadSignedContract(db, contractId, fileName, signedDate), `Signed contract uploaded — ${project!.shortName} is now Active`)
-    onClose()
+  async function save() {
+    const sizeKb = file ? Math.max(1, Math.round(file.size / 1024)) : undefined
+    if (!file) return
+    const r = await run('uploadSignedContract', [contractId, file.name, signedDate, sizeKb],
+      { success: `Signed contract uploaded — ${project!.shortName} is now Active`, file: file ?? undefined })
+    if (r.ok) onClose()
   }
   return (
     <Modal open={open} onClose={onClose} title="Upload Signed Contract" subtitle={`${c.id} · ${project.name}`} width="max-w-lg"
-      footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" disabled={!fileName} onClick={save}>Upload & activate</Button></>}>
-      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center hover:border-blue-400 hover:bg-blue-50/40">
-        <FileUp className="text-slate-400" size={28} />
-        <span className="text-sm font-medium text-slate-700">{fileName || 'Choose file'}</span>
-        <span className="text-xs text-slate-400">PDF up to 20 MB · demo: file is not actually stored</span>
-        <input type="file" className="hidden" accept=".pdf" onChange={(e) => e.target.files?.[0] && setFileName(e.target.files[0].name)} />
-      </label>
+      footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" disabled={!file || busy} onClick={save}>{busy ? 'Uploading…' : 'Upload & activate'}</Button></>}>
+      <FileDrop file={file} onFile={setFile} accept=".pdf,.png,.jpg,.jpeg" placeholder="Choose the signed contract (PDF or scan)" />
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Signed date"><Input type="date" value={signedDate} onChange={(e) => setSignedDate(e.target.value)} /></Field>
         <Field label="Contract value"><Input disabled value={formatINR(c.value)} /></Field>
@@ -214,7 +230,7 @@ export function ContractUploadForm({ open, onClose, contractId }: { open: boolea
 // =============================================================================
 
 export function PhaseForm({ open, onClose, projectId, phaseId }: { open: boolean; onClose: () => void; projectId: string; phaseId?: string }) {
-  const { db, commit } = useStore()
+  const { db, run } = useStore()
   const existing = db.phases.find((p) => p.id === phaseId)
   const [name, setName] = useState('')
   const [contractValue, setContractValue] = useState<number | ''>('')
@@ -228,14 +244,11 @@ export function PhaseForm({ open, onClose, projectId, phaseId }: { open: boolean
   const planned = COST_CATEGORIES.reduce((a, k) => a + num(budget[k]), 0)
   const valid = name.trim() && num(contractValue) > 0
   const coLinked = !!existing?.changeOrderId
-  function save() {
+  async function save() {
     const b = Object.fromEntries(COST_CATEGORIES.map((k) => [k, num(budget[k])])) as PhaseBudget
-    if (existing) commit(A.setPhaseBudget(db, existing.id, b, coLinked ? undefined : num(contractValue)), `Budget updated for ${existing.name}`)
-    else {
-      const [next, ph] = A.addPhase(db, { projectId, name, contractValue: num(contractValue), budget: b })
-      commit(next, `Phase ${ph.id} created`)
-    }
-    onClose()
+    const r = await run('savePhase', [existing?.id ?? null, { projectId, name, contractValue: coLinked ? undefined : num(contractValue), budget: b }],
+      { success: existing ? `Budget updated for ${existing.name}` : (ph: { id: string }) => `Phase ${ph.id} created` })
+    if (r.ok) onClose()
   }
   return (
     <Modal open={open} onClose={onClose} title={existing ? `Set Phase Budget — ${existing.name}` : 'Add Phase'} width="max-w-xl"
@@ -266,7 +279,7 @@ export function PhaseForm({ open, onClose, projectId, phaseId }: { open: boolean
 // =============================================================================
 
 export function ChangeOrderForm({ open, onClose, projectId: pDefault }: { open: boolean; onClose: () => void; projectId?: string }) {
-  const { db, commit } = useStore()
+  const { db, run } = useStore()
   const projects = db.projects.filter((p) => ['Active', 'On Hold', 'Completed'].includes(p.status))
   const [projectId, setProjectId] = useState('')
   const [description, setDescription] = useState('')
@@ -278,11 +291,10 @@ export function ChangeOrderForm({ open, onClose, projectId: pDefault }: { open: 
     setProjectId(pDefault ?? projects[0]?.id ?? ''); setDescription(''); setRevenue(''); setEstimatedCost(''); setApproved(true)
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
   const valid = projectId && description.trim() && num(revenue) > 0
-  function save() {
-    let [next, co] = A.addChangeOrder(db, { projectId, description, date: today(), revenue: num(revenue), estimatedCost: num(estimatedCost) })
-    if (approved) next = A.approveChangeOrder(next, co.id)
-    commit(next, `${co.number} ${approved ? 'approved — project revenue updated' : 'created (pending approval)'}`)
-    onClose()
+  async function save() {
+    const r = await run('addChangeOrder', [{ projectId, description, date: today(), revenue: num(revenue), estimatedCost: num(estimatedCost) }, approved],
+      { success: (co: { number: string }) => `${co.number} ${approved ? 'approved — project revenue updated' : 'created (pending approval)'}` })
+    if (r.ok) onClose()
   }
   const p = db.projects.find((x) => x.id === projectId)
   return (
@@ -313,13 +325,14 @@ export function ChangeOrderForm({ open, onClose, projectId: pDefault }: { open: 
 const DOC_TYPES: DocumentType[] = ['Quotation', 'Signed Contract', 'BOQ', 'Supplier Invoice', 'Client Invoice', 'Payment Receipt', 'Project Report', 'Site Photo']
 
 export function DocumentUploadForm({ open, onClose, projectId: pDefault }: { open: boolean; onClose: () => void; projectId?: string }) {
-  const { db, commit } = useStore()
-  const [fileName, setFileName] = useState('')
+  const { db, run, busy } = useStore()
+  const [file, setFile] = useState<File | null>(null)
+  const fileName = file?.name ?? ''
   const [type, setType] = useState<DocumentType>('Site Photo')
   const [projectId, setProjectId] = useState('')
   const [entityType, setEntityType] = useState<DocumentEntity>('Project')
   const [entityId, setEntityId] = useState('')
-  useEffect(() => { if (open) { setFileName(''); setProjectId(pDefault ?? db.projects[0]?.id ?? ''); setEntityType('Project'); setEntityId('') } }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (open) { setFile(null); setProjectId(pDefault ?? db.projects[0]?.id ?? ''); setEntityType('Project'); setEntityId('') } }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const options: { id: string; label: string }[] =
     entityType === 'Project' ? [{ id: projectId, label: db.projects.find((p) => p.id === projectId)?.name ?? projectId }]
@@ -331,20 +344,17 @@ export function DocumentUploadForm({ open, onClose, projectId: pDefault }: { ope
                 : db.suppliers.map((s) => ({ id: s.id, label: s.name }))
   const effectiveEntity = entityId && options.some((o) => o.id === entityId) ? entityId : options[0]?.id ?? ''
 
-  function save() {
-    const [next, doc] = A.addDocument(db, { name: fileName, type, entityType, entityId: effectiveEntity, projectId: projectId || undefined, uploadedBy: 'Admin', sizeKb: 200 + Math.round(Math.random() * 3000) })
-    commit(next, `${doc.name} uploaded`)
-    onClose()
+  async function save() {
+    const name = file?.name ?? fileName
+    const sizeKb = file ? Math.max(1, Math.round(file.size / 1024)) : 1
+    const r = await run('addDocument', [{ name, type, entityType, entityId: effectiveEntity, projectId: projectId || undefined, sizeKb }],
+      { success: `${name} uploaded`, file: file ?? undefined })
+    if (r.ok) onClose()
   }
   return (
     <Modal open={open} onClose={onClose} title="Upload Document" width="max-w-lg"
-      footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" disabled={!fileName || !effectiveEntity} onClick={save}>Upload</Button></>}>
-      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-7 text-center hover:border-blue-400">
-        <FileUp className="text-slate-400" size={26} />
-        <span className="text-sm font-medium text-slate-700">{fileName || 'Choose a file'}</span>
-        <span className="text-xs text-slate-400">Simulated upload — only metadata is stored</span>
-        <input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && setFileName(e.target.files[0].name)} />
-      </label>
+      footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" disabled={!fileName || !effectiveEntity || busy} onClick={save}>{busy ? 'Uploading…' : 'Upload'}</Button></>}>
+      <FileDrop file={file} onFile={setFile} />
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Document type"><Select value={type} onChange={(e) => setType(e.target.value as DocumentType)}>{DOC_TYPES.map((t) => <option key={t}>{t}</option>)}</Select></Field>
         <Field label="Project"><Select value={projectId} onChange={(e) => setProjectId(e.target.value)}>{db.projects.map((p) => <option key={p.id} value={p.id}>{p.shortName}</option>)}</Select></Field>
@@ -360,13 +370,14 @@ export function DocumentUploadForm({ open, onClose, projectId: pDefault }: { ope
 // =============================================================================
 
 export function CloseProjectDialog({ open, onClose, projectId }: { open: boolean; onClose: () => void; projectId: string }) {
-  const { db, commit } = useStore()
+  const { db, run } = useStore()
   const navigate = useNavigate()
   const [notes, setNotes] = useState('')
   if (!open) return null
   const { checks, ready, financials: f } = canCloseProject(db, projectId)
-  function close() {
-    commit(A.closeProject(db, projectId, 'Admin', notes || undefined), `${f.project.shortName} closed`)
+  async function close() {
+    const r = await run('closeProject', [projectId, notes || undefined], { success: `${f.project.shortName} closed` })
+    if (!r.ok) return
     onClose()
     navigate(`/reports/closure/${projectId}`)
   }

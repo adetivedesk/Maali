@@ -17,7 +17,7 @@ import { today } from './format'
 
 export const COST_CATEGORIES: CostCategory[] = ['material', 'labour', 'outsource', 'other']
 export const COST_LABEL: Record<CostCategory, string> = {
-  material: 'Material', labour: 'Own Labour', outsource: 'Outsource', other: 'Other Direct',
+  material: 'Material', labour: 'Labour', outsource: 'Outsource', other: 'Other Direct',
 }
 
 export type CostBreakdown = Record<CostCategory, number> & { total: number }
@@ -243,7 +243,7 @@ export function projectFinancials(db: Database, projectId: string) {
   const clientOverdue = sum(invoices.filter((i) => clientInvoiceStatus(db, i) === 'Overdue').map((i) => clientInvoicePending(db, i)))
 
   const sup = supplierTotals(db.supplierInvoices.filter((i) => i.projectId === projectId).map((i) => supplierInvoiceView(db, i)))
-  // Own labour & other direct costs are paid directly at site (no supplier invoice).
+  // Labour (own gang or contract) & other direct costs are paid directly at site (no supplier invoice).
   const directPaid = sum(db.expenses.filter((e) => e.projectId === projectId && !e.supplierInvoiceId).map((e) => e.amount))
 
   return {

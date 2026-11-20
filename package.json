@@ -9,9 +9,15 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
-    "figures": "tsx scripts/export-figures.ts"
+    "figures": "tsx scripts/export-figures.ts",
+    "db:migrate": "tsx --env-file=.env.local scripts/db.ts migrate",
+    "db:seed": "tsx --env-file=.env.local scripts/db.ts seed",
+    "db:status": "tsx --env-file=.env.local scripts/db.ts status",
+    "db:clear": "tsx --env-file=.env.local scripts/db.ts clear",
+    "db:admin": "tsx --env-file=.env.local scripts/db.ts admin"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.2.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.51.0",
     "react": "^19.3.0",

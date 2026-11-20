@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Plus, Search } from 'lucide-react'
-import { Button, Card, EmptyRow, FilterBar, Input, Money, PageHeader, Progress, Select, StatusBadge, Table, Td, Th } from '../components/ui'
+import { Button, Can, Card, EmptyRow, FilterBar, Input, Money, PageHeader, Progress, Select, StatusBadge, Table, Td, Th } from '../components/ui'
 import { projectFinancials } from '../lib/calc'
 import { formatDate } from '../lib/format'
 import { useStore } from '../store/store'
@@ -31,7 +31,7 @@ export function Projects() {
   return (
     <>
       <PageHeader title="Projects" subtitle="Every project with contracted value, cash received, cost and profit."
-        actions={<Button variant="primary" icon={<Plus size={15} />} onClick={() => navigate('/quotations')}>New project from quotation</Button>} />
+        actions={<Can menu="quotations"><Button variant="primary" icon={<Plus size={15} />} onClick={() => navigate('/quotations')}>New project from quotation</Button></Can>} />
       <Card bodyClassName="">
         <FilterBar>
           <div className="relative w-64"><Search size={15} className="absolute left-3 top-2.5 text-slate-400" /><Input className="pl-9" placeholder="Search project, code, location…" value={q} onChange={(e) => setQ(e.target.value)} /></div>

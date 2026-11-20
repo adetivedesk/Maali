@@ -16,6 +16,13 @@ export const DEFAULT_MATERIAL_UNIT: Record<string, string> = {
   Cement: 'Bags', Steel: 'Kg', Sand: 'Cu.m', Bricks: 'Nos', 'Electrical Materials': 'Lot', 'Plumbing Materials': 'Lot', 'Other Materials': 'Lot',
 }
 
+export const LABOUR_CONTRACT_UNITS = ['Sq.ft', 'Sq.m', 'Running ft', 'Cu.ft', 'Cu.m', 'Nos', 'Other']
+
+/** Typical contract labour rates (₹ per sq.ft) used as a starting value. */
+export const DEFAULT_CONTRACT_RATE: Record<string, number> = {
+  Mason: 45, Helper: 15, Electrician: 35, Plumber: 30, Supervisor: 10, 'Other Labour': 25,
+}
+
 export const DEFAULT_DAILY_RATE: Record<string, number> = {
   Mason: 1200, Helper: 800, Electrician: 1100, Plumber: 1100, Supervisor: 2000, 'Other Labour': 1000,
 }

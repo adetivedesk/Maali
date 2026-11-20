@@ -3,18 +3,17 @@ import { Link, useParams } from 'react-router-dom'
 import { Pencil, Plus, Receipt } from 'lucide-react'
 import { BarsChart, COST_COLORS, SERIES } from '../components/charts'
 import { ClientInvoiceForm, ClientPaymentForm, ExpenseForm } from '../components/forms'
-import { ClientInvoiceTable, ExpenseTable, PhaseStatusSelect, PlannedVsActualTable, SupplierInvoiceTable } from '../components/tables'
-import { Button, Card, Kpi, KpiGrid, PageHeader, Progress } from '../components/ui'
+import { ClientInvoiceTable, ExpenseTable, PhaseStatusSelect, PlannedVsActualTable, ProgressSlider, SupplierInvoiceTable } from '../components/tables'
+import { Button, Can, Card, Kpi, KpiGrid, PageHeader, Progress } from '../components/ui'
 import { PhaseForm } from '../components/workflowForms'
 import { COST_CATEGORIES, COST_LABEL, phaseFinancials, supplierInvoiceView } from '../lib/calc'
 import { formatCompact, formatDate, formatINR, formatPct } from '../lib/format'
-import * as A from '../store/actions'
 import { useStore } from '../store/store'
 import type { CostCategory } from '../data/types'
 
 export function PhaseDetail() {
   const { id } = useParams()
-  const { db, commit } = useStore()
+  const { db, run } = useStore()
   const [modal, setModal] = useState<null | 'expense' | 'invoice' | 'payment' | 'budget'>(null)
   const [expCat, setExpCat] = useState<CostCategory | undefined>()
   const [payInv, setPayInv] = useState<string | undefined>()
@@ -37,9 +36,9 @@ export function PhaseDetail() {
         actions={!closed && (
           <>
             <PhaseStatusSelect phase={phase} />
-            <Button icon={<Pencil size={14} />} onClick={() => setModal('budget')}>Set budget</Button>
-            <Button icon={<Plus size={15} />} onClick={() => { setExpCat(undefined); setModal('expense') }}>Add expense</Button>
-            <Button variant="primary" icon={<Receipt size={15} />} disabled={f.unbilled <= 0} onClick={() => setModal('invoice')}>Generate invoice</Button>
+            <Can menu="phases"><Button icon={<Pencil size={14} />} onClick={() => setModal('budget')}>Set budget</Button></Can>
+            <Can menu="expenses"><Button icon={<Plus size={15} />} onClick={() => { setExpCat(undefined); setModal('expense') }}>Add expense</Button></Can>
+            <Can menu="billing"><Button variant="primary" icon={<Receipt size={15} />} disabled={f.unbilled <= 0} onClick={() => setModal('invoice')}>Generate invoice</Button></Can>
           </>
         )}
       />
@@ -47,9 +46,9 @@ export function PhaseDetail() {
       {!done && !closed && (
         <Card className="mb-5" bodyClassName="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-5">
           <span className="text-sm font-medium text-slate-600">Physical progress</span>
-          <input type="range" min={0} max={100} step={5} value={phase.progress} onChange={(e) => commit(A.setPhaseProgress(db, phase.id, Number(e.target.value)))} className="h-1.5 min-w-40 flex-1 accent-blue-600" />
+          <ProgressSlider phaseId={phase.id} value={phase.progress} className="h-1.5 min-w-40 flex-1 accent-blue-600" />
           <span className="num w-12 text-right text-sm font-semibold">{phase.progress}%</span>
-          <Button size="sm" variant="success" onClick={() => commit(A.setPhaseStatus(db, phase.id, 'Completed'), `${phase.name} marked completed`)}>Mark completed</Button>
+          <Can menu="phases"><Button size="sm" variant="success" onClick={() => void run('setPhaseStatus', [phase.id, 'Completed'], { success: `${phase.name} marked completed` })}>Mark completed</Button></Can>
         </Card>
       )}
 
@@ -88,7 +87,7 @@ export function PhaseDetail() {
         </Card>
       </div>
 
-      <Card className="mt-5" title="Expenses" subtitle={`${expenses.length} entries`} bodyClassName="" actions={!closed && <Button size="sm" variant="primary" icon={<Plus size={13} />} onClick={() => { setExpCat(undefined); setModal('expense') }}>Add expense</Button>}>
+      <Card className="mt-5" title="Expenses" subtitle={`${expenses.length} entries`} bodyClassName="" actions={!closed && <Can menu="expenses"><Button size="sm" variant="primary" icon={<Plus size={13} />} onClick={() => { setExpCat(undefined); setModal('expense') }}>Add expense</Button></Can>}>
         <ExpenseTable expenses={expenses} showProject={false} showPhase={false} allowDelete={!closed} />
       </Card>
 

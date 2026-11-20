@@ -371,5 +371,6 @@ function seedData(): Database {
       { id: 'DOC-014', name: 'QT-2026-005_Coastal_Quotation.pdf', type: 'Quotation', entityType: 'Quotation', entityId: 'QT-2026-005', uploadedAt: '2026-09-10', uploadedBy: 'Admin', sizeKb: 702 },
     ],
     closures: [],
+    cancelled: [],
   }
 }

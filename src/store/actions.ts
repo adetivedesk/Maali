@@ -1,5 +1,5 @@
 import type {
-  ChangeOrder, Client, ClientInvoice, ClientPayment, Contract, Database, DocumentRecord, Expense, Phase, PhaseBudget,
+  CancelledRecord, ChangeOrder, Client, ClientInvoice, ClientPayment, Contract, Database, DocumentRecord, Expense, Phase, PhaseBudget,
   PhaseStatus, Project, ProjectStatus, Quotation, QuotationItem, QuotationStatus, SupplierInvoice, SupplierPayment,
 } from '../data/types'
 import { addDays, today } from '../lib/format'
@@ -11,13 +11,29 @@ import { isPhaseDone, phaseBilling, projectFinancials, quotationTotals, supplier
 // and the store swaps local reducers for API calls + refetch.
 // ---------------------------------------------------------------------------
 
+// Number series. On the server, withCounters() supplies the stored high-water mark
+// for each prefix, so a number is never handed out twice, even after its record
+// is deleted or cancelled. In the browser-only demo the list itself is the source.
+let counters: Record<string, number> | null = null
+
+/** Run fn with persistent counters; the map is updated in place with any numbers issued. */
+export function withCounters<T>(c: Record<string, number>, fn: () => T): T {
+  const prev = counters
+  counters = c
+  try { return fn() } finally { counters = prev }
+}
+
 /** nextId(db.expenses, 'EXP-') → 'EXP-075' */
 export function nextId(list: { id: string }[], prefix: string, pad = 3): string {
-  const max = list.reduce((m, x) => {
+  let max = list.reduce((m, x) => {
     if (!x.id.startsWith(prefix)) return m
     const n = Number(x.id.slice(prefix.length))
     return Number.isFinite(n) && n > m ? n : m
   }, 0)
+  if (counters) {
+    max = Math.max(max, counters[prefix] ?? 0)
+    counters[prefix] = max + 1
+  }
   return `${prefix}${String(max + 1).padStart(pad, '0')}`
 }
 
@@ -26,14 +42,24 @@ const year = () => today().slice(0, 4)
 const patch = <T extends { id: string }>(list: T[], id: string, changes: Partial<T>) =>
   list.map((x) => (x.id === id ? { ...x, ...changes } : x))
 
-/** Phase status follows billing: fully billed → Billed, fully received → Payment Received. */
+/** Phase status follows billing: fully billed → Billed, fully received → Payment Received, back to Completed if billing is cancelled. */
 function syncPhaseBilling(db: Database, phaseId: string): Database {
   const phase = db.phases.find((p) => p.id === phaseId)
   if (!phase || !isPhaseDone(phase) || phase.status === 'Closed') return db
   const { billed, received } = phaseBilling(db, phaseId)
-  let status: PhaseStatus = phase.status
-  if (billed >= phase.contractValue) status = received >= phase.contractValue ? 'Payment Received' : 'Billed'
+  const status: PhaseStatus = billed >= phase.contractValue ? (received >= phase.contractValue ? 'Payment Received' : 'Billed') : 'Completed'
   return status === phase.status ? db : { ...db, phases: patch(db.phases, phaseId, { status }) }
+}
+
+class RuleError extends Error {}
+/** Business-rule violation: the message is shown to the user as-is. */
+export function rule(ok: unknown, message: string): asserts ok { if (!ok) throw new RuleError(message) }
+export const ruleError = (message: string): Error => new RuleError(message)
+export const isRuleError = (e: unknown): e is Error => e instanceof RuleError
+
+function openProject(db: Database, projectId: string | undefined, what: string) {
+  const p = db.projects.find((x) => x.id === projectId)
+  rule(!p || p.status !== 'Closed', `${what}: project ${p?.shortName} is closed`)
 }
 
 // ---- Clients -----------------------------------------------------------------
@@ -113,18 +139,18 @@ export function addDocument(db: Database, input: Omit<DocumentRecord, 'id' | 'up
 }
 
 /** Simulated upload of the signed contract: contract → Active, project → Active. */
-export function uploadSignedContract(db: Database, contractId: string, fileName: string, signedDate: string): Database {
+export function uploadSignedContract(db: Database, contractId: string, fileName: string, signedDate: string, upload?: { uploadedBy: string; sizeKb: number }): [Database, DocumentRecord] {
   const c = db.contracts.find((x) => x.id === contractId)!
   const project = db.projects.find((p) => p.id === c.projectId)!
   const [db2, doc] = addDocument(db, {
     name: fileName, type: 'Signed Contract', entityType: 'Contract', entityId: contractId, projectId: c.projectId,
-    uploadedBy: project.projectManager, sizeKb: 1800 + Math.round(Math.random() * 1200),
+    uploadedBy: upload?.uploadedBy ?? project.projectManager, sizeKb: upload?.sizeKb ?? 1800 + Math.round(Math.random() * 1200),
   })
-  return {
+  return [{
     ...db2,
     contracts: patch(db2.contracts, contractId, { status: 'Active', signedDate, documentId: doc.id }),
     projects: patch(db2.projects, c.projectId, { status: project.status === 'Contract Pending' ? 'Active' : project.status }),
-  }
+  }, doc]
 }
 
 // ---- Projects & phases -------------------------------------------------------
@@ -297,4 +323,83 @@ export function closeProject(db: Database, projectId: string, closedBy: string, 
       clientPending: f.clientPending, supplierPending: f.supplierPending,
     }],
   }
+}
+
+// ---- Safe delete -------------------------------------------------------------
+// Only records nothing else depends on. Invoices and payments are never deleted;
+// they are cancelled (below) so the history is kept.
+
+export function deleteDocument(db: Database, id: string): Database {
+  const d = db.documents.find((x) => x.id === id)
+  rule(d, `Document ${id} not found`)
+  rule(!db.contracts.some((c) => c.documentId === id), `${d.name} is the signed contract on record and cannot be deleted`)
+  return { ...db, documents: db.documents.filter((x) => x.id !== id) }
+}
+
+export function deleteQuotation(db: Database, id: string): Database {
+  const q = db.quotations.find((x) => x.id === id)
+  rule(q, `Quotation ${id} not found`)
+  rule(q.status === 'Draft' && !q.projectId, `Only draft quotations can be deleted (${id} is ${q.status})`)
+  rule(!db.documents.some((d) => d.entityType === 'Quotation' && d.entityId === id), `${id} has documents attached; delete them first`)
+  return { ...db, quotations: db.quotations.filter((x) => x.id !== id), quotationItems: db.quotationItems.filter((i) => i.quotationId !== id) }
+}
+
+export function deletePhase(db: Database, id: string): Database {
+  const ph = db.phases.find((x) => x.id === id)
+  rule(ph, `Phase ${id} not found`)
+  rule(ph.status === 'Planned', `Only planned phases can be deleted (${ph.name} is ${ph.status})`)
+  rule(!ph.changeOrderId, `${ph.name} belongs to a change order`)
+  rule(!db.expenses.some((e) => e.phaseId === id) && !db.clientInvoices.some((i) => i.phaseId === id), `${ph.name} has costs or invoices`)
+  rule(!db.documents.some((d) => d.entityType === 'Phase' && d.entityId === id), `${ph.name} has documents attached; delete them first`)
+  return { ...db, phases: db.phases.filter((x) => x.id !== id) }
+}
+
+export function deleteClient(db: Database, id: string): Database {
+  const c = db.clients.find((x) => x.id === id)
+  rule(c, `Client ${id} not found`)
+  rule(!db.projects.some((p) => p.clientId === id) && !db.quotations.some((q) => q.clientId === id), `${c.name} has quotations or projects`)
+  return { ...db, clients: db.clients.filter((x) => x.id !== id) }
+}
+
+export function deleteSupplier(db: Database, id: string): Database {
+  const s = db.suppliers.find((x) => x.id === id)
+  rule(s, `Supplier ${id} not found`)
+  rule(!db.expenses.some((e) => e.supplierId === id) && !db.supplierInvoices.some((i) => i.supplierId === id), `${s.name} has purchases or invoices`)
+  rule(!db.documents.some((d) => d.entityType === 'Supplier' && d.entityId === id), `${s.name} has documents attached; delete them first`)
+  return { ...db, suppliers: db.suppliers.filter((x) => x.id !== id) }
+}
+
+// ---- Cancel (void) -------------------------------------------------------------
+
+function archive(db: Database, collection: CancelledRecord['collection'], record: CancelledRecord['record'], reason: string, by: string): Database {
+  rule(reason.trim(), 'A reason is required to cancel')
+  return {
+    ...db,
+    [collection]: (db[collection] as { id: string }[]).filter((x) => x.id !== record.id),
+    cancelled: [...db.cancelled, { id: nextId(db.cancelled, 'CXL-'), collection, recordId: record.id, record, reason: reason.trim(), cancelledAt: today(), cancelledBy: by }],
+  }
+}
+
+export function cancelClientInvoice(db: Database, id: string, reason: string, by: string): Database {
+  const inv = db.clientInvoices.find((x) => x.id === id)
+  rule(inv, `Invoice ${id} not found`)
+  openProject(db, inv.projectId, `Cannot cancel ${inv.invoiceNumber}`)
+  rule(!db.clientPayments.some((p) => p.clientInvoiceId === id), `${inv.invoiceNumber} has payments; cancel those first`)
+  return syncPhaseBilling(archive(db, 'clientInvoices', inv, reason, by), inv.phaseId)
+}
+
+export function cancelClientPayment(db: Database, id: string, reason: string, by: string): Database {
+  const pay = db.clientPayments.find((x) => x.id === id)
+  rule(pay, `Payment ${id} not found`)
+  const inv = db.clientInvoices.find((i) => i.id === pay.clientInvoiceId)!
+  openProject(db, inv.projectId, `Cannot cancel ${id}`)
+  return syncPhaseBilling(archive(db, 'clientPayments', pay, reason, by), inv.phaseId)
+}
+
+export function cancelSupplierPayment(db: Database, id: string, reason: string, by: string): Database {
+  const pay = db.supplierPayments.find((x) => x.id === id)
+  rule(pay, `Payment ${id} not found`)
+  const inv = db.supplierInvoices.find((i) => i.id === pay.supplierInvoiceId)
+  openProject(db, inv?.projectId, `Cannot cancel ${id}`)
+  return archive(db, 'supplierPayments', pay, reason, by)
 }

@@ -74,7 +74,7 @@ export function ClosureReport() {
       ['Section', 'Item', 'Amount (INR)'],
       ['Revenue', 'Original contract', f.originalContract], ['Revenue', 'Change orders', f.changeOrderRevenue], ['Revenue', 'Final contract value', f.revenue],
       ['Revenue', 'Total billed', f.billed], ['Revenue', 'Total received', f.received], ['Revenue', 'Client pending', f.clientPending],
-      ['Expenses', 'Materials', f.actual.material], ['Expenses', 'Own labour', f.actual.labour], ['Expenses', 'Outsource', f.actual.outsource], ['Expenses', 'Other direct', f.actual.other], ['Expenses', 'Total cost', f.actual.total],
+      ['Expenses', 'Materials', f.actual.material], ['Expenses', 'Labour', f.actual.labour], ['Expenses', 'Outsource', f.actual.outsource], ['Expenses', 'Other direct', f.actual.other], ['Expenses', 'Total cost', f.actual.total],
       ['Profitability', 'Expected profit', f.expectedProfit], ['Profitability', 'Actual profit', Math.round(f.actualProfit)], ['Profitability', 'Profit margin %', f.actualMargin.toFixed(2)], ['Profitability', 'Budget variance', f.budgetVariance],
       ['Suppliers', 'Total supplier invoices', f.supplierInvoiced], ['Suppliers', 'Paid', f.supplierPaid], ['Suppliers', 'Pending', f.supplierPending],
     ])
@@ -130,7 +130,7 @@ export function ClosureReport() {
           </Section>
           <Section title="Expenses">
             <Stat label="Materials">{formatINR(f.actual.material)}</Stat>
-            <Stat label="Own labour">{formatINR(f.actual.labour)}</Stat>
+            <Stat label="Labour">{formatINR(f.actual.labour)}</Stat>
             <Stat label="Outsource">{formatINR(f.actual.outsource)}</Stat>
             <Stat label="Other direct cost">{formatINR(f.actual.other)}</Stat>
             <Stat label="Planned cost">{formatINR(f.planned.total)}</Stat>
@@ -161,7 +161,7 @@ export function ClosureReport() {
             <Stat label="Total supplier invoices">{formatINR(f.supplierInvoiced)}</Stat>
             <Stat label="Paid">{formatINR(f.supplierPaid)}</Stat>
             <Stat label="Pending" strong><span className={f.supplierPending ? 'text-red-600' : ''}>{formatINR(f.supplierPending)}</span></Stat>
-            <Stat label="Own labour & direct costs (paid at site)">{formatINR(f.directPaid)}</Stat>
+            <Stat label="Labour & direct costs (paid at site)">{formatINR(f.directPaid)}</Stat>
           </Section>
           <Section title="Final status">
             <Stat label="Project status"><StatusBadge status={project.status} /></Stat>

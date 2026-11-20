@@ -70,7 +70,7 @@ export function Dashboard() {
             height={232}
             series={[
               { key: 'material', label: 'Material', color: COST_COLORS.material },
-              { key: 'labour', label: 'Own labour', color: COST_COLORS.labour },
+              { key: 'labour', label: 'Labour', color: COST_COLORS.labour },
               { key: 'outsource', label: 'Outsource', color: COST_COLORS.outsource },
               { key: 'other', label: 'Other direct', color: COST_COLORS.other },
             ]}

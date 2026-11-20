@@ -48,7 +48,8 @@
     "clientPayments": 15,
     "changeOrders": 3,
     "documents": 14,
-    "closures": 0
+    "closures": 0,
+    "cancelled": 0
   },
   "projects": {
     "PRJ-2026-001": {

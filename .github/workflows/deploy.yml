@@ -1,8 +1,8 @@
 name: Deploy to GitHub Pages
 
+# The pilot runs on Vercel (with sign-in and the shared database). This browser-only
+# demo build no longer deploys on every push; run it manually if a public demo is needed.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:

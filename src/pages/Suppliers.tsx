@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { Mail, MapPin, Phone, Plus, User } from 'lucide-react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Mail, MapPin, Phone, Plus, Trash2, User } from 'lucide-react'
 import { ExpenseForm, SupplierPaymentForm } from '../components/forms'
 import { SupplierInvoiceTable } from '../components/tables'
-import { Button, Card, EmptyRow, FilterBar, Kpi, KpiGrid, Money, PageHeader, Select, Table, Td, Th } from '../components/ui'
+import { Button, Can, Card, EmptyRow, FilterBar, Kpi, KpiGrid, Money, PageHeader, Select, Table, Td, Th } from '../components/ui'
 import { supplierFinancials, supplierInvoiceView } from '../lib/calc'
 import { formatCompact, formatDate, formatINR } from '../lib/format'
 import { useStore } from '../store/store'
@@ -24,7 +24,7 @@ export function Suppliers() {
 
   return (
     <>
-      <PageHeader title="Suppliers" subtitle="Supplier invoices (payables) and payments. Expense ≠ payment." actions={<Button variant="primary" onClick={() => { setPay(undefined); setPayOpen(true) }}>Record supplier payment</Button>} />
+      <PageHeader title="Suppliers" subtitle="Supplier invoices (payables) and payments. Expense ≠ payment." actions={<Can menu="payments"><Button variant="primary" onClick={() => { setPay(undefined); setPayOpen(true) }}>Record supplier payment</Button></Can>} />
       <KpiGrid cols={4}>
         <Kpi label="Total invoiced" value={formatCompact(t.inv)} sub={`${all.length} invoices`} />
         <Kpi label="Total paid" value={formatCompact(t.paid)} tone="positive" sub={`${db.supplierPayments.length} payments${t.discount ? ` · ${formatCompact(t.discount)} discounts` : ''}`} />
@@ -64,7 +64,8 @@ export function Suppliers() {
 
 export function SupplierDetail() {
   const { id } = useParams()
-  const { db } = useStore()
+  const { db, run } = useStore()
+  const navigate = useNavigate()
   const [modal, setModal] = useState<null | 'pay' | 'invoice'>(null)
   const [pay, setPay] = useState<string | undefined>()
   const s = db.suppliers.find((x) => x.id === id)
@@ -75,7 +76,11 @@ export function SupplierDetail() {
   return (
     <>
       <PageHeader title={s.name} subtitle={`${s.id} · ${s.category}`} crumbs={[{ label: 'Suppliers', to: '/suppliers' }, { label: s.name }]}
-        actions={<><Button icon={<Plus size={15} />} onClick={() => setModal('invoice')}>New supplier invoice</Button><Button variant="primary" disabled={f.pending <= 0} onClick={() => { setPay(undefined); setModal('pay') }}>Record payment</Button></>} />
+        actions={<><Can menu="suppliers" level="delete"><Button variant="ghost" icon={<Trash2 size={14} />} onClick={async () => {
+          if (!window.confirm(`Delete supplier ${s.name}? Only suppliers with no purchases or invoices can be deleted.`)) return
+          const r = await run('deleteSupplier', [s.id], { success: `${s.name} deleted` })
+          if (r.ok) navigate('/suppliers')
+        }}>Delete</Button></Can><Can menu="expenses"><Button icon={<Plus size={15} />} onClick={() => setModal('invoice')}>New supplier invoice</Button></Can><Can menu="payments"><Button variant="primary" disabled={f.pending <= 0} onClick={() => { setPay(undefined); setModal('pay') }}>Record payment</Button></Can></>} />
       <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
         <Card title="Supplier information">
           <ul className="space-y-3 text-sm text-slate-700">

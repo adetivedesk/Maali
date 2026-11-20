@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { AlertTriangle, CheckCircle2, Circle, Clock, Info, X, XCircle } from 'lucide-react'
 import { formatCompact, formatINR, formatPct } from '../lib/format'
 import { useStore } from '../store/store'
+import type { Level, MenuKey } from '../lib/permissions'
 
 // ---- Layout ------------------------------------------------------------------
 
@@ -331,4 +332,25 @@ export function Stat({ label, children, strong, border = true }: { label: ReactN
 
 export function Mono({ children }: { children: ReactNode }) {
   return <span className="font-mono text-[12px] text-slate-500">{children}</span>
+}
+
+// ---- Permissions -------------------------------------------------------------
+
+/** Renders children only if the signed-in user's role has (menu, level). */
+export function Can({ menu, level = 'write', children }: { menu: MenuKey; level?: Level; children: ReactNode }) {
+  const { can } = useStore()
+  return can(menu, level) ? <>{children}</> : null
+}
+
+/** Small icon button for table rows (print, delete, cancel …). */
+export function IconAction({ title, onClick, children, tone = 'slate' }: { title: string; onClick: () => void; children: ReactNode; tone?: 'slate' | 'red' | 'blue' }) {
+  const t = { slate: 'hover:bg-slate-100 hover:text-slate-700', red: 'hover:bg-red-50 hover:text-red-600', blue: 'hover:bg-blue-50 hover:text-blue-600' }[tone]
+  return <button type="button" title={title} aria-label={title} onClick={(e) => { e.stopPropagation(); onClick() }} className={clsx('rounded p-1 text-slate-400', t)}>{children}</button>
+}
+
+/** Ask for a cancellation reason; null if the user backs out. */
+export function askReason(what: string): string | null {
+  const r = window.prompt(`Cancel ${what}?\n\nThe record is kept in the activity log and removed from all totals. Enter a reason:`)
+  if (r === null) return null
+  return r.trim() || null
 }

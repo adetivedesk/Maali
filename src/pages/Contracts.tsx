@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FileText, Upload } from 'lucide-react'
 import { ContractUploadForm } from '../components/workflowForms'
-import { Button, Card, EmptyRow, Kpi, KpiGrid, Money, PageHeader, StatusBadge, Table, Td, Th } from '../components/ui'
+import { Button, Can, Card, EmptyRow, Kpi, KpiGrid, Money, PageHeader, StatusBadge, Table, Td, Th } from '../components/ui'
 import { formatCompact, formatDate } from '../lib/format'
 import { useStore } from '../store/store'
 
@@ -41,7 +41,7 @@ export function Contracts() {
                       <button type="button" onClick={() => notify(`Opening ${doc.name} (demo — no file stored)`, 'info')} className="inline-flex items-center gap-1.5 text-blue-600 hover:underline">
                         <FileText size={14} />{doc.name}
                       </button>
-                    ) : <Button size="sm" variant="primary" icon={<Upload size={12} />} onClick={() => setUpload(c.id)}>Upload signed</Button>}
+                    ) : <Can menu="contracts"><Button size="sm" variant="primary" icon={<Upload size={12} />} onClick={() => setUpload(c.id)}>Upload signed</Button></Can>}
                   </Td>
                   <Td><StatusBadge status={c.status} /></Td>
                 </tr>

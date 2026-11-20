@@ -1,15 +1,17 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { Ban, Printer } from 'lucide-react'
 import { ClientPaymentForm, SupplierPaymentForm } from '../components/forms'
-import { Button, Card, EmptyRow, FilterBar, Kpi, KpiGrid, Money, PageHeader, Select, Table, Tabs, Td, Th } from '../components/ui'
+import { askReason, Button, Can, Card, EmptyRow, FilterBar, IconAction, Kpi, KpiGrid, Money, PageHeader, Select, Table, Tabs, Td, Th } from '../components/ui'
 import { PAYMENT_METHODS } from '../data/types'
-import { formatCompact, formatDate } from '../lib/format'
+import { formatCompact, formatDate, formatINR } from '../lib/format'
 import { useStore } from '../store/store'
 
 type Tab = 'client' | 'supplier'
 
 export function Payments() {
-  const { db } = useStore()
+  const { db, run, can } = useStore()
+  const navigate = useNavigate()
   const [tab, setTab] = useState<Tab>('client')
   const [project, setProject] = useState('')
   const [method, setMethod] = useState('')
@@ -31,11 +33,11 @@ export function Payments() {
   return (
     <>
       <PageHeader title="Payments" subtitle="Money in from clients and money out to suppliers."
-        actions={<><Button onClick={() => setModal('supplier')}>Record supplier payment</Button><Button variant="primary" onClick={() => setModal('client')}>Record client payment</Button></>} />
+        actions={<><Can menu="payments"><Button onClick={() => setModal('supplier')}>Record supplier payment</Button></Can><Can menu="payments"><Button variant="primary" onClick={() => setModal('client')}>Record client payment</Button></Can></>} />
       <KpiGrid cols={3}>
         <Kpi label="Client receipts" value={formatCompact(inflow)} tone="positive" sub={`${client.length} payments`} />
         <Kpi label="Supplier payments" value={formatCompact(outflow)} tone="warning" sub={`${supplier.length} payments${discounts ? ` · ${formatCompact(discounts)} discounts received` : ''}`} />
-        <Kpi label="Net (receipts − supplier payments)" value={formatCompact(inflow - outflow)} tone={inflow - outflow >= 0 ? 'positive' : 'negative'} sub="excludes own labour paid at site" />
+        <Kpi label="Net (receipts − supplier payments)" value={formatCompact(inflow - outflow)} tone={inflow - outflow >= 0 ? 'positive' : 'negative'} sub="excludes labour paid at site" />
       </KpiGrid>
       <div className="mt-5">
         <Tabs<Tab> value={tab} onChange={setTab} tabs={[{ id: 'client', label: 'Client receipts', count: client.length }, { id: 'supplier', label: 'Supplier payments', count: supplier.length }]} />
@@ -47,24 +49,28 @@ export function Payments() {
         </FilterBar>
         {tab === 'client' ? (
           <Table>
-            <thead><tr><Th>Payment</Th><Th>Date</Th><Th>Invoice</Th><Th>Project</Th><Th>Phase</Th><Th>Method</Th><Th>Reference</Th><Th right>Amount</Th></tr></thead>
+            <thead><tr><Th>Payment</Th><Th>Date</Th><Th>Invoice</Th><Th>Project</Th><Th>Phase</Th><Th>Method</Th><Th>Reference</Th><Th right>Amount</Th><Th /></tr></thead>
             <tbody>
-              {client.length === 0 && <EmptyRow cols={8} />}
+              {client.length === 0 && <EmptyRow cols={9} />}
               {client.map(({ p, inv }) => (
                 <tr key={p.id} className="hover:bg-slate-50/60">
                   <Td className="font-mono text-xs">{p.id}</Td><Td className="whitespace-nowrap">{formatDate(p.date)}</Td><Td className="font-medium">{inv.invoiceNumber}</Td>
                   <Td><Link to={`/projects/${inv.projectId}`} className="hover:text-blue-600">{db.projects.find((x) => x.id === inv.projectId)?.shortName}</Link></Td>
                   <Td>{db.phases.find((x) => x.id === inv.phaseId)?.name}</Td><Td>{p.method}</Td><Td className="text-slate-500">{p.reference}</Td>
                   <Td right><Money value={p.amount} className="font-medium text-emerald-700" /></Td>
+                  <Td className="whitespace-nowrap">
+                    <IconAction title="Print receipt" tone="blue" onClick={() => navigate(`/print/receipt/${p.id}`)}><Printer size={14} /></IconAction>
+                    {can('payments', 'delete') && <IconAction title="Cancel payment" tone="red" onClick={() => { const r = askReason(`receipt ${p.id} of ${formatINR(p.amount)}`); if (r) void run('cancelClientPayment', [p.id, r], { success: `${p.id} cancelled` }) }}><Ban size={14} /></IconAction>}
+                  </Td>
                 </tr>
               ))}
             </tbody>
           </Table>
         ) : (
           <Table>
-            <thead><tr><Th>Payment</Th><Th>Date</Th><Th>Supplier</Th><Th>Invoice</Th><Th>Project</Th><Th>Method</Th><Th>Reference</Th><Th right>Amount</Th><Th right>Discount</Th></tr></thead>
+            <thead><tr><Th>Payment</Th><Th>Date</Th><Th>Supplier</Th><Th>Invoice</Th><Th>Project</Th><Th>Method</Th><Th>Reference</Th><Th right>Amount</Th><Th right>Discount</Th>{can('payments', 'delete') && <Th />}</tr></thead>
             <tbody>
-              {supplier.length === 0 && <EmptyRow cols={9} />}
+              {supplier.length === 0 && <EmptyRow cols={10} />}
               {supplier.map(({ p, inv }) => (
                 <tr key={p.id} className="hover:bg-slate-50/60">
                   <Td className="font-mono text-xs">{p.id}</Td><Td className="whitespace-nowrap">{formatDate(p.date)}</Td>
@@ -72,6 +78,7 @@ export function Payments() {
                   <Td>{inv.invoiceNumber}</Td><Td>{db.projects.find((x) => x.id === inv.projectId)?.shortName}</Td><Td>{p.method}</Td><Td className="text-slate-500">{p.reference}</Td>
                   <Td right><Money value={p.amount} className="font-medium" /></Td>
                   <Td right>{p.discount ? <Money value={p.discount} className="text-emerald-700" /> : <span className="text-slate-300">—</span>}</Td>
+                  {can('payments', 'delete') && <Td><IconAction title="Cancel payment" tone="red" onClick={() => { const r = askReason(`supplier payment ${p.id} of ${formatINR(p.amount)}`); if (r) void run('cancelSupplierPayment', [p.id, r], { success: `${p.id} cancelled` }) }}><Ban size={14} /></IconAction></Td>}
                 </tr>
               ))}
             </tbody>

@@ -1,6 +1,6 @@
-import { Fragment, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ChevronDown, ChevronRight, CornerDownRight, Trash2, Truck } from 'lucide-react'
+import { Fragment, useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Ban, ChevronDown, ChevronRight, CornerDownRight, Printer, Trash2, Truck } from 'lucide-react'
 import clsx from 'clsx'
 import type { ClientInvoice, Expense, Phase } from '../data/types'
 import { PHASE_STATUSES } from '../data/types'
@@ -8,15 +8,14 @@ import {
   COST_CATEGORIES, COST_LABEL, clientInvoicePaid, clientInvoiceStatus, expenseDiscounts, purchaseLanding, type CostBreakdown, type SupplierInvoiceView,
 } from '../lib/calc'
 import { formatDate, formatINR, formatPct } from '../lib/format'
-import * as A from '../store/actions'
 import { useLookups, useStore } from '../store/store'
-import { Button, EmptyRow, Money, Pill, StatusBadge, Table, Td, Th, Variance } from './ui'
+import { askReason, Button, EmptyRow, IconAction, Money, Pill, StatusBadge, Table, Td, Th, Variance } from './ui'
 import { TransportForm } from './forms'
 
 const CATEGORY_TONE = { material: 'blue', labour: 'amber', outsource: 'green', other: 'slate' } as const
 
 export function ExpenseTable({ expenses, showProject = true, showPhase = true, allowDelete = true }: { expenses: Expense[]; showProject?: boolean; showPhase?: boolean; allowDelete?: boolean }) {
-  const { db, commit } = useStore()
+  const { db, run, can } = useStore()
   const L = useLookups()
   const [transportFor, setTransportFor] = useState<string | null>(null)
   const discounts = expenseDiscounts(db)
@@ -52,7 +51,9 @@ export function ExpenseTable({ expenses, showProject = true, showPhase = true, a
                 {land && land.transportCost > 0 && <div className="text-[11px] text-slate-500">+ {formatINR(land.transportCost)} transport · landed {formatINR(land.landedCost)}</div>}
               </Td>
               <Td className="num whitespace-nowrap text-xs text-slate-600">
-                {e.category === 'labour' ? `${formatINR(e.dailyRate ?? 0)}/day × ${e.days} days`
+                {e.category === 'labour' ? (e.labourBasis === 'contract'
+                  ? `Contract · ${(e.quantity ?? 0).toLocaleString('en-IN')} ${e.unit} × ${formatINR(e.rate ?? 0)}`
+                  : `${formatINR(e.dailyRate ?? 0)}/day × ${e.days} days`)
                   : e.basis === 'fixed' ? 'Fixed contract'
                     : e.quantity !== undefined ? `${e.quantity.toLocaleString('en-IN')} ${e.unit} × ${formatINR(e.rate ?? 0)}` : 'Direct'}
               </Td>
@@ -70,13 +71,13 @@ export function ExpenseTable({ expenses, showProject = true, showPhase = true, a
                     <Money value={net(e)} />
                     {disc > 0 && <div className="num text-[11px] font-normal text-emerald-700">{formatINR(e.amount)} − {formatINR(disc)} discount</div>}
                   </div>
-                  {allowDelete && isPurchase && (
+                  {allowDelete && isPurchase && can('expenses', 'write') && (
                     <button type="button" title="Add transport for this purchase" onClick={() => setTransportFor(e.id)} className="rounded p-1 text-slate-300 opacity-0 hover:bg-blue-50 hover:text-blue-600 group-hover:opacity-100">
                       <Truck size={13} />
                     </button>
                   )}
-                  {allowDelete && (
-                    <button type="button" title={land && land.transport.length ? 'Delete purchase and its transport' : 'Delete expense'} onClick={() => commit(A.deleteExpense(db, e.id), `${e.id} deleted${land && land.transport.length ? ` with ${land.transport.length} transport charge(s)` : ''}`)} className="rounded p-1 text-slate-300 opacity-0 hover:bg-red-50 hover:text-red-600 group-hover:opacity-100">
+                  {allowDelete && can('expenses', 'delete') && (
+                    <button type="button" title={land && land.transport.length ? 'Delete purchase and its transport' : 'Delete expense'} onClick={() => { if (window.confirm(`Delete ${e.id}${land && land.transport.length ? ` and its ${land.transport.length} transport charge(s)` : ''}?`)) void run('deleteExpense', [e.id], { success: `${e.id} deleted${land && land.transport.length ? ` with ${land.transport.length} transport charge(s)` : ''}` }) }} className="rounded p-1 text-slate-300 opacity-0 hover:bg-red-50 hover:text-red-600 group-hover:opacity-100">
                       <Trash2 size={13} />
                     </button>
                   )}
@@ -96,15 +97,16 @@ export function ExpenseTable({ expenses, showProject = true, showPhase = true, a
 }
 
 export function ClientInvoiceTable({ invoices, onPay, showProject = true }: { invoices: ClientInvoice[]; onPay?: (invoiceId: string) => void; showProject?: boolean }) {
-  const { db } = useStore()
+  const { db, run, can } = useStore()
+  const navigate = useNavigate()
   const L = useLookups()
   const [open, setOpen] = useState<string | null>(null)
   const totals = invoices.reduce((a, i) => { const p = clientInvoicePaid(db, i.id); return { amount: a.amount + i.amount, paid: a.paid + p } }, { amount: 0, paid: 0 })
-  const cols = 9 + (showProject ? 1 : 0)
+  const cols = 10 + (showProject ? 1 : 0)
   return (
     <Table>
       <thead>
-        <tr><Th className="w-8" /><Th>Invoice</Th>{showProject && <Th>Project</Th>}<Th>Phase / description</Th><Th>Invoice date</Th><Th>Due</Th><Th right>Amount</Th><Th right>Received</Th><Th right>Pending</Th><Th>Status</Th>{onPay && <Th />}</tr>
+        <tr><Th className="w-8" /><Th>Invoice</Th>{showProject && <Th>Project</Th>}<Th>Phase / description</Th><Th>Invoice date</Th><Th>Due</Th><Th right>Amount</Th><Th right>Received</Th><Th right>Pending</Th><Th>Status</Th>{onPay && <Th />}<Th /></tr>
       </thead>
       <tbody>
         {invoices.length === 0 && <EmptyRow cols={cols}>No invoices</EmptyRow>}
@@ -126,7 +128,13 @@ export function ClientInvoiceTable({ invoices, onPay, showProject = true }: { in
                 <Td right><Money value={paid} className="text-emerald-700" /></Td>
                 <Td right><Money value={i.amount - paid} className={i.amount - paid > 0 ? 'font-medium text-red-600' : 'text-slate-400'} /></Td>
                 <Td><StatusBadge status={status} /></Td>
-                {onPay && <Td>{i.amount - paid > 0 && <Button size="sm" onClick={() => onPay(i.id)}>Record payment</Button>}</Td>}
+                {onPay && <Td>{i.amount - paid > 0 && can('payments', 'write') && <Button size="sm" onClick={() => onPay(i.id)}>Record payment</Button>}</Td>}
+                <Td className="whitespace-nowrap">
+                  <IconAction title="Print invoice" tone="blue" onClick={() => navigate(`/print/invoice/${i.id}`)}><Printer size={14} /></IconAction>
+                  {payments.length === 0 && can('billing', 'delete') && (
+                    <IconAction title="Cancel invoice" tone="red" onClick={() => { const r = askReason(`invoice ${i.invoiceNumber} of ${formatINR(i.amount)}`); if (r) void run('cancelClientInvoice', [i.id, r], { success: `${i.invoiceNumber} cancelled` }) }}><Ban size={14} /></IconAction>
+                  )}
+                </Td>
               </tr>
               {isOpen && (
                 <tr className="bg-slate-50/70">
@@ -268,14 +276,27 @@ export function PlannedVsActualTable({ planned, actual, completion }: { planned:
   )
 }
 
+/** Phase progress slider: saves once when released, not on every step of the drag. */
+export function ProgressSlider({ phaseId, value, className }: { phaseId: string; value: number; className?: string }) {
+  const { run, can } = useStore()
+  const [local, setLocal] = useState(value)
+  useEffect(() => setLocal(value), [value])
+  const save = () => { if (local !== value) void run('setPhaseProgress', [phaseId, local]) }
+  return (
+    <input type="range" min={0} max={100} step={5} value={local} disabled={!can('phases', 'write')}
+      onChange={(e) => setLocal(Number(e.target.value))} onPointerUp={save} onKeyUp={save} onBlur={save}
+      className={className} aria-label="Progress" />
+  )
+}
+
 export function PhaseStatusSelect({ phase, disabled }: { phase: Phase; disabled?: boolean }) {
-  const { db, commit } = useStore()
+  const { run, can } = useStore()
   return (
     <select
       value={phase.status}
-      disabled={disabled}
+      disabled={disabled || !can('phases', 'write')}
       onClick={(e) => e.stopPropagation()}
-      onChange={(e) => commit(A.setPhaseStatus(db, phase.id, e.target.value as Phase['status']), `${phase.name} → ${e.target.value}`)}
+      onChange={(e) => void run('setPhaseStatus', [phase.id, e.target.value as Phase['status']], { success: `${phase.name} → ${e.target.value}` })}
       className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:border-slate-300 disabled:opacity-60"
     >
       {PHASE_STATUSES.map((s) => <option key={s}>{s}</option>)}

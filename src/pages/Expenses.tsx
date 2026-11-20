@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus, Search } from 'lucide-react'
 import { ExpenseForm } from '../components/forms'
 import { ExpenseTable } from '../components/tables'
-import { Button, Card, FilterBar, Input, Kpi, KpiGrid, PageHeader, Select } from '../components/ui'
+import { Button, Can, Card, FilterBar, Input, Kpi, KpiGrid, PageHeader, Select } from '../components/ui'
 import type { CostCategory } from '../data/types'
 import { COST_CATEGORIES, COST_LABEL } from '../lib/calc'
 import { formatCompact } from '../lib/format'
@@ -33,7 +33,7 @@ export function Expenses() {
 
   return (
     <>
-      <PageHeader title="Expenses" subtitle="All direct costs — every entry is booked to Project → Phase → Expense." actions={<Button variant="primary" icon={<Plus size={15} />} onClick={() => setOpen(true)}>Add expense</Button>} />
+      <PageHeader title="Expenses" subtitle="All direct costs — every entry is booked to Project → Phase → Expense." actions={<Can menu="expenses"><Button variant="primary" icon={<Plus size={15} />} onClick={() => setOpen(true)}>Add expense</Button></Can>} />
       <KpiGrid cols={5}>
         <Kpi label="Total (filtered)" value={formatCompact(total)} sub={`${rows.length} entries`} />
         {COST_CATEGORIES.map((k) => (

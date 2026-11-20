@@ -1,17 +1,14 @@
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import clsx from 'clsx'
-import { Check, FileCheck2, Lock, Pause, Pencil, Play, Plus, Receipt, Upload } from 'lucide-react'
+import { Check, FileCheck2, Lock, Pause, Pencil, Play, Plus, Receipt, Trash2, Upload } from 'lucide-react'
 import { BarsChart, SERIES } from '../components/charts'
 import { ClientInvoiceForm, ClientPaymentForm, ExpenseForm, SupplierPaymentForm } from '../components/forms'
-import { ClientInvoiceTable, ExpenseTable, PhaseStatusSelect, PlannedVsActualTable, SupplierInvoiceTable } from '../components/tables'
-import {
-  Button, Callout, Card, EmptyRow, Kpi, KpiGrid, Money, PageHeader, Progress, Stat, StatusBadge, Table, Tabs, Td, Th, Variance,
-} from '../components/ui'
+import { ClientInvoiceTable, ExpenseTable, PhaseStatusSelect, PlannedVsActualTable, ProgressSlider, SupplierInvoiceTable } from '../components/tables'
+import { Button, Callout, Can, Card, EmptyRow, IconAction, Kpi, KpiGrid, Money, PageHeader, Progress, Stat, StatusBadge, Table, Tabs, Td, Th, Variance } from '../components/ui'
 import { ChangeOrderForm, CloseProjectDialog, ContractUploadForm, DocumentUploadForm, PhaseForm } from '../components/workflowForms'
 import { canCloseProject, phaseFinancials, projectFinancials, supplierInvoiceView, type ProjectFinancials } from '../lib/calc'
 import { formatCompact, formatDate, formatINR, formatPct } from '../lib/format'
-import * as A from '../store/actions'
 import { useStore } from '../store/store'
 import { DocumentTable } from './Documents'
 
@@ -19,7 +16,7 @@ type Tab = 'overview' | 'phases' | 'expenses' | 'billing' | 'suppliers' | 'chang
 
 export function ProjectDetail() {
   const { id } = useParams()
-  const { db, commit } = useStore()
+  const { db, run } = useStore()
   const [params, setParams] = useSearchParams()
   const tab = (params.get('tab') as Tab) ?? 'overview'
   const setTab = (t: Tab) => setParams(t === 'overview' ? {} : { tab: t }, { replace: true })
@@ -53,13 +50,13 @@ export function ProjectDetail() {
         actions={
           isClosed ? <Link to={`/reports/closure/${project.id}`}><Button variant="primary" icon={<FileCheck2 size={15} />}>View closure report</Button></Link> : (
             <>
-              {project.status === 'Active' && <Button icon={<Pause size={14} />} onClick={() => commit(A.setProjectStatus(db, project.id, 'On Hold'), 'Project put on hold')}>Hold</Button>}
-              {project.status === 'On Hold' && <Button icon={<Play size={14} />} onClick={() => commit(A.setProjectStatus(db, project.id, 'Active'), 'Project resumed')}>Resume</Button>}
-              <Button icon={<Plus size={15} />} onClick={() => setModal('expense')} disabled={project.status === 'Contract Pending'}>Add expense</Button>
-              <Button icon={<Receipt size={15} />} onClick={() => setModal('invoice')} disabled={project.status === 'Contract Pending'}>Generate invoice</Button>
-              <Button onClick={() => setModal('payment')} disabled={!invoices.length}>Record client payment</Button>
-              <Button onClick={() => setModal('co')} disabled={project.status === 'Contract Pending'}>Change order</Button>
-              {allDone && <Button variant="primary" icon={<Lock size={14} />} onClick={() => setModal('close')}>Close project</Button>}
+              {project.status === 'Active' && <Can menu="projects"><Button icon={<Pause size={14} />} onClick={() => void run('setProjectStatus', [project.id, 'On Hold'], { success: 'Project put on hold' })}>Hold</Button></Can>}
+              {project.status === 'On Hold' && <Can menu="projects"><Button icon={<Play size={14} />} onClick={() => void run('setProjectStatus', [project.id, 'Active'], { success: 'Project resumed' })}>Resume</Button></Can>}
+              <Can menu="expenses"><Button icon={<Plus size={15} />} onClick={() => setModal('expense')} disabled={project.status === 'Contract Pending'}>Add expense</Button></Can>
+              <Can menu="billing"><Button icon={<Receipt size={15} />} onClick={() => setModal('invoice')} disabled={project.status === 'Contract Pending'}>Generate invoice</Button></Can>
+              <Can menu="payments"><Button onClick={() => setModal('payment')} disabled={!invoices.length}>Record client payment</Button></Can>
+              <Can menu="projects"><Button onClick={() => setModal('co')} disabled={project.status === 'Contract Pending'}>Change order</Button></Can>
+              {allDone && <Can menu="projects"><Button variant="primary" icon={<Lock size={14} />} onClick={() => setModal('close')}>Close project</Button></Can>}
             </>
           )
         }
@@ -72,7 +69,7 @@ export function ProjectDetail() {
           <Callout tone="warning">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span>Contract <b>{contract.id}</b> is awaiting signature. Upload the signed contract to activate this project, then set phase budgets and start work.</span>
-              <Button variant="primary" size="sm" icon={<Upload size={13} />} onClick={() => setModal('contract')}>Upload signed contract</Button>
+              <Can menu="contracts"><Button variant="primary" size="sm" icon={<Upload size={13} />} onClick={() => setModal('contract')}>Upload signed contract</Button></Can>
             </div>
           </Callout>
         </div>
@@ -135,8 +132,8 @@ export function ProjectDetail() {
       )}
 
       {tab === 'expenses' && (
-        <Card title="Project expenses" subtitle={`${formatINR(f.actual.total)} booked · material ${formatCompact(f.actual.material)} · own labour ${formatCompact(f.actual.labour)} · outsource ${formatCompact(f.actual.outsource)} · other ${formatCompact(f.actual.other)}`} bodyClassName=""
-          actions={!isClosed && <Button variant="primary" size="sm" icon={<Plus size={13} />} onClick={() => setModal('expense')}>Add expense</Button>}>
+        <Card title="Project expenses" subtitle={`${formatINR(f.actual.total)} booked · material ${formatCompact(f.actual.material)} · labour ${formatCompact(f.actual.labour)} · outsource ${formatCompact(f.actual.outsource)} · other ${formatCompact(f.actual.other)}`} bodyClassName=""
+          actions={!isClosed && <Can menu="expenses"><Button variant="primary" size="sm" icon={<Plus size={13} />} onClick={() => setModal('expense')}>Add expense</Button></Can>}>
           <ExpenseTable expenses={expenses} showProject={false} allowDelete={!isClosed} />
         </Card>
       )}
@@ -149,7 +146,7 @@ export function ProjectDetail() {
             <Kpi label="Received" value={formatCompact(f.received)} tone="positive" />
             <Kpi label="Receivable" value={formatCompact(f.clientPending)} tone="negative" />
           </KpiGrid>
-          <Card title="Client invoices" bodyClassName="" actions={!isClosed && <Button variant="primary" size="sm" icon={<Receipt size={13} />} onClick={() => setModal('invoice')}>Generate invoice</Button>}>
+          <Card title="Client invoices" bodyClassName="" actions={!isClosed && <Can menu="billing"><Button variant="primary" size="sm" icon={<Receipt size={13} />} onClick={() => setModal('invoice')}>Generate invoice</Button></Can>}>
             <ClientInvoiceTable invoices={invoices} showProject={false} onPay={isClosed ? undefined : (iid) => { setPayInvoice(iid); setModal('payment') }} />
           </Card>
         </div>
@@ -163,7 +160,7 @@ export function ProjectDetail() {
 
       {tab === 'changes' && (
         <Card title="Change orders / additional work" subtitle={`Original ${formatINR(f.originalContract)} + approved ${formatINR(f.changeOrderRevenue)} = revised ${formatINR(f.revenue)}`} bodyClassName=""
-          actions={!isClosed && <Button variant="primary" size="sm" icon={<Plus size={13} />} onClick={() => setModal('co')}>New change order</Button>}>
+          actions={!isClosed && <Can menu="projects"><Button variant="primary" size="sm" icon={<Plus size={13} />} onClick={() => setModal('co')}>New change order</Button></Can>}>
           <Table>
             <thead><tr><Th>CO number</Th><Th>Description</Th><Th>Date</Th><Th right>Additional revenue</Th><Th right>Estimated cost</Th><Th right>Expected profit</Th><Th>Phase</Th><Th>Status</Th><Th /></tr></thead>
             <tbody>
@@ -181,8 +178,8 @@ export function ProjectDetail() {
                   <Td>
                     {c.status === 'Pending Approval' && !isClosed && (
                       <div className="flex gap-1.5">
-                        <Button size="sm" variant="success" icon={<Check size={12} />} onClick={() => commit(A.approveChangeOrder(db, c.id), `${c.number} approved — revenue +${formatCompact(c.revenue)}`)}>Approve</Button>
-                        <Button size="sm" onClick={() => commit(A.rejectChangeOrder(db, c.id), `${c.number} rejected`)}>Reject</Button>
+                        <Can menu="projects"><Button size="sm" variant="success" icon={<Check size={12} />} onClick={() => void run('approveChangeOrder', [c.id], { success: `${c.number} approved — revenue +${formatCompact(c.revenue)}` })}>Approve</Button></Can>
+                        <Can menu="projects"><Button size="sm" onClick={() => void run('rejectChangeOrder', [c.id], { success: `${c.number} rejected` })}>Reject</Button></Can>
                       </div>
                     )}
                   </Td>
@@ -194,7 +191,7 @@ export function ProjectDetail() {
       )}
 
       {tab === 'documents' && (
-        <Card title="Project documents" bodyClassName="" actions={<Button variant="primary" size="sm" icon={<Upload size={13} />} onClick={() => setModal('doc')}>Upload</Button>}>
+        <Card title="Project documents" bodyClassName="" actions={<Can menu="documents"><Button variant="primary" size="sm" icon={<Upload size={13} />} onClick={() => setModal('doc')}>Upload</Button></Can>}>
           <DocumentTable docs={docs} />
         </Card>
       )}
@@ -261,7 +258,7 @@ export function ProfitabilityCard({ f }: { f: ProjectFinancials }) {
         </div>
         <div>
           <Stat label="Material cost">{formatINR(f.actual.material)}</Stat>
-          <Stat label="Own labour cost">{formatINR(f.actual.labour)}</Stat>
+          <Stat label="Labour cost">{formatINR(f.actual.labour)}</Stat>
           <Stat label="Outsource cost">{formatINR(f.actual.outsource)}</Stat>
           <Stat label="Other direct cost">{formatINR(f.actual.other)}</Stat>
           <Stat label="Total project cost" strong>{formatINR(f.actual.total)}</Stat>
@@ -303,7 +300,7 @@ export function CashPositionCard({ f }: { f: ProjectFinancials }) {
       <div className="mt-3 rounded-lg bg-slate-50 px-4 py-2 ring-1 ring-slate-100">
         <Stat label="Client received">{formatINR(f.received)}</Stat>
         <Stat label="− Supplier payments">{formatINR(-f.supplierPaid)}</Stat>
-        <Stat label="− Own labour & direct site payments">{formatINR(-f.directPaid)}</Stat>
+        <Stat label="− Labour & direct site payments">{formatINR(-f.directPaid)}</Stat>
         <Stat label="Project cash position" strong><span className={f.cashPosition >= 0 ? 'text-emerald-700' : 'text-red-600'}>{formatINR(f.cashPosition)}</span></Stat>
       </div>
     </Card>
@@ -311,11 +308,11 @@ export function CashPositionCard({ f }: { f: ProjectFinancials }) {
 }
 
 function PhaseTable({ projectId, onBudget, onAdd, readOnly }: { projectId: string; onBudget: (phaseId: string) => void; onAdd?: () => void; readOnly?: boolean }) {
-  const { db, commit } = useStore()
+  const { db, run, can } = useStore()
   const phases = db.phases.filter((p) => p.projectId === projectId).sort((a, b) => a.sequence - b.sequence)
   return (
     <Card title="Phases" subtitle="Change status or progress here — project completion and profit update instantly." bodyClassName=""
-      actions={onAdd && <Button size="sm" variant="primary" icon={<Plus size={13} />} onClick={onAdd}>Add phase</Button>}>
+      actions={onAdd && <Can menu="phases"><Button size="sm" variant="primary" icon={<Plus size={13} />} onClick={onAdd}>Add phase</Button></Can>}>
       <Table>
         <thead><tr><Th>Phase</Th><Th right>Contract</Th><Th right>Planned cost</Th><Th right>Actual cost</Th><Th right>Variance</Th><Th right>Profit</Th><Th right>Billed</Th><Th right>Received</Th><Th>Progress</Th><Th>Status</Th><Th /></tr></thead>
         <tbody>
@@ -336,13 +333,18 @@ function PhaseTable({ projectId, onBudget, onAdd, readOnly }: { projectId: strin
                 <Td className="w-40">
                   {done || readOnly ? <Progress value={pf.completion} /> : (
                     <div className="flex items-center gap-2">
-                      <input type="range" min={0} max={100} step={5} value={p.progress} onChange={(e) => commit(A.setPhaseProgress(db, p.id, Number(e.target.value)))} className="h-1.5 flex-1 accent-blue-600" />
+                      <ProgressSlider phaseId={p.id} value={p.progress} className="h-1.5 flex-1 accent-blue-600" />
                       <span className="num w-9 text-right text-xs text-slate-600">{p.progress}%</span>
                     </div>
                   )}
                 </Td>
                 <Td><PhaseStatusSelect phase={p} disabled={readOnly} /></Td>
-                <Td>{!readOnly && <button type="button" title="Set budget" onClick={() => onBudget(p.id)} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-blue-600"><Pencil size={14} /></button>}</Td>
+                <Td className="whitespace-nowrap">
+                  {!readOnly && can('phases', 'write') && <button type="button" title="Set budget" onClick={() => onBudget(p.id)} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-blue-600"><Pencil size={14} /></button>}
+                  {!readOnly && p.status === 'Planned' && !p.changeOrderId && can('phases', 'delete') && (
+                    <IconAction title="Delete planned phase" tone="red" onClick={() => { if (window.confirm(`Delete phase ${p.name}? The project contract value is not changed.`)) void run('deletePhase', [p.id], { success: `${p.name} deleted` }) }}><Trash2 size={14} /></IconAction>
+                  )}
+                </Td>
               </tr>
             )
           })}

@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { ArrowRight, Check, Plus, Send, X } from 'lucide-react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { ArrowRight, Check, Plus, Printer, Send, Trash2, X } from 'lucide-react'
 import { ConvertQuoteForm, QuotationForm } from '../components/workflowForms'
-import { Button, Callout, Card, EmptyRow, FilterBar, Kpi, KpiGrid, Money, PageHeader, Select, StatusBadge, Table, Td, Th } from '../components/ui'
+import { Button, Callout, Can, Card, EmptyRow, FilterBar, Kpi, KpiGrid, Money, PageHeader, Select, StatusBadge, Table, Td, Th } from '../components/ui'
 import type { QuotationStatus } from '../data/types'
 import { quotationTotals } from '../lib/calc'
 import { formatCompact, formatDate, formatPct, today } from '../lib/format'
-import * as A from '../store/actions'
 import { useStore } from '../store/store'
 
 const STATUSES: QuotationStatus[] = ['Draft', 'Sent', 'Under Review', 'Approved', 'Rejected', 'Expired']
@@ -27,7 +26,7 @@ export function Quotations() {
 
   return (
     <>
-      <PageHeader title="Quotations" subtitle="Enquiry → quotation → approval → project." actions={<Button variant="primary" icon={<Plus size={15} />} onClick={() => setOpen(true)}>New quotation</Button>} />
+      <PageHeader title="Quotations" subtitle="Enquiry → quotation → approval → project." actions={<Can menu="quotations"><Button variant="primary" icon={<Plus size={15} />} onClick={() => setOpen(true)}>New quotation</Button></Can>} />
       <KpiGrid cols={4}>
         <Kpi label="Open pipeline" value={formatCompact(pipeline.reduce((a, x) => a + x.t.value, 0))} sub={`${pipeline.length} quotations`} />
         <Kpi label="Approved value" value={formatCompact(won.reduce((a, x) => a + x.t.value, 0))} sub={`${won.length} quotations`} tone="positive" />
@@ -55,7 +54,7 @@ export function Quotations() {
                 <Td><StatusBadge status={q.status} /></Td>
                 <Td>
                   {q.projectId ? <Link to={`/projects/${q.projectId}`} className="whitespace-nowrap text-xs font-medium text-blue-600 hover:underline">{q.projectId} →</Link>
-                    : q.status === 'Approved' ? <Button size="sm" variant="success" onClick={() => setConvert(q.id)}>Convert → Project</Button> : null}
+                    : q.status === 'Approved' ? <Can menu="projects"><Button size="sm" variant="success" onClick={() => setConvert(q.id)}>Convert → Project</Button></Can> : null}
                 </Td>
               </tr>
             ))}
@@ -70,13 +69,14 @@ export function Quotations() {
 
 export function QuotationDetail() {
   const { id } = useParams()
-  const { db, commit } = useStore()
+  const { db, run } = useStore()
+  const navigate = useNavigate()
   const [convert, setConvert] = useState(false)
   const q = db.quotations.find((x) => x.id === id)
   if (!q) return <PageHeader title="Quotation not found" crumbs={[{ label: 'Quotations', to: '/quotations' }]} />
   const t = quotationTotals(db, q.id)
   const client = db.clients.find((c) => c.id === q.clientId)
-  const set = (s: QuotationStatus, msg: string) => commit(A.setQuotationStatus(db, q.id, s), msg)
+  const set = (s: QuotationStatus, msg: string) => void run('setQuotationStatus', [q.id, s], { success: msg })
   const expired = q.validUntil < today() && ['Sent', 'Under Review'].includes(q.status)
 
   return (
@@ -87,15 +87,23 @@ export function QuotationDetail() {
         subtitle={<>{q.projectName} · <Link to={`/clients/${q.clientId}`} className="hover:text-blue-600">{client?.name}</Link> · {q.location}</>}
         actions={
           <>
-            {q.status === 'Draft' && <Button variant="primary" icon={<Send size={14} />} onClick={() => set('Sent', `${q.id} sent to client`)}>Mark as sent</Button>}
-            {q.status === 'Sent' && <Button onClick={() => set('Under Review', `${q.id} under client review`)}>Mark under review</Button>}
+            <Link to={`/print/quotation/${q.id}`}><Button icon={<Printer size={14} />}>Print</Button></Link>
+            {q.status === 'Draft' && !q.projectId && (
+              <Can menu="quotations" level="delete"><Button variant="ghost" icon={<Trash2 size={14} />} onClick={async () => {
+                if (!window.confirm(`Delete draft ${q.id}?`)) return
+                const r = await run('deleteQuotation', [q.id], { success: `${q.id} deleted` })
+                if (r.ok) navigate('/quotations')
+              }}>Delete</Button></Can>
+            )}
+            {q.status === 'Draft' && <Can menu="quotations"><Button variant="primary" icon={<Send size={14} />} onClick={() => set('Sent', `${q.id} sent to client`)}>Mark as sent</Button></Can>}
+            {q.status === 'Sent' && <Can menu="quotations"><Button onClick={() => set('Under Review', `${q.id} under client review`)}>Mark under review</Button></Can>}
             {['Sent', 'Under Review'].includes(q.status) && (
               <>
-                <Button variant="success" icon={<Check size={14} />} onClick={() => set('Approved', `${q.id} approved by client`)}>Approve</Button>
-                <Button icon={<X size={14} />} onClick={() => set('Rejected', `${q.id} marked rejected`)}>Reject</Button>
+                <Can menu="quotations"><Button variant="success" icon={<Check size={14} />} onClick={() => set('Approved', `${q.id} approved by client`)}>Approve</Button></Can>
+                <Can menu="quotations"><Button icon={<X size={14} />} onClick={() => set('Rejected', `${q.id} marked rejected`)}>Reject</Button></Can>
               </>
             )}
-            {q.status === 'Approved' && !q.projectId && <Button variant="primary" icon={<ArrowRight size={14} />} onClick={() => setConvert(true)}>Convert quote → project</Button>}
+            {q.status === 'Approved' && !q.projectId && <Can menu="projects"><Button variant="primary" icon={<ArrowRight size={14} />} onClick={() => setConvert(true)}>Convert quote → project</Button></Can>}
             {q.projectId && <Link to={`/projects/${q.projectId}`}><Button variant="primary" icon={<ArrowRight size={14} />}>Open project {q.projectId}</Button></Link>}
           </>
         }

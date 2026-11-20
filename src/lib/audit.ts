@@ -17,6 +17,12 @@ export interface AuditIssue {
   table: string
   id: string
   message: string
+  /**
+   * Agreed-value drift (contract or quote ≠ sum of phases). Reported as an error so
+   * the demo seed must be exact, but editing phases legitimately causes it, so the
+   * server's write check does not reject it.
+   */
+  soft?: true
 }
 
 const round = (n: number) => Math.round(n * 100) / 100
@@ -25,6 +31,7 @@ export function auditDatabase(db: Database): AuditIssue[] {
   const issues: AuditIssue[] = []
   const err = (table: string, id: string, message: string) => issues.push({ level: 'error', table, id, message })
   const warn = (table: string, id: string, message: string) => issues.push({ level: 'warning', table, id, message })
+  const drift = (table: string, id: string, message: string) => issues.push({ level: 'error', table, id, message, soft: true })
   const asOf = today()
 
   const byId = <T extends { id: string }>(list: T[]) => new Map(list.map((x) => [x.id, x]))
@@ -43,13 +50,13 @@ export function auditDatabase(db: Database): AuditIssue[] {
     if (!clients.has(p.clientId)) err('projects', p.id, `unknown client ${p.clientId}`)
     const ph = db.phases.filter((x) => x.projectId === p.id)
     const original = ph.filter((x) => !x.changeOrderId).reduce((a, x) => a + x.contractValue, 0)
-    if (ph.length && original !== p.contractValue) err('projects', p.id, `contract value ${p.contractValue} ≠ sum of original phases ${original}`)
+    if (ph.length && original !== p.contractValue) drift('projects', p.id, `contract value ${p.contractValue} ≠ sum of original phases ${original}`)
     if (p.startDate > p.endDate) err('projects', p.id, 'start date after end date')
 
     const contract = db.contracts.find((c) => c.projectId === p.id)
     if (!contract && p.status !== 'Contract Pending') warn('projects', p.id, 'no contract record')
     if (contract) {
-      if (contract.value !== p.contractValue) err('contracts', contract.id, `value ${contract.value} ≠ project contract ${p.contractValue}`)
+      if (contract.value !== p.contractValue) drift('contracts', contract.id, `value ${contract.value} ≠ project contract ${p.contractValue}`)
       if (contract.clientId !== p.clientId) err('contracts', contract.id, 'client differs from project client')
       if (contract.signedDate && contract.signedDate > p.startDate) warn('contracts', contract.id, 'signed after project start')
       const want = p.status === 'Contract Pending' ? ['Pending Signature'] : ['Completed', 'Closed'].includes(p.status) ? ['Completed'] : ['Active', 'Signed']
@@ -63,14 +70,14 @@ export function auditDatabase(db: Database): AuditIssue[] {
         if (q.projectId !== p.id) err('quotations', q.id, 'project link is not reciprocal')
         if (q.status !== 'Approved') err('quotations', q.id, `converted but status is ${q.status}`)
         const t = quotationTotals(db, q.id)
-        if (t.value !== p.contractValue) err('quotations', q.id, `quote value ${t.value} ≠ project contract ${p.contractValue}`)
+        if (t.value !== p.contractValue) drift('quotations', q.id, `quote value ${t.value} ≠ project contract ${p.contractValue}`)
         if (contract?.signedDate && q.quoteDate > contract.signedDate) err('quotations', q.id, 'quoted after contract was signed')
         // each quote line seeded a phase: its estimated cost is that phase's starting budget
         const original = ph.filter((x) => !x.changeOrderId).sort((a, b) => a.sequence - b.sequence)
         t.items.forEach((it, i) => {
           const phase = original[i]
-          if (!phase) return err('quotations', q.id, `item "${it.description}" has no matching phase`)
-          if (phase.contractValue !== it.amount) err('quotationItems', it.id, `amount ${it.amount} ≠ phase ${phase.id} value ${phase.contractValue}`)
+          if (!phase) return drift('quotations', q.id, `item "${it.description}" has no matching phase`)
+          if (phase.contractValue !== it.amount) drift('quotationItems', it.id, `amount ${it.amount} ≠ phase ${phase.id} value ${phase.contractValue}`)
           if (plannedCost(phase).total !== it.estimatedCost) warn('quotationItems', it.id, `estimated cost ${it.estimatedCost} ≠ phase ${phase.id} budget ${plannedCost(phase).total}`)
         })
       }
@@ -125,7 +132,8 @@ export function auditDatabase(db: Database): AuditIssue[] {
     if (!ph) { err('expenses', e.id, `unknown phase ${e.phaseId}`); continue }
     if (ph.projectId !== e.projectId) err('expenses', e.id, `phase ${ph.id} belongs to ${ph.projectId}, not ${e.projectId}`)
     if (e.amount <= 0) err('expenses', e.id, 'non-positive amount')
-    if (e.category === 'labour' && round((e.dailyRate ?? 0) * (e.days ?? 0)) !== round(e.amount)) err('expenses', e.id, `labour ${e.dailyRate} × ${e.days} ≠ ${e.amount}`)
+    if (e.category === 'labour' && e.labourBasis !== 'contract' && round((e.dailyRate ?? 0) * (e.days ?? 0)) !== round(e.amount)) err('expenses', e.id, `labour ${e.dailyRate} × ${e.days} ≠ ${e.amount}`)
+    if (e.category === 'labour' && e.labourBasis === 'contract' && round((e.quantity ?? 0) * (e.rate ?? 0)) !== round(e.amount)) err('expenses', e.id, `contract labour ${e.quantity} × ${e.rate} ≠ ${e.amount}`)
     if ((e.category === 'material' || (e.category === 'outsource' && e.basis === 'rate')) && round((e.quantity ?? 0) * (e.rate ?? 0)) !== round(e.amount)) err('expenses', e.id, `${e.quantity} × ${e.rate} ≠ ${e.amount}`)
     if (e.category === 'outsource' && e.basis === 'fixed' && e.rate !== e.amount) err('expenses', e.id, 'fixed outsource rate ≠ amount')
     const isTransport = !!e.linkedExpenseId

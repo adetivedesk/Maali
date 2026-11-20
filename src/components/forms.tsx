@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import { Calculator, HardHat, Package, Receipt, Truck } from 'lucide-react'
-import type { CostCategory, OutsourceBasis, PaymentMethod } from '../data/types'
+import type { CostCategory, LabourBasis, OutsourceBasis, PaymentMethod } from '../data/types'
 import { PAYMENT_METHODS } from '../data/types'
-import { DEFAULT_DAILY_RATE, DEFAULT_MATERIAL_UNIT, EXPENSE_SUBTYPES, MATERIAL_UNITS, OUTSOURCE_UNITS } from '../data/catalog'
+import { DEFAULT_CONTRACT_RATE, DEFAULT_DAILY_RATE, DEFAULT_MATERIAL_UNIT, EXPENSE_SUBTYPES, LABOUR_CONTRACT_UNITS, MATERIAL_UNITS, OUTSOURCE_UNITS } from '../data/catalog'
 import {
   actualCost, clientInvoicePaid, expenseNetAmount, phaseBilling, plannedCost, projectPhases, purchaseLanding, supplierInvoiceOpenForLines, supplierInvoiceView,
 } from '../lib/calc'
@@ -26,7 +26,7 @@ function useOpenProjects() {
 
 const CATEGORY_TABS: { id: CostCategory; label: string; icon: typeof Package }[] = [
   { id: 'material', label: 'Material', icon: Package },
-  { id: 'labour', label: 'Own Labour', icon: HardHat },
+  { id: 'labour', label: 'Labour', icon: HardHat },
   { id: 'outsource', label: 'Outsource', icon: Truck },
   { id: 'other', label: 'Other Direct', icon: Receipt },
 ]
@@ -34,7 +34,7 @@ const CATEGORY_TABS: { id: CostCategory; label: string; icon: typeof Package }[]
 export interface ExpenseDefaults { projectId?: string; phaseId?: string; category?: CostCategory; supplierId?: string }
 
 export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; onClose: () => void; defaults?: ExpenseDefaults }) {
-  const { db, commit } = useStore()
+  const { db, run } = useStore()
   const projects = useOpenProjects()
 
   const [projectId, setProjectId] = useState('')
@@ -48,6 +48,7 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
   const [rate, setRate] = useState<number | ''>('')
   const [basis, setBasis] = useState<OutsourceBasis>('fixed')
   const [fixedAmount, setFixedAmount] = useState<number | ''>('')
+  const [labourBasis, setLabourBasis] = useState<LabourBasis>('daily')
   const [workerName, setWorkerName] = useState('')
   const [dailyRate, setDailyRate] = useState<number | ''>('')
   const [days, setDays] = useState<number | ''>('')
@@ -85,11 +86,12 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
     const st = EXPENSE_SUBTYPES[c][0]
     changeSubType(st, c)
     if (c === 'outsource') { setBasis('fixed'); setUnit('Sq.ft') }
+    if (c === 'labour') { setLabourBasis('daily'); setUnit('Sq.ft') }
   }
   function changeSubType(st: string, c = category) {
     setSubType(st)
     if (c === 'material') setUnit(DEFAULT_MATERIAL_UNIT[st] ?? 'Lot')
-    if (c === 'labour') setDailyRate(DEFAULT_DAILY_RATE[st] ?? 1000)
+    if (c === 'labour') { setDailyRate(DEFAULT_DAILY_RATE[st] ?? 1000); setRate(DEFAULT_CONTRACT_RATE[st] ?? 25) }
   }
 
   const phases = projectPhases(db, projectId).filter((p) => p.status !== 'Closed')
@@ -98,7 +100,7 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
 
   const amount =
     category === 'material' ? num(quantity) * num(rate)
-      : category === 'labour' ? num(dailyRate) * num(days)
+      : category === 'labour' ? (labourBasis === 'contract' ? num(quantity) * num(rate) : num(dailyRate) * num(days))
         : category === 'outsource' ? (basis === 'fixed' ? num(fixedAmount) : num(quantity) * num(rate))
           : num(otherAmount)
 
@@ -117,12 +119,14 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
     && (category !== 'labour' || workerName.trim())
     && (category !== 'material' || !tOn || (num(tAmount) > 0 && (tVia !== 'transporter' || (tSupplier && tInvoiceNo.trim()))))
 
-  function save() {
+  async function save() {
     if (!valid) return
     const base = { projectId, phaseId, category, subType, date }
     let input
     if (category === 'material') input = { ...base, description: description || subType, quantity: num(quantity), unit, rate: num(rate), amount, supplierId }
-    else if (category === 'labour') input = { ...base, description: `${subType} — ${workerName}`, workerName, dailyRate: num(dailyRate), days: num(days), otHours: otHours === '' ? undefined : otHours, amount }
+    else if (category === 'labour') input = labourBasis === 'contract'
+      ? { ...base, description: description || `${subType} contract — ${workerName}`, labourBasis, workerName, quantity: num(quantity), unit, rate: num(rate), amount }
+      : { ...base, description: `${subType} — ${workerName}`, labourBasis, workerName, dailyRate: num(dailyRate), days: num(days), otHours: otHours === '' ? undefined : otHours, amount }
     else if (category === 'outsource') input = basis === 'fixed'
       ? { ...base, description: description || subType, basis, quantity: 1, unit: 'Fixed', rate: amount, amount, supplierId }
       : { ...base, description: description || subType, basis, quantity: num(quantity), unit, rate: num(rate), amount, supplierId }
@@ -131,14 +135,12 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
     const inv: A.SupplierInvoiceInput = !needsSupplier ? { mode: 'none' }
       : invoiceMode === 'existing' ? { mode: 'existing', supplierInvoiceId: existingInvoice }
         : { mode: 'new', invoiceNumber, invoiceDate, dueDate }
-    let [next, exp] = A.addExpense(db, input, inv)
-    let msg = `${exp.id} recorded · ${formatINR(amount)} to ${phase?.name}`
-    if (category === 'material' && tOn && num(tAmount) > 0) {
-      ;[next] = A.addTransportCharge(next, exp.id, { amount: num(tAmount), date, payment: transportPayment(tVia, tSupplier, tInvoiceNo, date) })
-      msg += ` + ${formatINR(num(tAmount))} transport`
-    }
-    commit(next, msg)
-    onClose()
+    const transport = category === 'material' && tOn && num(tAmount) > 0
+      ? { amount: num(tAmount), date, payment: transportPayment(tVia, tSupplier, tInvoiceNo, date) } : undefined
+    const r = await run('addExpense', [input, inv, transport], {
+      success: (exp: { id: string }) => `${exp.id} recorded · ${formatINR(amount)} to ${phase?.name}${transport ? ` + ${formatINR(transport.amount)} transport` : ''}`,
+    })
+    if (r.ok) onClose()
   }
 
   return (
@@ -184,7 +186,7 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
           </Select>
         </Field>
         {category === 'labour' ? (
-          <Field label="Worker name" className="sm:col-span-2"><Input value={workerName} onChange={(e) => setWorkerName(e.target.value)} placeholder="e.g. Murugan" /></Field>
+          <Field label={labourBasis === 'contract' ? 'Labour contractor' : 'Worker name'} className="sm:col-span-2"><Input value={workerName} onChange={(e) => setWorkerName(e.target.value)} placeholder={labourBasis === 'contract' ? 'e.g. Selvam (maistry)' : 'e.g. Murugan'} /></Field>
         ) : (
           <Field label="Description" className="sm:col-span-2"><Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder={category === 'material' ? 'e.g. OPC 53 grade cement' : 'e.g. Painting outsource – exterior'} /></Field>
         )}
@@ -204,12 +206,33 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
         )}
 
         {category === 'labour' && (
-          <div className="grid grid-cols-2 items-end gap-3 sm:grid-cols-4">
-            <Field label="Daily rate (₹)"><NumberInput value={dailyRate} onChange={setDailyRate} min={0} /></Field>
-            <Field label="Working days"><NumberInput value={days} onChange={setDays} min={0} /></Field>
-            <Field label="OT hours" hint="Optional · not costed yet"><NumberInput value={otHours} onChange={setOtHours} min={0} /></Field>
-            <CalcResult formula={`${formatINR(num(dailyRate))} × ${num(days)} days`} amount={amount} />
-          </div>
+          <>
+            <div className="mb-3 inline-flex rounded-lg bg-white p-0.5 ring-1 ring-slate-200">
+              {(['daily', 'contract'] as const).map((b) => (
+                <button key={b} type="button" onClick={() => setLabourBasis(b)} className={clsx('rounded-md px-3 py-1.5 text-xs font-medium', labourBasis === b ? 'bg-navy-900 text-white' : 'text-slate-600')}>
+                  {b === 'daily' ? 'Own labour (daily wage)' : 'Contract (per sq.ft)'}
+                </button>
+              ))}
+            </div>
+            {labourBasis === 'daily' ? (
+              <div className="grid grid-cols-2 items-end gap-3 sm:grid-cols-4">
+                <Field label="Daily rate (₹)"><NumberInput value={dailyRate} onChange={setDailyRate} min={0} /></Field>
+                <Field label="Working days"><NumberInput value={days} onChange={setDays} min={0} /></Field>
+                <Field label="OT hours" hint="Optional · not costed yet"><NumberInput value={otHours} onChange={setOtHours} min={0} /></Field>
+                <CalcResult formula={`${formatINR(num(dailyRate))} × ${num(days)} days`} amount={amount} />
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 items-end gap-3 sm:grid-cols-4">
+                  <Field label="Area / Quantity"><NumberInput value={quantity} onChange={setQuantity} min={0} /></Field>
+                  <Field label="Unit"><Select value={unit} onChange={(e) => setUnit(e.target.value)}>{LABOUR_CONTRACT_UNITS.map((u) => <option key={u}>{u}</option>)}</Select></Field>
+                  <Field label={`Rate (₹ / ${unit})`}><NumberInput value={rate} onChange={setRate} min={0} /></Field>
+                  <CalcResult formula={`${num(quantity).toLocaleString('en-IN')} ${unit} × ${formatINR(num(rate))}`} amount={amount} />
+                </div>
+                <Field label="Work description" className="mt-3"><Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g. Ground floor brickwork & plastering" /></Field>
+              </>
+            )}
+          </>
         )}
 
         {category === 'outsource' && (
@@ -300,7 +323,7 @@ export function ExpenseForm({ open, onClose, defaults = {} }: { open: boolean; o
       {phase && amount > 0 && (
         <div className="mt-4">
           <Callout tone={catAfter > catPlanned ? 'warning' : 'info'}>
-            After this entry, <b>{phase.name}</b> {category === 'labour' ? 'own labour' : category} cost will be <b>{formatINR(catAfter)}</b> against a budget of <b>{formatINR(catPlanned)}</b>
+            After this entry, <b>{phase.name}</b> {category} cost will be <b>{formatINR(catAfter)}</b> against a budget of <b>{formatINR(catPlanned)}</b>
             {catAfter > catPlanned ? <> — <b>over budget by {formatINR(catAfter - catPlanned)}</b>.</> : '.'}
           </Callout>
         </div>
@@ -352,7 +375,7 @@ function TransportFields(p: {
 
 /** Add transport / freight to an existing material purchase. */
 export function TransportForm({ open, onClose, purchaseId }: { open: boolean; onClose: () => void; purchaseId: string }) {
-  const { db, commit } = useStore()
+  const { db, run } = useStore()
   const purchase = db.expenses.find((e) => e.id === purchaseId)
   const [amount, setAmount] = useState<number | ''>('')
   const [date, setDate] = useState(today())
@@ -366,11 +389,11 @@ export function TransportForm({ open, onClose, purchaseId }: { open: boolean; on
   const pView = pInv ? supplierInvoiceView(db, pInv) : null
   const sameOk = !!pView && supplierInvoiceOpenForLines(pView)
   const valid = num(amount) > 0 && (via !== 'transporter' || (supplier && invoiceNo.trim())) && (via !== 'sameInvoice' || sameOk)
-  function save() {
+  async function save() {
     if (!valid || !purchase) return
-    const [next, t] = A.addTransportCharge(db, purchase.id, { amount: num(amount), date, payment: transportPayment(via, supplier, invoiceNo, date) })
-    commit(next, `${t.id} transport ${formatINR(num(amount))} added to ${purchase.id}`)
-    onClose()
+    const r = await run('addTransportCharge', [purchase.id, { amount: num(amount), date, payment: transportPayment(via, supplier, invoiceNo, date) }],
+      { success: (t: { id: string }) => `${t.id} transport ${formatINR(num(amount))} added to ${purchase.id}` })
+    if (r.ok) onClose()
   }
   return (
     <Modal open={open} onClose={onClose} title="Add Transport to Purchase" subtitle={`${purchase.id} · ${purchase.subType} — ${purchase.description}`} width="max-w-2xl"
@@ -403,7 +426,7 @@ function CalcResult({ formula, amount }: { formula: string; amount: number }) {
 // =============================================================================
 
 export function SupplierPaymentForm({ open, onClose, supplierInvoiceId, supplierId }: { open: boolean; onClose: () => void; supplierInvoiceId?: string; supplierId?: string }) {
-  const { db, commit } = useStore()
+  const { db, run } = useStore()
   const candidates = db.supplierInvoices
     .filter((i) => !supplierId || i.supplierId === supplierId)
     .map((i) => supplierInvoiceView(db, i))
@@ -432,12 +455,12 @@ export function SupplierPaymentForm({ open, onClose, supplierInvoiceId, supplier
   const balance = inv ? inv.pending - settling : 0
   const valid = inv && num(amount) >= 0 && num(discount) >= 0 && settling > 0 && settling <= inv.pending
 
-  function save() {
+  async function save() {
     if (!valid || !inv) return
     const d = num(discount)
-    commit(A.addSupplierPayment(db, { supplierInvoiceId: inv.id, date, amount: num(amount), ...(d > 0 ? { discount: d } : {}), method, reference: reference || `${method === 'Cash' ? 'CASH' : 'NEFT'}/${date.replaceAll('-', '')}` }),
-      `Paid ${formatINR(num(amount))}${d > 0 ? ` + ${formatINR(d)} discount` : ''} to ${supplier?.name}${balance === 0 ? ' · invoice settled' : ''}`)
-    onClose()
+    const r = await run('addSupplierPayment', [{ supplierInvoiceId: inv.id, date, amount: num(amount), ...(d > 0 ? { discount: d } : {}), method, reference: reference || `${method === 'Cash' ? 'CASH' : 'NEFT'}/${date.replaceAll('-', '')}` }],
+      { success: `Paid ${formatINR(num(amount))}${d > 0 ? ` + ${formatINR(d)} discount` : ''} to ${supplier?.name}${balance === 0 ? ' · invoice settled' : ''}` })
+    if (r.ok) onClose()
   }
 
   return (
@@ -488,7 +511,7 @@ export function SupplierPaymentForm({ open, onClose, supplierInvoiceId, supplier
 // =============================================================================
 
 export function ClientInvoiceForm({ open, onClose, projectId: pDefault, phaseId: phDefault }: { open: boolean; onClose: () => void; projectId?: string; phaseId?: string }) {
-  const { db, commit } = useStore()
+  const { db, run } = useStore()
   const projects = useOpenProjects().filter((p) => p.status !== 'Contract Pending')
   const [projectId, setProjectId] = useState('')
   const [phaseId, setPhaseId] = useState('')
@@ -527,11 +550,11 @@ export function ClientInvoiceForm({ open, onClose, projectId: pDefault, phaseId:
   const billablePhases = projectPhases(db, projectId).filter((p) => p.contractValue - phaseBilling(db, p.id).billed > 0)
   const valid = info && num(amount) > 0 && num(amount) <= info.unbilled && description.trim()
 
-  function save() {
+  async function save() {
     if (!valid) return
-    const [next, inv] = A.addClientInvoice(db, { projectId, phaseId, description, invoiceDate, dueDate, amount: num(amount) })
-    commit(next, `${inv.invoiceNumber} generated for ${formatINR(inv.amount)}`)
-    onClose()
+    const r = await run('addClientInvoice', [{ projectId, phaseId, description, invoiceDate, dueDate, amount: num(amount) }],
+      { success: (inv: { invoiceNumber: string; amount: number }) => `${inv.invoiceNumber} generated for ${formatINR(inv.amount)}` })
+    if (r.ok) onClose()
   }
 
   const pct = (p: number) => info && setAmount(Math.round((info.ph.contractValue * p) / 100))
@@ -584,7 +607,7 @@ export function ClientInvoiceForm({ open, onClose, projectId: pDefault, phaseId:
 // =============================================================================
 
 export function ClientPaymentForm({ open, onClose, invoiceId, projectId }: { open: boolean; onClose: () => void; invoiceId?: string; projectId?: string }) {
-  const { db, commit } = useStore()
+  const { db, run } = useStore()
   const candidates = db.clientInvoices
     .filter((i) => !projectId || i.projectId === projectId)
     .map((i) => ({ inv: i, paid: clientInvoicePaid(db, i.id) }))
@@ -611,11 +634,11 @@ export function ClientPaymentForm({ open, onClose, invoiceId, projectId }: { ope
   const history = db.clientPayments.filter((p) => p.clientInvoiceId === invId)
   const valid = sel && num(amount) > 0 && num(amount) <= pending
 
-  function save() {
+  async function save() {
     if (!valid || !sel) return
-    commit(A.addClientPayment(db, { clientInvoiceId: sel.inv.id, date, amount: num(amount), method, reference: reference || `REF/${date.replaceAll('-', '')}` }),
-      `Receipt of ${formatINR(num(amount))} recorded against ${sel.inv.invoiceNumber}`)
-    onClose()
+    const r = await run('addClientPayment', [{ clientInvoiceId: sel.inv.id, date, amount: num(amount), method, reference: reference || `REF/${date.replaceAll('-', '')}` }],
+      { success: `Receipt of ${formatINR(num(amount))} recorded against ${sel.inv.invoiceNumber}` })
+    if (r.ok) onClose()
   }
 
   return (

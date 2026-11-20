@@ -50,7 +50,7 @@ export function buildFigures(db: Database) {
 
   const expenses = Object.fromEntries(db.expenses.map((e) => [e.id, {
     phaseId: e.phaseId, category: e.category, subType: e.subType, description: e.description, amount: e.amount,
-    quantity: e.quantity, unit: e.unit, rate: e.rate, dailyRate: e.dailyRate, days: e.days, workerName: e.workerName, basis: e.basis,
+    quantity: e.quantity, unit: e.unit, rate: e.rate, dailyRate: e.dailyRate, days: e.days, workerName: e.workerName, basis: e.basis, labourBasis: e.labourBasis,
     linkedExpenseId: e.linkedExpenseId, netAmount: expenseNetAmount(db, e),
     ...(e.category === 'material' && !e.linkedExpenseId ? { landedCost: purchaseLanding(db, e).landedCost } : {}),
   }]))
