@@ -18,7 +18,8 @@ export async function POST(request: Request) {
     switch (body.action) {
       case 'login': {
         const username = String(body.username ?? '').trim()
-        const password = String(body.password ?? '')
+        // Passwords never start or end with a space, so a space picked up when copying is ignored.
+        const password = String(body.password ?? '').trim()
         if (!username || !password) throw new HttpError(400, 'Enter your username and password')
         const { token, user } = await login(username, password)
         await logAction({ userId: user.id, userName: user.name, action: 'login', summary: `${user.username} signed in`, changes: [] })

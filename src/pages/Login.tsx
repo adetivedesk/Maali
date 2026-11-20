@@ -81,7 +81,7 @@ export function PasswordForm({ onDone, submitLabel = 'Change password' }: { onDo
     <form onSubmit={submit} className="space-y-3.5">
       <div><label className={label} htmlFor="cp">Current password</label><input id="cp" type="password" className={input} autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} /></div>
       <div><label className={label} htmlFor="np">New password</label><input id="np" type="password" className={input} autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} />
-        <p className="mt-1 text-[11px] text-slate-500">At least 8 characters, with letters and numbers.</p></div>
+        <p className="mt-1 text-[11px] text-slate-500">At least 8 characters, with letters and numbers, no spaces at the start or end.</p></div>
       <div><label className={label} htmlFor="cf">Confirm new password</label><input id="cf" type="password" className={input} autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
         {mismatch && <p className="mt-1 text-[11px] text-red-600">Passwords do not match</p>}</div>
       {error && <div className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">{error}</div>}

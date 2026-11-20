@@ -31,6 +31,7 @@ async function verifyPassword(password: string, stored: string): Promise<boolean
 export function checkPasswordStrength(pw: unknown): string {
   if (typeof pw !== 'string' || pw.length < MIN_PASSWORD) throw new HttpError(400, `Password must be at least ${MIN_PASSWORD} characters`)
   if (!/[A-Za-z]/.test(pw) || !/\d/.test(pw)) throw new HttpError(400, 'Password must contain letters and numbers')
+  if (pw !== pw.trim()) throw new HttpError(400, 'Password cannot start or end with a space')
   return pw
 }
 
